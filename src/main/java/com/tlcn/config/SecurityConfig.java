@@ -38,7 +38,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter{
 			.authorizeRequests()
 			.antMatchers("/").permitAll()
 			.antMatchers("/index").hasAuthority("ACCESS_INDEX")
-			.antMatchers("/fail").hasAuthority("CONFIRM_FORM")
 			.antMatchers("/invalidSession*").anonymous()
 		.and()
 		.formLogin()

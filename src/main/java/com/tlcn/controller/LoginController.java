@@ -3,6 +3,7 @@ package com.tlcn.controller;
 import java.util.Collection;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -38,6 +39,7 @@ public class LoginController {
 	public String Index(){
 		return "Login";
 	}
+	
 	@RequestMapping(value="/fail", method = RequestMethod.GET)
 	public String LoginFail(){
 		return "Fail";

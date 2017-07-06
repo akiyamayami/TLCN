@@ -16,7 +16,7 @@
 <link href="static/css/bootstrap.min.css" rel="stylesheet"/>
 <link href="static/css/main.css" rel="stylesheet"/>
 <style type="text/css">
-#main-region{
+#main-region1{
     border: 1px #e3e3e3 solid; 
     border-radius:10px;
     height:calc(100vh - 200px);
@@ -48,7 +48,7 @@ function validate() {
 <t:header>
 </t:header>
 <div class="container">
-    <div id="main-region">
+    <div id="main-region1">
         <div class="form">
 	        <c:if test="${not empty sessionScope.SPRING_SECURITY_LAST_EXCEPTION}">
 	    		<h1 id="error" class="alert alert-danger">

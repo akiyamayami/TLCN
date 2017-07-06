@@ -10,8 +10,11 @@
 <title>Home</title>
 <link href="static/css/bootstrap.min.css" rel="stylesheet"/>
 <link href="static/css/main.css" rel="stylesheet"/>
+<link href="static/css/bootstrap-datepicker3.min.css" rel="stylesheet"/>
+<link href="static/css/font-awesome.min.css" rel="stylesheet"/>
 <script type="text/javascript" src="static/js/bootstrap.min.js"></script>
 <script type="text/javascript" src="static/js/main.js"></script>
+<script type="text/javascript" src="static/js/bootstrap-datepicker.min.js"></script>
 </head>
 <body>
 	<t:header>
@@ -22,35 +25,203 @@
 	        <div class="row">
 	            <div class="col-sm-9">
 	                <div class="main-content">
-	                <c:choose>
-	                	<c:when test='${MODE == "STUF"}'>
-	                		<div class="title-content">XXXX</div>
-		                    <table cellpadding="0" cellspacing="0" class="table table-striped table-content">
-		                        <thead>
-		                            <tr>
-		                                <th>Số Xe</th>
-		                                <th>Thông Tin</th>
-		                                <th>Loại</th>
-		                                <th>Ngày</th>
-		                                <th>Tình Trạng</th>
-		                            </tr>
-		                        </thead>
-		                        <tbody>
-		                            <tr>
-		                                <td>4</td>
-		                                <td>2</td>
-		                                <td>1</td>
-		                                <td>3</td>
-		                                <td>5asdasdasdasdasdasd</td>
-		                            </tr>
-		                        </tbody>
-		                    </table>
-	                	</c:when>
-	                	<c:when test='${MODE == "MODE_CREATE_FORM"}'>
-	                		
-	                	</c:when>
-	                </c:choose>
-	                    
+		                <c:choose>
+		                	<c:when test='${MODE == "MODE_FIND_PROPOSAL || MODE == "MODE_FIND_MY_PROPOSAL"}'>
+		                		<div class="title-content">XXXX</div>
+			                    <table cellpadding="0" cellspacing="0" class="table table-striped table-content">
+			                        <thead>
+			                            <tr>
+			                                <th>Số Xe</th>
+			                                <th>Thông Tin</th>
+			                                <th>Loại</th>
+			                                <th>Ngày</th>
+			                                <th>Tình Trạng</th>
+			                                <c:if test="${MODE == 'MODE_FIND_MY_PROPOSAL'}">
+			                                	<th> </th>
+			                                	<th> </th>
+			                               	</c:if>
+			                            </tr>
+			                        </thead>
+			                        <tbody>
+			                            <tr>
+			                                <td>4</td>
+			                                <td>2</td>
+			                                <td>1</td>
+			                                <td>3</td>
+			                                <td>5asdasdasdasdasdasd</td>
+			                                <c:if test="${MODE == 'MODE_FIND_MY_PROPOSAL'}">
+			                                	<td><a href="/cancel-proposal-x">Hủy</a></td>
+			                                	<td><a href="/change-proposal-x">Sửa</a></td>
+			                                </c:if>
+			                            </tr>
+			                        </tbody>
+			                    </table>
+		                	</c:when>
+		                	<c:when test='${MODE == "MODE_CREATE_FORM" || MODE == "MODE_CHANGE_FORM"}'>
+		                		<c:if test='${MODE == "MODE_CREATE_FORM"}'>
+		                			<div class="title-content">Tạo Đề Nghị</div>
+		                		</c:if>
+		                		<c:if test='${MODE == "MODE_CHANGE_FORM"}'>
+		                			<div class="title-content">Chỉnh sữa Đề Nghị</div>
+		                		</c:if>
+			                    <form class="form-horizontal">
+			                        <div class="form-group">
+			                            <label class="control-label col-sm-3">Tên</label>
+			                                <div class="col-sm-7">
+			                                    <input type="text" class="form-control" >
+			                                </div>
+			                        </div>
+			                        <div class="form-group">
+			                            <label class="control-label col-sm-3" >Chi Tiết</label>
+			                                <div class="col-sm-7">
+			                                    <textarea class="form-control" cols="30" rows="10"></textarea>
+			                                </div>
+			                        </div>
+			                        <div class="form-group">
+			                            <label class="control-label col-sm-3">Xe</label>
+			                            <div class="col-sm-7">
+			                                    <select class="btn btn-choose">
+			                                        <option>BWM - 4 Chỗ - Nguyễn Văn A </option>
+			                                        <option>BWM - 4 Chỗ - Nguyễn Văn A</option>
+			                                        <option>BWM - 4 Chỗ - Nguyễn Văn A</option>
+			                                        <option>BWM - 4 Chỗ - Nguyễn Văn A</option>
+			                                    </select>
+			                                    <i class="fa fa-info-circle fa-lg icon-show-deital" aria-hidden="true"></i>
+			                                </div>
+			                            <div class="col-sm-offset-3 col-sm-7">
+			                                <div class="detail-car">
+			                                    <div class="row">
+			                                        <div class="col-sm-3">
+			                                            <img src="https://goo.gl/ZVUgrD" height="100px" width="80px" />
+			                                        </div>
+			                                    </div>
+			                                </div>
+			                            </div>
+			                        </div>
+			                        <div class="form-group">
+			                            <label class="control-label col-sm-3">Thời gian sử dụng</label>
+			                            <div class="col-sm-7">
+			                                <div class="col-sm-3" style="padding-left:0px;">
+			                                    <select class="btn btn-choose" id="select-time-use">
+			                                        <option selected value="inday">Trong Ngày</option>
+			                                        <option value="manyday">Nhiều Ngày</option>
+			                                    </select>
+			                                </div>
+			                                
+			                                <div class="col-sm-4" id="in-day">
+			                                    <input class="form-control date-picker" type="text" />
+			                                </div>
+			                                <div class="col-sm-9 padding-right-zero" id="many-day">
+			                                    <div class="col-sm-1 padding-left-zero">
+			                                        <label class="control-label">Từ</label>
+			                                    </div>
+			                                    <div class="col-sm-5 padding-left-zero">
+			                                        <input type="text" class="form-control date-picker"/>
+			                                    </div>
+			                                    <div class="col-sm-1 padding-left-zero">
+			                                        <label class="control-label">Đến</label>
+			                                    </div>
+			                                    <div class="col-sm-5 padding-right-zero">
+			                                        <input type="text" class="form-control date-picker"/>
+			                                    </div>
+			                                </div> 
+			                            </div>
+			                        </div>
+			                        <div class="form-group">
+			                            <label class="control-label col-sm-3">Tệp đính kèm</label>
+			                            <div class="col-sm-7">
+			                            	<input type="file" class="form-control" >
+			                            </div>
+			                            <c:if test='${MODE == "MODE_CHANGE_FORM"}'>
+			                            	<a href="#" class="control-label col-sm-3" style="text-align:left;" >home.pdf</a>
+			                           	</c:if>
+			                        </div>
+			                        <div class="form-group"> 
+			                        	<c:if test='${MODE == "MODE_CREATE_FORM"}'>
+			                        		<div class="col-sm-offset-5 col-sm-2">
+				                                <button type="submit" class="btn btn-default">Submit</button>
+				                            </div>
+			                        	</c:if>
+			                        	<c:if test='${MODE == "MODE_CHANGE_FORM"}'>
+			                        		<div class="col-sm-offset-5 col-sm-4">
+				                                <button type="submit" name="type" value="change"class="btn btn-default" value="remove">Chỉnh sữa</button>
+				                                <button type="submit" name="type" id="qwe" class="btn btn-default" value="change">Xóa</button>
+				                                <button type="submit" class="btn btn-default">Hủy</button>
+				                            </div>
+			                        	</c:if>
+			                            
+			                        </div>
+			                    </form>
+		                	</c:when>
+		                	<c:when test='${MODE == "MODE_CHECK_CARS"}'>
+		                		<div class="title-content">Kiểm tra tình trạng hoạt động của xe</div>
+			                    <div class="">
+			                        <ul class="nav nav-tabs nav-justified" >
+			                            <li class="active" ><a href="#ready" data-toggle="tab">Sẵn sàng</a></li>
+			                            <li  ><a href="#registered"  data-toggle="tab">Đã đăng ký</a></li>
+			                            <li  ><a href="#inactive" data-toggle="tab">Không hoạt động</a></li>
+			                        </ul>
+			                        <div class="tab-content">
+			                            <div class="tab-pane fade in active" id="ready">
+			                                <table cellpadding="0" cellspacing="0" class="table table-striped table-content">
+						                        <thead>
+						                            <tr>
+						                                <th>Số Xe</th>
+						                                <th>Thông Tin</th>
+						                                <th>Loại</th>
+						                            </tr>
+						                        </thead>
+						                        <tbody>
+						                            <tr>
+						                                <td>4</td>
+						                                <td>2</td>
+						                                <td>1</td>
+						                            </tr>
+						                        </tbody>
+						                    </table>
+			                            </div>
+			                            <div class="tab-pane fade" id="registered">
+			                                <table cellpadding="0" cellspacing="0" class="table table-striped table-content">
+						                        <thead>
+						                            <tr>
+						                                <th>Số Xe</th>
+						                                <th>Thông Tin</th>
+						                                <th>Loại</th>
+						                            </tr>
+						                        </thead>
+						                        <tbody>
+						                            <tr>
+						                                <td>4</td>
+						                                <td>2</td>
+						                                <td>1</td>
+						                            </tr>
+						                        </tbody>
+						                    </table>
+			                            </div>
+			                            <div class="tab-pane fade" id="inactive">
+			                                <table cellpadding="0" cellspacing="0" class="table table-striped table-content">
+						                        <thead>
+						                            <tr>
+						                                <th>Số Xe</th>
+						                                <th>Thông Tin</th>
+						                                <th>Loại</th>
+			                                            <th>Loại</th>
+						                            </tr>
+						                        </thead>
+						                        <tbody>
+						                            <tr>
+						                                <td>4</td>
+						                                <td>2</td>
+						                                <td>1</td>
+			                                            <td>1</td>
+						                            </tr>
+						                        </tbody>
+						                    </table>
+			                            </div>
+			                        </div>
+			                    </div>
+		                	</c:when>
+		                </c:choose>
 	                </div>
 	            </div>
 	            <div class="col-sm-3">
