@@ -16,5 +16,6 @@
 - Chuột phải vào project trong Elicpse > Maven > Update Project.
 - Mở file TLCN/src/main/resources/application.properties và đổi username và password theo mysql trên máy.
     >spring.datasource.username=xxx
+    >\
     >spring.datasource.password=yyy
--  bỏ dâu # ở #spring.jpa.properties.hibernate.hbm2ddl.auto= và điền giá trị create
+-  Bỏ dấu # ở #spring.jpa.properties.hibernate.hbm2ddl.auto= và điền giá trị create(để tự tạo databases và thêm lại dấu # ở các lần chạy tiếp theo)
