@@ -13,9 +13,10 @@
     $ git clone https://github.com/akiyamayami/TLCN.git  
     ```
 - Import project vào eclipse (import Existing Maven Projects).
-- Chuột phải vào project trong Elicpse > Maven > Update Project.
+- Nhấp chuột phải vào project trong Elicpse > Maven > Update Project.
 - Mở file TLCN/src/main/resources/application.properties và đổi username và password theo mysql trên máy.
     >spring.datasource.username=xxx
     >\
     >spring.datasource.password=yyy
 -  Bỏ dấu # ở #spring.jpa.properties.hibernate.hbm2ddl.auto= và điền giá trị create(để tự tạo databases và thêm lại dấu # ở các lần chạy tiếp theo)
+-	Nhấp chuột phải vào project > Run as > Spring boot App
