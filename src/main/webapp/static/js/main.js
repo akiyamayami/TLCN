@@ -32,6 +32,16 @@ $(document).ready(function(){
         }
     });
     //
+    
+    $(".driver-info").hide();
+    $('.show-deital-driver').click(function(){
+        $(".driver-info").hide();
+        var row_index = $(this).closest("tr").index();
+        alert(row_index);
+        var idinfo = "#driver-info-"+row_index;
+        alert(idinfo);
+        $(idinfo).show();
+    });
 });
 
 function setcurrentday(){

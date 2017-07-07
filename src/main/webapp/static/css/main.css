@@ -98,7 +98,8 @@ body {
 #main-region{
     #border: 1px #e3e3e3 solid; 
     border-radius:10px;
-    height:calc(100vh - 200px);
+    #height:calc(100vh - 200px);
+    height:100%;
     margin-top:10px;
     margin-bottom:10px;
 } 
@@ -230,4 +231,53 @@ body {
 .table-content{
     table-layout: fixed;
     width: 100%;
+}
+
+/* Tao de nghi*/ 
+textarea {
+    resize: none;
+}
+
+.btn-choose{
+    background-color:white;
+    border:1px solid #e3e3e3;
+}
+.detail-car{
+    border:1px solid rgb(204, 204, 204);
+    border-radius:5px;
+    padding:5px;
+    margin-top:5px;
+}
+
+.date-picker{
+    height: 32px;
+}
+#many-day{
+    
+}
+
+.padding-left-zero{
+    padding-left: 0px;;
+}
+.padding-right-zero{
+    padding-right: 0px;;
+}
+
+/*tab */
+.text-center > th, .text-center > td{
+    text-align:center;
+}
+
+/* show info driver*/
+
+.driver-info {
+    
+    text-align:left;
+}
+
+.driver-info > td {
+    border: 1px solid rgb(221, 221, 221);
+}
+.driver-info > strong {
+    float :right;
 }

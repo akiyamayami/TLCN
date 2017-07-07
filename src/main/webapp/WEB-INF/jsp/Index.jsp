@@ -62,7 +62,7 @@
 			                        </tbody>
 			                    </table>
 		                	</c:when>
-		                	<c:when test='${MODE == "MODE_CREATE_PROPOSAL" || MODE == "MODE_CHANGE_PROPOSAL"}'>
+		                	<c:when test='${MODE == "MODE_CREATE_PROPOSAL" || MODE == "MODE_CHANGE_PROPOSAL" || MODE = "MODE_CONFIRM_PROPOSAL"}'>
 		                		<c:if test='${MODE == "MODE_CREATE_PROPOSAL"}'>
 		                			<div class="title-content">Tạo Đề nghị</div>
 		                		</c:if>
@@ -162,11 +162,9 @@
 				                        	</c:if>
 			                            </sec:authorize>
 			                            <sec:authorize access="hasAuthority('CONFIRM_FORM')">
-			                            	<c:if test='${MODE == "MODE_CONFIRM_FORM"}'>
-			                            		<button type="submit" name="type" value="confirm" class="btn btn-default" >Chỉnh sữa</button>
-					                            <button type="submit" name="type" class="btn btn-default" value="cancel">Xóa</button>
-					                            <button class="btn btn-default">Trở về</button>
-			                            	</c:if>
+				                            <button type="submit" name="type" value="confirm" class="btn btn-default" >Chỉnh sữa</button>
+						                    <button type="submit" name="type" class="btn btn-default" value="cancel">Xóa</button>
+						                    <button class="btn btn-default">Trở về</button>
 			                            </sec:authorize>
 			                        </div>
 			                    </form>
@@ -176,8 +174,8 @@
 			                    <div class="">
 			                        <ul class="nav nav-tabs nav-justified" >
 			                            <li class="active" ><a href="#ready" data-toggle="tab">Sẵn sàng</a></li>
-			                            <li  ><a href="#registered"  data-toggle="tab">Đã đăng ký</a></li>
-			                            <li  ><a href="#inactive" data-toggle="tab">Không hoạt động</a></li>
+			                            <li><a href="#registered"  data-toggle="tab">Đã đăng ký</a></li>
+			                            <li><a href="#inactive" data-toggle="tab">Không hoạt động</a></li>
 			                        </ul>
 			                        <div class="tab-content">
 			                            <div class="tab-pane fade in active" id="ready">
@@ -238,6 +236,152 @@
 			                            </div>
 			                        </div>
 			                    </div>
+		                	</c:when>
+		                	<c:when test='${MODE == "MODE_FIND_CARS"}'>
+		                		<div class="title-content">Kiểm tra tình trạng hoạt động của xe</div>
+			                    <table cellpadding="0" cellspacing="0" class="table table-striped table-content">
+			                        <thead>
+			                            <tr>
+			                                <th>Số Xe</th>
+			                                <th>Thông Tin</th>
+			                                <th>Loại</th>
+			                                <th>Thông Tin</th>
+			                                <th>Chi tiết</th>
+			                            </tr>
+			                        </thead>
+			                        <tbody>
+			                            <tr>
+			                                <td>4</td>
+			                                <td>2</td>
+			                                <td>1</td>
+			                                <td>2</td>
+			                                <td class="show-deital-driver"><a href="#"><i class="fa fa-info-circle fa-lg" aria-hidden="true"></i></a></td>
+			                            </tr>
+			                            <tr class="driver-info" id="driver-info-0">
+			                                <td colspan='5'>
+			                                    <div>Thông tin tài xế</div>
+			                                    <div class="row">
+			                                        <div class="col-sm-2">
+			                                            <img src="https://goo.gl/ZVUgrD" width="70px" height="80px">
+			                                        </div>
+			                                        <div class="col-sm-4">
+			                                            <div class="col-sm-6">
+			                                                <p><strong>Tên :</strong></p>
+			                                                <p><strong>Ngày Sinh :</strong></p>
+			                                                <p><strong>Bằng Lái :</strong></p>  
+			                                            </div>
+			                                            <div class="col-sm-6">
+			                                                <p>Nguyễn Văn A</p>
+			                                                <p>24/9/1996</p>
+			                                                <p>A1</p>
+			                                            </div>
+			                                        </div>
+			                                        <div class="col-sm-6">
+			                                            <div class="col-sm-4">
+			                                                <p><strong>Tên :</strong></p>
+			                                                <p><strong>Ngày Sinh :</strong></p>
+			                                                <p><strong>Bằng Lái :</strong></p>  
+			                                            </div>
+			                                            <div class="col-sm-6">
+			                                                <p>Nguyễn Văn A</p>
+			                                                <p>24/9/1996</p>
+			                                                <p>A1</p>
+			                                            </div>
+			                                        </div>
+			                                    </div>
+			                                </td>
+			                            </tr>
+			                            <tr>
+			                                <td>4</td>
+			                                <td>2</td>
+			                                <td>1</td>
+			                                <td>2</td>
+			                                <td class="show-deital-driver"><a href="#"><i class="fa fa-info-circle fa-lg" aria-hidden="true"></i></a></td>
+			                            </tr>
+			                            <tr class="driver-info" id="driver-info-2">
+			                                <td colspan='5'>
+			                                    <div>Thông tin tài xế</div>
+			                                    <div class="row">
+			                                        <div class="col-sm-2">
+			                                            <img src="https://goo.gl/ZVUgrD" width="70px" height="80px">
+			                                        </div>
+			                                        <div class="col-sm-4">
+			                                            <div class="col-sm-6">
+			                                                <p><strong>Tên :</strong></p>
+			                                                <p><strong>Ngày Sinh :</strong></p>
+			                                                <p><strong>Bằng Lái :</strong></p>  
+			                                            </div>
+			                                            <div class="col-sm-6">
+			                                                <p>Nguyễn Văn A</p>
+			                                                <p>24/9/1996</p>
+			                                                <p>A1</p>
+			                                            </div>
+			                                        </div>
+			                                        <div class="col-sm-6">
+			                                            <div class="col-sm-4">
+			                                                <p><strong>Tên :</strong></p>
+			                                                <p><strong>Ngày Sinh :</strong></p>
+			                                                <p><strong>Bằng Lái :</strong></p>  
+			                                            </div>
+			                                            <div class="col-sm-6">
+			                                                <p>Nguyễn Văn A</p>
+			                                                <p>24/9/1996</p>
+			                                                <p>A1</p>
+			                                            </div>
+			                                        </div>
+			                                    </div>
+			                                </td>
+			                            </tr>
+			                            <tr>
+			                                <td>4</td>
+			                                <td>2</td>
+			                                <td>1</td>
+			                                <td>2</td>
+			                                <td><a href="#">show</a></td>
+			                            </tr>
+			                            <tr class="driver-info" id="driver-info-4">
+			                                <td colspan='5'>
+			                                    <div>Thông tin tài xế</div>
+			                                    <div class="row">
+			                                        <div class="col-sm-2">
+			                                            <img src="https://goo.gl/ZVUgrD" width="70px" height="80px">
+			                                        </div>
+			                                        <div class="col-sm-4">
+			                                            <div class="col-sm-6">
+			                                                <p><strong>Tên :</strong></p>
+			                                                <p><strong>Ngày Sinh :</strong></p>
+			                                                <p><strong>Bằng Lái :</strong></p>  
+			                                            </div>
+			                                            <div class="col-sm-6">
+			                                                <p>Nguyễn Văn A</p>
+			                                                <p>24/9/1996</p>
+			                                                <p>A1</p>
+			                                            </div>
+			                                        </div>
+			                                        <div class="col-sm-6">
+			                                            <div class="col-sm-4">
+			                                                <p><strong>Tên :</strong></p>
+			                                                <p><strong>Ngày Sinh :</strong></p>
+			                                                <p><strong>Bằng Lái :</strong></p>  
+			                                            </div>
+			                                            <div class="col-sm-6">
+			                                                <p>Nguyễn Văn A</p>
+			                                                <p>24/9/1996</p>
+			                                                <p>A1</p>
+			                                            </div>
+			                                        </div>
+			                                    </div>
+			                                </td>
+			                            </tr>
+			                            <tr>
+			                                <td>4</td>
+			                                <td>2</td>
+			                                <td>1</td>
+			                                <td>2</td>
+			                                <td><a href="#">show</a></td>
+			                            </tr>
+			                        </tbody>
+			                    </table>
 		                	</c:when>
 		                </c:choose>
 	                </div>
