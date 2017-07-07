@@ -49,4 +49,9 @@ public class LoginController {
 	public String invalidSession(){
 		return "invalidSession";
 	}
+	@RequestMapping(value="/accessDenied", method = RequestMethod.GET)
+	public String accessDenied(){
+		return "accessDenied";
+	}
+	
 }

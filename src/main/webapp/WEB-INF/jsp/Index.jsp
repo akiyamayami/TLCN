@@ -6,15 +6,15 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<title>Home</title>
-<link href="static/css/bootstrap.min.css" rel="stylesheet"/>
-<link href="static/css/main.css" rel="stylesheet"/>
-<link href="static/css/bootstrap-datepicker3.min.css" rel="stylesheet"/>
-<link href="static/css/font-awesome.min.css" rel="stylesheet"/>
-<script type="text/javascript" src="static/js/bootstrap.min.js"></script>
-<script type="text/javascript" src="static/js/main.js"></script>
-<script type="text/javascript" src="static/js/bootstrap-datepicker.min.js"></script>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<title>Home</title>
+	<link href="static/css/bootstrap.min.css" rel="stylesheet"/>
+	<link href="static/css/main.css" rel="stylesheet"/>
+	<link href="static/css/bootstrap-datepicker3.min.css" rel="stylesheet"/>
+	<link href="static/css/font-awesome.min.css" rel="stylesheet"/>
+	<script type="text/javascript" src="static/js/bootstrap.min.js"></script>
+	<script type="text/javascript" src="static/js/main.js"></script>
+	<script type="text/javascript" src="static/js/bootstrap-datepicker.min.js"></script>
 </head>
 <body>
 	<t:header>
@@ -26,8 +26,13 @@
 	            <div class="col-sm-9">
 	                <div class="main-content">
 		                <c:choose>
-		                	<c:when test='${MODE == "MODE_FIND_PROPOSAL || MODE == "MODE_FIND_MY_PROPOSAL"}'>
-		                		<div class="title-content">XXXX</div>
+		                	<c:when test='${MODE == "MODE_FIND_PROPOSAL" || MODE == "MODE_FIND_MY_PROPOSAL"}'>
+		                		<c:if test="${MODE == 'MODE_FIND_PROPOSAL'}">
+		                			<div class="title-content">Tìm đề nghị</div>
+		                		</c:if>
+		                		<c:if test="${MODE == 'MODE_FIND_MY_PROPOSAL'}">
+		                			<div class="title-content">Đề nghị của tôi</div>
+		                		</c:if>
 			                    <table cellpadding="0" cellspacing="0" class="table table-striped table-content">
 			                        <thead>
 			                            <tr>
@@ -57,12 +62,15 @@
 			                        </tbody>
 			                    </table>
 		                	</c:when>
-		                	<c:when test='${MODE == "MODE_CREATE_FORM" || MODE == "MODE_CHANGE_FORM"}'>
-		                		<c:if test='${MODE == "MODE_CREATE_FORM"}'>
-		                			<div class="title-content">Tạo Đề Nghị</div>
+		                	<c:when test='${MODE == "MODE_CREATE_PROPOSAL" || MODE == "MODE_CHANGE_PROPOSAL"}'>
+		                		<c:if test='${MODE == "MODE_CREATE_PROPOSAL"}'>
+		                			<div class="title-content">Tạo Đề nghị</div>
 		                		</c:if>
-		                		<c:if test='${MODE == "MODE_CHANGE_FORM"}'>
-		                			<div class="title-content">Chỉnh sữa Đề Nghị</div>
+		                		<c:if test='${MODE == "MODE_CHANGE_PROPOSAL"}'>
+		                			<div class="title-content">Chỉnh sữa đề nghị</div>
+		                		</c:if>
+		                		<c:if test='${MODE == "MODE_CONFIRM_PROPOSAL"}'>
+		                			<div class="title-content">Xem đề nghị</div>
 		                		</c:if>
 			                    <form class="form-horizontal">
 			                        <div class="form-group">
@@ -129,27 +137,37 @@
 			                        </div>
 			                        <div class="form-group">
 			                            <label class="control-label col-sm-3">Tệp đính kèm</label>
-			                            <div class="col-sm-7">
-			                            	<input type="file" class="form-control" >
-			                            </div>
-			                            <c:if test='${MODE == "MODE_CHANGE_FORM"}'>
+			                            <sec:authorize access="hasAuthority('CREATE_PROPOSAL')">
+				                            <div class="col-sm-7">
+				                            	<input type="file" class="form-control" >
+				                            </div>
+			                            </sec:authorize>
+			                            <c:if test='${MODE == "MODE_CHANGE_PROPOSAL"}'>
 			                            	<a href="#" class="control-label col-sm-3" style="text-align:left;" >home.pdf</a>
 			                           	</c:if>
 			                        </div>
 			                        <div class="form-group"> 
-			                        	<c:if test='${MODE == "MODE_CREATE_FORM"}'>
-			                        		<div class="col-sm-offset-5 col-sm-2">
-				                                <button type="submit" class="btn btn-default">Submit</button>
-				                            </div>
-			                        	</c:if>
-			                        	<c:if test='${MODE == "MODE_CHANGE_FORM"}'>
-			                        		<div class="col-sm-offset-5 col-sm-4">
-				                                <button type="submit" name="type" value="change"class="btn btn-default" value="remove">Chỉnh sữa</button>
-				                                <button type="submit" name="type" id="qwe" class="btn btn-default" value="change">Xóa</button>
-				                                <button type="submit" class="btn btn-default">Hủy</button>
-				                            </div>
-			                        	</c:if>
-			                            
+			                        	<sec:authorize access="hasAuthority('CREATE_PROPOSAL')">
+				                        	<c:if test='${MODE == "MODE_CREATE_PROPOSAL"}'>
+				                        		<div class="col-sm-offset-5 col-sm-2">
+					                                <button type="submit" class="btn btn-default">Submit</button>
+					                            </div>
+				                        	</c:if>
+				                        	<c:if test='${MODE == "MODE_CHANGE_PROPOSAL"}'>
+				                        		<div class="col-sm-offset-5 col-sm-4">
+					                                <button type="submit" name="type" value="change" class="btn btn-default" >Chỉnh sữa</button>
+					                                <button type="submit" name="type" class="btn btn-default" value="remove">Xóa</button>
+					                                <button class="btn btn-default">Trở về</button>
+					                            </div>
+				                        	</c:if>
+			                            </sec:authorize>
+			                            <sec:authorize access="hasAuthority('CONFIRM_FORM')">
+			                            	<c:if test='${MODE == "MODE_CONFIRM_FORM"}'>
+			                            		<button type="submit" name="type" value="confirm" class="btn btn-default" >Chỉnh sữa</button>
+					                            <button type="submit" name="type" class="btn btn-default" value="cancel">Xóa</button>
+					                            <button class="btn btn-default">Trở về</button>
+			                            	</c:if>
+			                            </sec:authorize>
 			                        </div>
 			                    </form>
 		                	</c:when>

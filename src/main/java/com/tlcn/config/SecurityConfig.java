@@ -12,7 +12,9 @@ import org.springframework.security.core.session.SessionRegistryImpl;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.access.AccessDeniedHandler;
 
+import com.tlcn.security.CustomAccessDeniedHandler;
 import com.tlcn.security.MySimpleUrlAuthenticationSuccessHandler;
 import com.tlcn.service.UserService;
 
@@ -25,6 +27,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter{
 	@Autowired
 	private MySimpleUrlAuthenticationSuccessHandler mySimpleUrlAuthenticationSuccessHandler;
 	
+	@Autowired
+	private CustomAccessDeniedHandler customAccessDeniedHandler;
 	
 	@Autowired
     public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
@@ -57,7 +61,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter{
 		.sessionManagement()
 	        .invalidSessionUrl("/invalidSession")
 	        .maximumSessions(1).sessionRegistry(sessionRegistry()).and()
-            .sessionFixation().none();
+            .sessionFixation().none()
+        .and()
+        .exceptionHandling().accessDeniedHandler(customAccessDeniedHandler);
 	}
 	
 	
@@ -67,6 +73,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter{
 	        System.out.println(passwordEncoder.encode("123456"));
 	        return passwordEncoder;
     }
+	@Bean
+	public AccessDeniedHandler accessDeniedHandler(){
+	    return new CustomAccessDeniedHandler();
+	}
 	@Bean
     public SessionRegistry sessionRegistry() {
         return new SessionRegistryImpl();
