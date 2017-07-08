@@ -5,6 +5,8 @@ import java.util.List;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
@@ -14,7 +16,8 @@ import javax.persistence.OneToMany;
 @Entity(name="role")
 public class Role {
 	@Id
-	private String roleID;
+	@GeneratedValue(strategy = GenerationType.AUTO)
+	private int roleID;
 	private String name;
 	
 	@ManyToMany(cascade = CascadeType.ALL ,fetch = FetchType.EAGER)
@@ -35,7 +38,7 @@ public class Role {
 		super();
 	}
 
-	public Role(String roleID, String name, List<Right> listRight, List<User> listUser) {
+	public Role(int roleID, String name, List<Right> listRight, List<User> listUser) {
 		super();
 		this.roleID = roleID;
 		this.name = name;
@@ -43,11 +46,11 @@ public class Role {
 		this.listUser = listUser;
 	}
 
-	public String getRoleID() {
+	public int getRoleID() {
 		return roleID;
 	}
 
-	public void setRoleID(String roleID) {
+	public void setRoleID(int roleID) {
 		this.roleID = roleID;
 	}
 

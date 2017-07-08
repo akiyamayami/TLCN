@@ -1,5 +1,6 @@
 package com.tlcn.model;
 
+import java.util.Date;
 import java.util.List;
 
 import javax.persistence.CascadeType;
@@ -10,16 +11,25 @@ import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+
+import org.springframework.format.annotation.DateTimeFormat;
 
 @Entity(name="user")
 public class User {
 	@Id
 	private String email;
 	private String password;
+	
+	
 	private String name;
 	private String phone;
 	
-	
+	@Temporal(TemporalType.DATE)
+	@DateTimeFormat(pattern = "yyyy-MM-dd")
+	private Date birthday;
 	@ManyToOne(fetch=FetchType.EAGER)
 	@JoinColumn(name="roleID")
 	private Role roleUser;
@@ -33,15 +43,22 @@ public class User {
 	)
 	private List<Right> rightUser;
 	
+	@OneToMany(mappedBy = "user")
+	private List<RegisterProposal> listproposalregister;
 	
-	public User(String email, String password, String name, String phone, Role roleUser, List<Right> rightUser) {
+	
+	
+	public User(String email, String password, Date birthday, String name, String phone, Role roleUser,
+			List<Right> rightUser, List<RegisterProposal> listproposalregister) {
 		super();
 		this.email = email;
 		this.password = password;
+		this.birthday = birthday;
 		this.name = name;
 		this.phone = phone;
 		this.roleUser = roleUser;
 		this.rightUser = rightUser;
+		this.listproposalregister = listproposalregister;
 	}
 	public User() {
 		super();
@@ -90,5 +107,17 @@ public class User {
 	}
 	public void setRightUser(List<Right> rightUser) {
 		this.rightUser = rightUser;
+	}
+	public List<RegisterProposal> getListproposalregister() {
+		return listproposalregister;
+	}
+	public void setListproposalregister(List<RegisterProposal> listproposalregister) {
+		this.listproposalregister = listproposalregister;
+	}
+	public Date getBirthday() {
+		return birthday;
+	}
+	public void setBirthday(Date birthday) {
+		this.birthday = birthday;
 	}
 }

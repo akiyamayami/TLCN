@@ -8,6 +8,7 @@
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 	<title>Home</title>
+	<!-- 
 	<link href="static/css/bootstrap.min.css" rel="stylesheet"/>
 	<link href="static/css/main.css" rel="stylesheet"/>
 	<link href="static/css/bootstrap-datepicker3.min.css" rel="stylesheet"/>
@@ -15,6 +16,15 @@
 	<script type="text/javascript" src="static/js/bootstrap.min.js"></script>
 	<script type="text/javascript" src="static/js/main.js"></script>
 	<script type="text/javascript" src="static/js/bootstrap-datepicker.min.js"></script>
+	 -->
+	<link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet"/>
+	<link href="static/css/main.css" rel="stylesheet"/>
+	<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet"/>
+	<link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.7.0/css/bootstrap-datepicker3.min.css" rel="stylesheet"/>
+	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+	<script type="text/javascript" src="static/js/main.js"></script>
+	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.7.0/js/bootstrap-datepicker.min.js"></script>
+	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
 </head>
 <body>
 	<t:header>
@@ -62,7 +72,7 @@
 			                        </tbody>
 			                    </table>
 		                	</c:when>
-		                	<c:when test='${MODE == "MODE_CREATE_PROPOSAL" || MODE == "MODE_CHANGE_PROPOSAL" || MODE = "MODE_CONFIRM_PROPOSAL"}'>
+		                	<c:when test='${MODE == "MODE_CREATE_PROPOSAL" || MODE == "MODE_CHANGE_PROPOSAL" || MODE == "MODE_CONFIRM_PROPOSAL"}'>
 		                		<c:if test='${MODE == "MODE_CREATE_PROPOSAL"}'>
 		                			<div class="title-content">Tạo Đề nghị</div>
 		                		</c:if>
@@ -169,7 +179,7 @@
 			                        </div>
 			                    </form>
 		                	</c:when>
-		                	<c:when test='${MODE == "MODE_CHECK_CARS"}'>
+		                	<c:when test='${MODE == "MODE_CHECK_STT_CARS"}'>
 		                		<div class="title-content">Kiểm tra tình trạng hoạt động của xe</div>
 			                    <div class="">
 			                        <ul class="nav nav-tabs nav-justified" >

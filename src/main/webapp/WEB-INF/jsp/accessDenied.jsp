@@ -9,7 +9,7 @@
 <body>
 	<h2>Sorry, you do not have permission to view this page.</h2>
  
-	Click <a href="<c:url value="/index" /> ">here</a>
-	to go back to the Homepage.
+	Click <a href="/">here</a>
+	to go back to the Home.
 </body>
 </html>

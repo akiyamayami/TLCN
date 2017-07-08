@@ -4,6 +4,8 @@ import java.util.List;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
@@ -12,7 +14,8 @@ import javax.persistence.ManyToMany;
 @Entity(name="rights")
 public class Right {
 	@Id
-	private String rightID;
+	@GeneratedValue(strategy = GenerationType.AUTO)
+	private int rightID;
 	private String name;
 	private String detail;
 	
@@ -34,7 +37,7 @@ public class Right {
 	public Right() {
 		super();
 	}
-	public Right(String rightID, String name, String detail, List<Role> listRight_role, List<User> listRight_user) {
+	public Right(int rightID, String name, String detail, List<Role> listRight_role, List<User> listRight_user) {
 		super();
 		this.rightID = rightID;
 		this.name = name;
@@ -42,10 +45,10 @@ public class Right {
 		this.ListRight_role = listRight_role;
 		this.ListRight_user = listRight_user;
 	}
-	public String getRightID() {
+	public int getRightID() {
 		return rightID;
 	}
-	public void setRightID(String rightID) {
+	public void setRightID(int rightID) {
 		this.rightID = rightID;
 	}
 	public String getName() {

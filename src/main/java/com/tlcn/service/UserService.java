@@ -25,9 +25,6 @@ import com.tlcn.model.User;
 public class UserService implements UserDetailsService{
 	@Autowired
 	private UserRespository userRespository;
-	
-	@Autowired
-	private RoleService roleService;
 
 	@Override
 	public UserDetails loadUserByUsername(final String username) throws UsernameNotFoundException {

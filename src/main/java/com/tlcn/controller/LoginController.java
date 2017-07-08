@@ -25,7 +25,7 @@ public class LoginController {
 	}
 	
 	//page find-proposal
-	@RequestMapping(value="/find-propposal", method = RequestMethod.GET)
+	@RequestMapping(value="/", method = RequestMethod.GET)
 	public String findpropsal(Model model){
 		if(checkUserhasAuthority("CHANGE_PROPOSAL")){
 			// access to mode find-my-proposal for normal user
@@ -48,10 +48,22 @@ public class LoginController {
 		model.addAttribute("MODE", "MODE_CHANGE_PROPOSAL");
 		return "Index";
 	}
-	// page change-proposal
+	// page confirm(see)-proposal
 	@RequestMapping(value="/confirm-proposal", method = RequestMethod.GET)
 	public String confirmProposal(Model model){
 		model.addAttribute("MODE", "MODE_CONFIRM_PROPOSAL");
+		return "Index";
+	}
+	// page check-stt-car
+	@RequestMapping(value="/check-stt-cars", method = RequestMethod.GET)
+	public String checkSttCar(Model model){
+		model.addAttribute("MODE", "MODE_CHECK_STT_CARS");
+		return "Index";
+	}
+	// page find-car
+	@RequestMapping(value="/find-cars", method = RequestMethod.GET)
+	public String findCar(Model model){
+		model.addAttribute("MODE", "MODE_FIND_CARS");
 		return "Index";
 	}
 	// page Login
@@ -59,13 +71,6 @@ public class LoginController {
 	public String Login(){
 		return "Login";
 	}
-	
-	// forward to page login
-	@RequestMapping(value="/", method = RequestMethod.GET)
-	public String forwardLogin(){
-		return "redirect:/login";
-	}
-	
 	
 	@RequestMapping(value="/fail", method = RequestMethod.GET)
 	public String LoginFail(){

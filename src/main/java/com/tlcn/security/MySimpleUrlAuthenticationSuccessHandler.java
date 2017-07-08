@@ -31,7 +31,7 @@ public class MySimpleUrlAuthenticationSuccessHandler implements AuthenticationSu
 	}
 
 	private void handle(HttpServletRequest request, HttpServletResponse response, Authentication auth) {
-		final String targetUrl = "/index";
+		final String targetUrl = "/";
 
         if (response.isCommitted()) {
             System.out.println("Response has already been committed. Unable to redirect to " + targetUrl);

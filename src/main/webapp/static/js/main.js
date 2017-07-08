@@ -1,5 +1,4 @@
 $(document).ready(function(){
-	// Js cho create form 
     var x = 1;
     var y = 1;
     $(".detail-car").hide();
@@ -31,7 +30,6 @@ $(document).ready(function(){
             $("#many-day").show();
         }
     });
-    //
     
     $(".driver-info").hide();
     $('.show-deital-driver').click(function(){

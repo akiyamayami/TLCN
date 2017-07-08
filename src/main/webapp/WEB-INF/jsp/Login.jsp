@@ -50,11 +50,6 @@ function validate() {
 <div class="container">
     <div id="main-region1">
         <div class="form">
-	        <c:if test="${not empty sessionScope.SPRING_SECURITY_LAST_EXCEPTION}">
-	    		<h1 id="error" class="alert alert-danger">
-	    			<spring:message code="message.logoutError"></spring:message>
-	    		</h1>
-	    	</c:if>
 	        <c:if test="${param.logSucc}">
 	    		<h1 id="error" class="alert alert-danger">
 	    			<spring:message code="message.logoutSucc"></spring:message>
