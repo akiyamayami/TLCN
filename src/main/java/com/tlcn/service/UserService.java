@@ -67,4 +67,10 @@ public class UserService implements UserDetailsService{
         }
         return authorities;
     }
+	
+	public User findOne(String email){
+		return userRespository.findOne(email);
+	}
+	
+	
 }

@@ -1,17 +1,28 @@
 $(document).ready(function(){
     var x = 1;
     var y = 1;
+    var currentLocation = window.location;
+    $("[data-toggle=tooltip]").tooltip();
     $(".detail-car").hide();
+    $("#choicecar").change(function(){
+    	$(".detail-car").slideUp("slow");
+    	x = 1;
+    });
     $(".icon-show-deital").click(function(){
+    	var carID = $("#choicecar").val();
+    	alert(carID);
+    	var detaildiverID = "#detail-car-" + carID;
+    	alert(detaildiverID);
         if(x == 1){
-            $(".detail-car").slideDown("slow");
+            $(detaildiverID).slideDown("slow");
             x = 0;
         }else{
-            $(".detail-car").slideUp("slow");
-            x = 1;
+        	$(".detail-car").slideUp("slow");
+        	x = 1;
         }
     });
     $(".date-picker").datepicker("update",setcurrentday());
+    $(".date-picker2").datepicker();
     if($("#select-time-use").val() == "inday"){
             $("#in-day").show();
             $("#many-day").hide();
@@ -30,7 +41,11 @@ $(document).ready(function(){
             $("#many-day").show();
         }
     });
+    $("#qwe").click(function(){
+       alert($(this).val());
+    });
     
+    //Show hide info driver
     $(".driver-info").hide();
     $('.show-deital-driver').click(function(){
         $(".driver-info").hide();
@@ -40,8 +55,17 @@ $(document).ready(function(){
         alert(idinfo);
         $(idinfo).show();
     });
+    $("#cancel-filter").hide();
+    if(checkfilterornot()){
+        $("#cancel-filter").show();
+    }
 });
-
+function checkfilterornot(currentLocation){
+    if(currentLocation.indexOf("filter-stt=") != -1 || currentLocation.indexOf("filter-type=") != -1 || currentLocation.indexOf("filter-date-create=") != -1){
+        return true;
+    }
+    return false;
+}
 function setcurrentday(){
     var today = new Date();
     var dd = today.getDate();

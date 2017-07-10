@@ -105,9 +105,9 @@ insert into role_right values(2,1);
 insert into role_right values(2,3);
 insert into role_right values(2,5);
 
-insert into user values("12345@gmail.com","","123456","","",3);
-insert into user values("1234@gmail.com","","123456","","",2);
-insert into user values("123@gmail.com","","123456","","",1);
+insert into user values("12345@gmail.com","1996-09-24","","123456","",3);
+insert into user values("1234@gmail.com","1996-09-24","","123456","",2);
+insert into user values("123@gmail.com","1996-09-24","","123456","",1);
 
 insert into sttcar(name) values("Bình Thường");
 insert into sttcar(name) values("Bảo trì");
@@ -119,23 +119,35 @@ insert into typeproposal(name) values("Tạo");
 insert into typeproposal(name) values("Chỉnh Sữa");
 insert into typeproposal(name) values("Hủy");
 
-insert into car(licenseplate,seats,type,sttcar) 
+insert into car(licenseplate,seats,type,sttcarid) 
 	values("00-00 6875",4,"BWM",1);
-insert into car(licenseplate,seats,type,sttcar) 
+insert into car(licenseplate,seats,type,sttcarid) 
 	values("00-00 6876",6,"Lexus",1);
-insert into car(licenseplate,seats,type,sttcar) 
+insert into car(licenseplate,seats,type,sttcarid) 
 	values("00-00 6877",10,"Audi",1);
-insert into car(licenseplate,seats,type,sttcar) 
+insert into car(licenseplate,seats,type,sttcarid) 
 	values("00-00 6878",16,"Kia",1);
-insert into car(licenseplate,seats,type,sttcar) 
+insert into car(licenseplate,seats,type,sttcarid) 
 	values("00-00 6879",30,"Land Rover",1);
 
 
-insert into driver values("400@gmail.com","","24-10-1996",3,"Nguyen Van B","0123456789",1)
-insert into driver values("401@gmail.com","","24-10-1996",3,"Nguyen Van B","0123456789",1)
+insert into driver values("400@gmail.com","","1996-09-24",3,"A1","Nguyen Van B","0123456789",1);
+insert into driver values("401@gmail.com","","1996-09-24",3,"A1","Nguyen Van B","0123456789",1);
 
-insert into driver_car values("400@gmail.com",1)
-insert into driver_car values("400@gmail.com",2)
-insert into driver_car values("400@gmail.com",3)
-insert into driver_car values("401@gmail.com",4)
-insert into driver_car values("401@gmail.com",5)
+insert into driver_car values("400@gmail.com",1);
+insert into driver_car values("400@gmail.com",2);
+insert into driver_car values("400@gmail.com",3);
+insert into driver_car values("401@gmail.com",4);
+insert into driver_car values("401@gmail.com",5);
+
+insert into proposal(file,name,detail,stt,usefromdate,usetodate,typeID)
+	values(null,"Tham Quan Renasas","Tham quan công ty renasas .....",0,"2017-07-25","2017-07-26",1);
+insert into proposal(file,name,detail,stt,usefromdate,usetodate,typeID)
+	values(null,"Tham Quan Renasas","Tham quan công ty renasas .....",0,"2017-07-25","2017-07-26",1);
+
+
+insert into registercar values(1,1);
+insert into registercar values(2,2);
+
+insert into registerproposal values("2017-07-08",1,"123@gmail.com");
+insert into registerproposal values("2017-07-08",2,"123@gmail.com");

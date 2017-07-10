@@ -2,6 +2,7 @@ package com.tlcn.model;
 
 import java.util.Date;
 
+import javax.persistence.Embeddable;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -44,7 +45,7 @@ public class Proposal {
 	(
 			name = "registercar",
 			joinColumns={ @JoinColumn(name="proposalID", unique=true) },
-			inverseJoinColumns={ @JoinColumn(name="carID", unique=true)}
+			inverseJoinColumns={ @JoinColumn(name="carID")}
 	)
 	private Car car;
 	
@@ -53,6 +54,31 @@ public class Proposal {
 
 	public Proposal() {
 		super();
+	}
+
+	public Proposal(TypeProposal type, String name, String detail, Date usefromdate, Date usetodate, int stt, Car car) {
+		super();
+		this.type = type;
+		this.name = name;
+		this.detail = detail;
+		this.usefromdate = usefromdate;
+		this.usetodate = usetodate;
+		this.stt = stt;
+		this.car = car;
+	}
+
+	public Proposal(TypeProposal type, String name, String detail, Date usefromdate, Date usetodate, String file,
+			int stt, Car car, RegisterProposal userregister) {
+		super();
+		this.type = type;
+		this.name = name;
+		this.detail = detail;
+		this.usefromdate = usefromdate;
+		this.usetodate = usetodate;
+		this.file = file;
+		this.stt = stt;
+		this.car = car;
+		this.userregister = userregister;
 	}
 
 	public Proposal(int proposalID, TypeProposal type, String name, String detail, Date usefromdate, Date usetodate,

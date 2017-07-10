@@ -1,9 +1,10 @@
 package com.tlcn.model;
 
-import java.io.Serializable;
 import java.util.Date;
 
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -14,32 +15,33 @@ import javax.persistence.TemporalType;
 import org.springframework.format.annotation.DateTimeFormat;
 
 @Entity(name="registerproposal")
-public class RegisterProposal implements Serializable{
+public class RegisterProposal{
 	
-	private static final long serialVersionUID = 1L;
-
+	@Id
+	@GeneratedValue(strategy = GenerationType.AUTO)
+	private int registerproposalID;
+	
 	@ManyToOne
     @JoinColumn(name = "emailuser")
 	private User user;
-	
-	@Id
+
 	@OneToOne
-	@JoinColumn(name="proposalID")
+	@JoinColumn(name="proposalID",unique=true)
 	private Proposal proposal;
 	
 	@Temporal(TemporalType.DATE)
 	@DateTimeFormat(pattern = "yyyy-MM-dd")
-	private Date dateregiter;
+	private Date dateregister;
 
 	public RegisterProposal() {
 		super();
 	}
-
-	public RegisterProposal(User user, Proposal proposal, Date dateregiter) {
+	
+	public RegisterProposal(User user, Proposal proposal, Date dateregister) {
 		super();
 		this.user = user;
 		this.proposal = proposal;
-		this.dateregiter = dateregiter;
+		this.dateregister = dateregister;
 	}
 
 	public User getUser() {
@@ -58,13 +60,22 @@ public class RegisterProposal implements Serializable{
 		this.proposal = proposal;
 	}
 
-	public Date getDateregiter() {
-		return dateregiter;
+	public int getRegisterproposalID() {
+		return registerproposalID;
 	}
 
-	public void setDateregiter(Date dateregiter) {
-		this.dateregiter = dateregiter;
+	public void setRegisterproposalID(int registerproposalID) {
+		this.registerproposalID = registerproposalID;
 	}
+
+	public Date getDateregister() {
+		return dateregister;
+	}
+
+	public void setDateregister(Date dateregister) {
+		this.dateregister = dateregister;
+	}
+
 	
 	
 }

@@ -6,6 +6,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.tlcn.dao.CarRepository;
 import com.tlcn.dao.RightRepository;
 import com.tlcn.model.Right;
 

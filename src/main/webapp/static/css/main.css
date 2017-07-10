@@ -96,9 +96,7 @@ body {
 }
 /* main region */
 #main-region{
-    #border: 1px #e3e3e3 solid; 
     border-radius:10px;
-    #height:calc(100vh - 200px);
     height:100%;
     margin-top:10px;
     margin-bottom:10px;
@@ -231,8 +229,15 @@ body {
 .table-content{
     table-layout: fixed;
     width: 100%;
+    word-wrap: break-word;
 }
-
+.table-content .last-item-table{
+    text-align:center;
+    
+}
+.table-content .last-item-table a{
+    color:#364294;
+}
 /* Tao de nghi*/ 
 textarea {
     resize: none;
@@ -247,6 +252,7 @@ textarea {
     border-radius:5px;
     padding:5px;
     margin-top:5px;
+    font-size:12px;
 }
 
 .date-picker{
@@ -280,4 +286,28 @@ textarea {
 }
 .driver-info > strong {
     float :right;
+}
+
+
+/*new*/
+.title-content2{
+    margin-bottom:3px;
+    padding: 0px 8px 3px 8px;
+    border-bottom:1px solid #e3e3e3;
+}
+.date-picker2{
+    height:25px;
+}
+.set-height-25{
+    height:25px;
+    padding-top: 3px;
+    padding-bottom: 3px;
+}
+
+a i{
+    color:#364294;
+}
+
+.padding-zero{
+    padding:0px;
 }

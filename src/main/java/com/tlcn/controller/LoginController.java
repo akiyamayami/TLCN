@@ -9,9 +9,14 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
+import com.tlcn.model.ModelFilterProposal;
+import com.tlcn.service.ProposalService;
 import com.tlcn.service.UserService;
 
 @Controller
@@ -19,41 +24,15 @@ import com.tlcn.service.UserService;
 public class LoginController {
 	@Autowired
 	private UserService userService;
+	@Autowired
+	private ProposalService proposalService;
+	
 	
 	public LoginController() {
 		super();
 	}
 	
-	//page find-proposal
-	@RequestMapping(value="/", method = RequestMethod.GET)
-	public String findpropsal(Model model){
-		if(checkUserhasAuthority("CHANGE_PROPOSAL")){
-			// access to mode find-my-proposal for normal user
-			model.addAttribute("MODE", "MODE_FIND_MY_PROPOSAL");
-		}else{
-			// mode find-all-proposal for P.TBVT and BGM
-			model.addAttribute("MODE", "MODE_FIND_PROPOSAL");
-		}
-		return "Index";
-	}
-	// page create-proposal
-	@RequestMapping(value="/create-proposal", method = RequestMethod.GET)
-	public String createProposal(Model model){
-		model.addAttribute("MODE", "MODE_CREATE_PROPOSAL");
-		return "Index";
-	}
-	// page change-proposal
-	@RequestMapping(value="/change-proposal", method = RequestMethod.GET)
-	public String changeProposal(Model model){
-		model.addAttribute("MODE", "MODE_CHANGE_PROPOSAL");
-		return "Index";
-	}
-	// page confirm(see)-proposal
-	@RequestMapping(value="/confirm-proposal", method = RequestMethod.GET)
-	public String confirmProposal(Model model){
-		model.addAttribute("MODE", "MODE_CONFIRM_PROPOSAL");
-		return "Index";
-	}
+	
 	// page check-stt-car
 	@RequestMapping(value="/check-stt-cars", method = RequestMethod.GET)
 	public String checkSttCar(Model model){
@@ -86,10 +65,5 @@ public class LoginController {
 	public String accessDenied(){
 		return "accessDenied";
 	}
-	// check user has Authority
-	public boolean checkUserhasAuthority(String Authority){
-		UserDetails userDetails =
-				 (UserDetails)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		return userDetails.getAuthorities().contains(new SimpleGrantedAuthority(Authority));
-	}
+	
 }
