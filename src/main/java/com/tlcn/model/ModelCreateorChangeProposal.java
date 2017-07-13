@@ -22,6 +22,44 @@ public class ModelCreateorChangeProposal {
 	
 	
 
+	public ModelCreateorChangeProposal(int proposalID, String name, String detail) {
+		super();
+		this.proposalID = proposalID;
+		this.name = name;
+		this.detail = detail;
+	}
+
+	
+	//use car many day
+	public ModelCreateorChangeProposal(int proposalID, String name, String detail, String typedateuse
+			, Date usefromdate, Date usetodate, MultipartFile file, int carID) {
+		super();
+		this.proposalID = proposalID;
+		this.name = name;
+		this.detail = detail;
+		this.typedateuse = typedateuse;
+		this.usefromdate = usefromdate;
+		this.usetodate = usetodate;
+		this.file = file;
+		this.carID = carID;
+	}
+
+
+	//use car 1 day
+	public ModelCreateorChangeProposal(int proposalID, String name, String detail, String typedateuse, Date useindate,
+			MultipartFile file, int carID) {
+		super();
+		this.proposalID = proposalID;
+		this.name = name;
+		this.detail = detail;
+		this.typedateuse = typedateuse;
+		this.useindate = useindate;
+		this.file = file;
+		this.carID = carID;
+	}
+
+
+
 	public ModelCreateorChangeProposal(int proposalID, String name, String detail, String typedateuse, Date useindate,
 			Date usefromdate, Date usetodate, MultipartFile file, int carID) {
 		super();

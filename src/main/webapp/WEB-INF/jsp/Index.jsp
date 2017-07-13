@@ -108,8 +108,15 @@
 											<th style="width: 5%;">Loại</th>
 											<th style="width: 10%;">Tình Trạng</th>
 											<th style="width: 7%;" class="last-item-table">Chi tiết</th>
-											<th style="width: 5%;" class="last-item-table">Sửa</th>
-											<th style="width: 5%;" class="last-item-table">Hủy</th>
+											<c:if test="${MODE == 'MODE_FIND_MY_PROPOSAL'}">
+												<th style="width: 5%;" class="last-item-table">Sửa</th>
+												<th style="width: 5%;" class="last-item-table">Hủy</th>
+											</c:if>
+											<c:if test="${MODE == 'MODE_FIND_PROPOSAL'}">
+												<th style="width: 5%;" class="last-item-table">Duyệt</th>
+												<th style="width: 5%;" class="last-item-table">Xem</th>
+											</c:if>
+											
 										</tr>
 									</thead>
 									<tbody>
@@ -133,14 +140,21 @@
 													data-html="true" title='<c:out value="${list.detail}"/>'>
 														<i class="fa fa-info-circle fa-lg" aria-hidden="true"></i>
 												</a></td>
-												<td class="last-item-table"><a
-													href="/change-proposal-${list.proposalID}"> <i
-														class="fa fa-pencil-square-o fa-lg" aria-hidden="true"></i>
-												</a></td>
-												<td class="last-item-table"><a
-													href="/cancel-proposal-${list.proposalID}"> <i
-														class="fa fa-trash-o fa-lg" aria-hidden="true"></i>
-												</a></td>
+												
+												<c:if test="${MODE == 'MODE_FIND_MY_PROPOSAL'}">
+													<td class="last-item-table"><a
+														href="/change-proposal-${list.proposalID}"> <i
+															class="fa fa-pencil-square-o fa-lg" aria-hidden="true"></i>
+													</a></td>
+													<td class="last-item-table"><a
+														href="/cancel-proposal-${list.proposalID}"> <i
+															class="fa fa-trash-o fa-lg" aria-hidden="true"></i>
+													</a></td>
+												</c:if>
+												<c:if test="${MODE == 'MODE_FIND_PROPOSAL'}">
+													<th style="width: 5%;" class="last-item-table">Xem</th>
+												</c:if>
+												
 											</tr>
 										</c:forEach>
 									</tbody>
@@ -157,12 +171,14 @@
 									<div class="title-content">Xem đề nghị</div>
 								</c:if>
 								<form:form method="post" modelAttribute="Proposal"
-									action="/create-proposal" class="form-horizontal"
+									action="${typeForm}" class="form-horizontal"
 									enctype="multipart/form-data">
 									<div class="form-group">
 										<label class="control-label col-sm-3">Tên</label>
 										<div class="col-sm-7">
-											<form:input path="name" type="text" class="form-control" />
+											<form:input path="name" type="text" class="form-control" value=""/>
+											<c:out value="${proposalInfo.name}"></c:out>
+											
 										</div>
 									</div>
 									<div class="form-group">
@@ -245,8 +261,17 @@
 											<div class="col-sm-3" style="padding-left: 0px;">
 												<form:select path="typedateuse" class="btn btn-choose"
 													id="select-time-use">
-													<option selected value="inday">Trong Ngày</option>
-													<option value="manyday">Nhiều Ngày</option>
+													<c:choose>
+														<c:when test='${Proposal.typedateuse == "manyday" }'>
+															<option value="inday">Trong Ngày</option>
+															<option selected value="manyday">Nhiều Ngày</option>
+														</c:when>
+														<c:otherwise>
+															<option selected value="inday">Trong Ngày</option>
+															<option  value="manyday">Nhiều Ngày</option>
+														</c:otherwise>
+													</c:choose>
+													
 												</form:select>
 											</div>
 											<div class="col-sm-4" id="in-day">
@@ -274,13 +299,13 @@
 									<div class="form-group">
 										<label class="control-label col-sm-3">Tệp đính kèm</label>
 										<sec:authorize access="hasAuthority('CREATE_PROPOSAL')">
-											<div class="col-sm-7">
+											<div class="col-sm-5">
 												<form:input path="file" type="file" class="form-control" />
 											</div>
 										</sec:authorize>
 										<c:if test='${MODE == "MODE_CHANGE_PROPOSAL"}'>
-											<a href="#" class="control-label col-sm-3"
-												style="text-align: left;">home.pdf</a>
+											<a href="/static/file/${Proposal.proposalID}.pdf" class="control-label col-sm-3"
+												style="text-align: left;" download>File</a>
 										</c:if>
 									</div>
 									<div class="form-group">
@@ -294,9 +319,8 @@
 												<div class="col-sm-offset-5 col-sm-4">
 													<button type="submit" name="type" value="change"
 														class="btn btn-default">Chỉnh sữa</button>
-													<button type="submit" name="type" class="btn btn-default"
-														value="remove">Xóa</button>
-													<button class="btn btn-default">Trở về</button>
+													<a href="/delete-proposal" type="submit" class="btn btn-default">Xóa</a>
+													<a href="/" class="btn btn-default">Trở về</a>
 												</div>
 											</c:if>
 										</sec:authorize>
@@ -582,87 +606,7 @@
 						<div class="content">
 							<div class="minicalendar">
 								<div class="title-calendar">Calendar</div>
-								<div class="calendar-controls">
-									<a class="arrow_link previous" href="#" title="Tháng trước">
-										<span class="arrow ">◄</span> <span class="accesshide ">
-											&nbsp; <span class="arrow_text"></span>
-									</span>
-									</a> <span class="hide"> | </span> <span class="current"> <a
-										title="Tháng này" href="#">July 2017</a>
-									</span> <span class="hide"> | </span> <a class="arrow_link next"
-										style="float: right;" href="#" title="Tháng tới"> <span
-										class="accesshide "> <span class="arrow_text"></span>
-											&nbsp;
-									</span> <span class="arrow">►</span>
-									</a>
-								</div>
-								<table class="calendartable">
-									<tbody>
-										<tr class="weekdays">
-											<th scope="col">T2</th>
-											<th scope="col">T3</th>
-											<th scope="col">T4</th>
-											<th scope="col">T5</th>
-											<th scope="col">T6</th>
-											<th scope="col">T7</th>
-											<th scope="col">CN</th>
-										</tr>
-										<tr>
-											<td class="dayblank">&nbsp;</td>
-											<td class="dayblank">&nbsp;</td>
-											<td class="dayblank">&nbsp;</td>
-											<td class="dayblank">&nbsp;</td>
-											<td class="dayblank">&nbsp;</td>
-											<td class="day today eventnone"><a href="#">1</a></td>
-											<td class="weekend day">2</td>
-										</tr>
-										<tr>
-											<td class="day">3</td>
-											<td class="day">4</td>
-											<td class="day">5</td>
-											<td class="day">6</td>
-											<td class="day">7</td>
-											<td class="day">8</td>
-											<td class="weekend day">9</td>
-										</tr>
-										<tr>
-											<td class="day">10</td>
-											<td class="day">11</td>
-											<td class="day">12</td>
-											<td class="day">13</td>
-											<td class="day">14</td>
-											<td class="day">15</td>
-											<td class="weekend day">16</td>
-										</tr>
-										<tr>
-											<td class="day">17</td>
-											<td class="day">18</td>
-											<td class="day">19</td>
-											<td class="day">20</td>
-											<td class="day">21</td>
-											<td class="day">22</td>
-											<td class="weekend day">23</td>
-										</tr>
-										<tr>
-											<td class="day">24</td>
-											<td class="day">25</td>
-											<td class="day">26</td>
-											<td class="day">27</td>
-											<td class="day">28</td>
-											<td class="day">29</td>
-											<td class="weekend day">30</td>
-										</tr>
-										<tr>
-											<td class="day">31</td>
-											<td class="dayblank">&nbsp;</td>
-											<td class="dayblank">&nbsp;</td>
-											<td class="dayblank">&nbsp;</td>
-											<td class="dayblank">&nbsp;</td>
-											<td class="dayblank">&nbsp;</td>
-											<td class="dayblank">&nbsp;</td>
-										</tr>
-									</tbody>
-								</table>
+								${calendar}
 							</div>
 						</div>
 					</div>
@@ -670,14 +614,60 @@
 						<div class="mininotify">
 							<div class="title-notify">Notification</div>
 							<div class="list-notify">
-								<a href="#">Tham quan Renasas </a>
-								<p>
-									Hôm Nay, 1/7/2017 <span class="time-notify-left">(Còn 6d
-										2h)</span>
-								</p>
-								<a href="#">Tham quan Renasas</a>
-								<p>Hôm Nay, 1/7/2017</p>
-							</div>
+								<c:forEach items="${listNotify}" var="notifys">
+									<c:choose>
+										<c:when test="${notifys.stt == 1}">
+											<div class="item-notify">
+												<sec:authorize access="hasAuthority('CONFIRM_PROPOSAL')">
+													<a href="confirm-proposal-${notifys.proposal.proposalID}">
+					                                    <div>
+					                                       <strong><c:out value="${notifys.user.roleUser.name}"/></strong> 
+					                                        đã duyệt đề nghị <c:out value="${notifys.proposal.name}"/> của 
+					                                        <strong><c:out value="${notifys.proposal.userregister.user.name}"/></strong>
+					                                    </div>
+					                                    <p class="time-ago"><i class="fa fa-plus-circle" aria-hidden="true"></i> Vừa xong</p>
+					                                </a>
+				                                </sec:authorize>
+				                                <sec:authorize  access="hasAuthority('CHANGE_PROPOSAL')">
+				                                	<a href="change-proposal-${notifys.proposal.proposalID}">
+					                                    <div>
+					                                       <strong><c:out value="${notifys.user.roleUser.name}"/></strong> 
+					                                        đã duyệt đề nghị <c:out value="${notifys.proposal.name}"/> của bạn
+					                                    </div>
+					                                    <p class="time-ago"><i class="fa fa-plus-circle" aria-hidden="true"></i> Vừa xong</p>
+					                                </a>
+				                                </sec:authorize>
+				                            </div>
+										</c:when>
+										<c:otherwise>
+											<sec:authorize access="hasAuthority('CONFIRM_PROPOSAL')">
+												<div class="item-notify">
+					                                <a href="#">
+					                                    <div>
+					                                       <strong><c:out value="${notifys.user.name}"></c:out></strong> 
+					                                        đã <c:out value="${notifys.type.name}"/> một đề nghị
+					                                    </div>
+					                                    <p class="time-ago">
+					                                    	<c:choose>
+					                                    		<c:when test="${notifys.type.name == 'Tạo'}">
+					                                    			<i class="fa fa-plus-circle" aria-hidden="true"></i>
+					                                    		</c:when>
+					                                    		<c:when test="${notifys.type.name == 'Chỉnh Sửa'}">
+					                                    			<i class="fa fa-pencil-square-o" aria-hidden="true"></i> 
+					                                    		</c:when>
+					                                    		<c:otherwise>
+					                                    			<i class="fa fa-trash" aria-hidden="true"></i> 
+					                                    		</c:otherwise>
+					                                    	</c:choose>
+						                                    <c:out value="${notifys.time}"/>
+					                                    </p>
+					                                </a>
+					                            </div>
+											</sec:authorize>
+										</c:otherwise>
+									</c:choose>
+								</c:forEach>
+	                        </div>
 						</div>
 					</div>
 				</div>

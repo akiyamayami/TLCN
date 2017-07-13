@@ -311,3 +311,22 @@ a i{
 .padding-zero{
     padding:0px;
 }
+/* list notify*/
+
+.list-notify .item-notify div{
+    font-size:14px;
+}
+.list-notify .item-notify p{
+    font-size:13px;
+}
+.list-notify a:hover {
+    text-decoration:none;
+}
+.list-notify .item-notify:hover{
+    background: #e3e3e3;
+}
+.time-ago{
+    margin-top:3px;
+    color:#8f98d6;
+}
+

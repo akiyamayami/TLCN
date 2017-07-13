@@ -18,7 +18,8 @@ public class TypeProposal {
 	@OneToMany(mappedBy="type")
 	private List<Proposal> listproposal;
 
-	
+	@OneToMany(mappedBy="typeProposal")
+	private List<NotifyEvent> listNotify;
 	
 	public TypeProposal() {
 		super();

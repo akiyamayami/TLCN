@@ -6,10 +6,13 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -23,19 +26,27 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.tlcn.model.Car;
+import com.tlcn.model.ModelCalendar;
 import com.tlcn.model.ModelCreateorChangeProposal;
 import com.tlcn.model.ModelFilterProposal;
+import com.tlcn.model.ModelShowNotify;
+import com.tlcn.model.NotifyEvent;
 import com.tlcn.model.Proposal;
 import com.tlcn.model.RegisterProposal;
+import com.tlcn.model.TypeProposal;
 import com.tlcn.model.User;
+import com.tlcn.runnable.SendEmail;
 import com.tlcn.service.CarService;
+import com.tlcn.service.NotifyEventService;
 import com.tlcn.service.ProposalService;
 import com.tlcn.service.RegisterProposalService;
 import com.tlcn.service.TypeProposalService;
 import com.tlcn.service.UserService;
+
 
 @Controller
 @Component
@@ -50,7 +61,8 @@ public class ProposalController {
 	private CarService carService;
 	@Autowired
 	private RegisterProposalService registerProposalService;
-		
+	@Autowired
+	private NotifyEventService notifyEventService;
 	
 	
 	
@@ -60,22 +72,23 @@ public class ProposalController {
 
 	// page find-proposal
 	@RequestMapping(value = "/", method = RequestMethod.GET)
-	public String findpropsal(Model model) {
+	public String findpropsal(Model model, @RequestParam(value = "m", required=false) String month, @RequestParam(value = "y", required=false) String year) {
 		if (checkUserhasAuthority("CHANGE_PROPOSAL")) {
 			// access to mode find-my-proposal for normal user
 			model.addAttribute("MODE", "MODE_FIND_MY_PROPOSAL");
 			model.addAttribute("listProposal",
-					proposalService.findProposalofuser(userService.findOne(getUserLogin().getUsername())));
+					proposalService.findProposalofuser(GetUser()));
 		} else {
 			// mode find-all-proposal for P.TBVT and BGM
 			model.addAttribute("MODE", "MODE_FIND_PROPOSAL");
 			model.addAttribute("listProposal", proposalService.findAll());
 		}
+		
+		model.addAttribute("calendar", createCalendar(month,year));
 		model.addAttribute("filter-model", new ModelFilterProposal());
 		return "Index";
 	}
 
-	////////////
 	@RequestMapping(value = "/", method = RequestMethod.POST)
 	public String filterproposal(Model model, @ModelAttribute("filter-model") ModelFilterProposal filterproposal,
 			BindingResult result) {
@@ -87,6 +100,7 @@ public class ProposalController {
 	@RequestMapping(value = "/create-proposal", method = RequestMethod.GET)
 	public String createProposal(Model model) {
 		model.addAttribute("MODE", "MODE_CREATE_PROPOSAL");
+		model.addAttribute("typeForm", "/create-proposal");
 		model.addAttribute("Proposal", new ModelCreateorChangeProposal());
 		model.addAttribute("carsAvailble", carService.findListCarAvailable());
 		return "Index";
@@ -95,32 +109,52 @@ public class ProposalController {
 	@RequestMapping(value = "/create-proposal", method = RequestMethod.POST)
 	public String createProposalPOST(Model model, @ModelAttribute("Proposal") ModelCreateorChangeProposal proposal,
 			BindingResult result, HttpServletRequest request) {
-		//model.addAttribute("MODE", "MODE_CREATE_PROPOSAL");
-		///model.addAttribute("Proposal", new ModelCreateorChangeProposal());
-		saveProposal(proposal,userService.findOne(getUserLogin().getUsername()),request);
+		saveProposal(proposal,GetUser(),request);
 		return "redirect:/";
 	}
 
 	// page change-proposal
 	@RequestMapping(value = "/change-proposal-{proposalID}", method = RequestMethod.GET)
-	public String changeProposal(Model model, @PathVariable int proposalID) {
+	public String changeProposal(Model model, @PathVariable int proposalID, HttpSession session) {
 		model.addAttribute("MODE", "MODE_CHANGE_PROPOSAL");
-		if (proposalService.check_User_Owned_Proposal_Or_Not(proposalID,
-				userService.findOne(getUserLogin().getUsername()))) {
-			model.addAttribute("modelProposal", proposalService.findOne(proposalID));
+		model.addAttribute("typeForm", "/change-proposal");
+		session.setAttribute("proposalID", proposalID);
+		if (isProposalOfUser(proposalID,GetUser())) {
+			ModelCreateorChangeProposal modelShow = convertProposalToModelShow(proposalService.findOne(proposalID));
+			model.addAttribute("Proposal", modelShow);
+			// change position car use to top
+			List<Car> carShow = carService.findListCarAvailable();
+			List<Car> listcars = new ArrayList<>();
+			Car trash = carService.findOne(modelShow.getCarID());
+			carShow.remove(trash);
+			listcars.add(trash);
+			listcars.addAll(carShow);			
+			model.addAttribute("carsAvailble", listcars);
 			return "Index";
 		}
 		return "redirect:/accessDenied";
-
+	}
+	
+	@RequestMapping(value = "/change-proposal", method = RequestMethod.POST)
+	public String changeProposalPOST(Model model, @ModelAttribute("Proposal") ModelCreateorChangeProposal proposal,
+			BindingResult result, HttpServletRequest request, HttpSession session) {
+		int proposalID = (int) session.getAttribute("proposalID");
+		if (isProposalOfUser(proposalID,GetUser())) {
+			updateProposal(proposalID,proposal,request);
+			return "redirect:/";
+		}
+		return "redirect:/accessDenied";
 	}
 
 	// page confirm(see)-proposal
 	@RequestMapping(value = "/confirm-proposal-{proposalID}", method = RequestMethod.GET)
-	public String confirmProposal(Model model, @PathVariable int proposalID) {
+	public String confirmProposal(Model model, @PathVariable int proposalID, HttpSession session) {
 		model.addAttribute("MODE", "MODE_CONFIRM_PROPOSAL");
-		if (proposalService.check_User_Owned_Proposal_Or_Not(proposalID,
-				userService.findOne(getUserLogin().getUsername()))) {
-			model.addAttribute("modelProposal", proposalService.findOne(proposalID));
+		model.addAttribute("typeForm", "/confirm-proposal");
+		session.setAttribute("proposalID", proposalID);
+		if (proposalService.check_User_Owned_Proposal_Or_Not(proposalID,GetUser())) {
+			//model.addAttribute("proposalInfo", proposalService.findOne(proposalID));
+			
 			return "Index";
 		}
 		return "redirect:/accessDenied";
@@ -138,36 +172,79 @@ public class ProposalController {
 	public UserDetails getUserLogin() {
 		return (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 	}
-
+	public User GetUser(){
+		return userService.findOne(getUserLogin().getUsername());
+	}
 	// check user has Authority
 	public boolean checkUserhasAuthority(String Authority) {
 		System.out.println(getUserLogin().getUsername());
 		return getUserLogin().getAuthorities().contains(new SimpleGrantedAuthority(Authority));
 	}
 	
-	public String getCurrentDate(){
-		DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-		Date date = new Date();
-		return dateFormat.format(date);
-	}
+	
 	public void saveProposal(ModelCreateorChangeProposal model, User user, HttpServletRequest request){
 		try{
 			Proposal proposalnew = new Proposal(typeProposalService.findOne(1),model.getName(),model.getDetail(),model.getUsefromdate(),model.getUsetodate(),0,carService.findOne(model.getCarID()));
 			proposalService.save(proposalnew);
 			System.out.println(proposalnew.getProposalID());
 			MultipartFile file = model.getFile();
-			String location = request.getServletContext().getRealPath("static") + "/file/";
-			System.out.println(location);
-			String name = file.getOriginalFilename();
-			System.out.println(name);
-			String namefile = proposalnew.getProposalID() + name.substring(name.lastIndexOf("."),name.length());
-			System.out.println(namefile);
-			uploadfile(file,location,namefile);
+			if(file != null){
+				String location = request.getServletContext().getRealPath("static") + "/file/";
+				System.out.println(location);
+				String name = file.getOriginalFilename();
+				System.out.println(name);
+				String namefile = proposalnew.getProposalID() + name.substring(name.lastIndexOf("."),name.length());
+				System.out.println(namefile);
+				uploadfile(file,location,namefile);
+				proposalnew.setFile(namefile);
+			}
 			RegisterProposal register = new RegisterProposal(user, proposalnew, new Date());
 			registerProposalService.save(register);
 			proposalnew.setUserregister(register);
-			proposalnew.setFile(namefile);
 			proposalService.save(proposalnew);
+			addNotify("create",proposalnew.getProposalID(),user);
+			List<User> listuser = new ArrayList<>();
+			listuser.add(userService.findOne("lyphucloi.it@gmail.com"));
+			listuser.add(userService.findOne("akiyamayami1@gmail.com"));
+			SendNotify(listuser);
+		}catch (Exception e) {
+			e.printStackTrace();
+			
+		}
+		
+	}
+	
+	public void updateProposal(int proposalID,ModelCreateorChangeProposal model, HttpServletRequest request){
+		try{
+			Proposal proposal = proposalService.findOne(proposalID);
+			proposal.setName(model.getName());
+			proposal.setDetail(model.getDetail());
+			proposal.setType(typeProposalService.findOne(2));
+			if(model.getFile() != null)
+			{
+				MultipartFile file = model.getFile();
+				String location = request.getServletContext().getRealPath("static") + "/file/";
+				System.out.println(location);
+				String name = file.getOriginalFilename();
+				System.out.println(name);
+				String namefile = proposal.getProposalID() + name.substring(name.lastIndexOf("."),name.length());
+				System.out.println(namefile);
+				uploadfile(file,location,namefile);
+			}
+			if(model.getTypedateuse().equals("manyday"))
+			{
+				proposal.setUsefromdate(model.getUsefromdate());
+				proposal.setUsetodate(model.getUsetodate());
+			}
+			else{
+				proposal.setUsefromdate(model.getUseindate());
+				proposal.setUsetodate(model.getUseindate());
+			}
+			proposal.setCar(carService.findOne(model.getCarID()));
+			proposalService.save(proposal);
+			if(proposal.getStt() == 1){
+				addNotify("change",proposal.getProposalID(),proposal.getUserregister().getUser());
+			}
 		}catch (Exception e) {
 			e.printStackTrace();
 			
@@ -188,8 +265,63 @@ public class ProposalController {
 			e.printStackTrace();
 		}
 	}
-
-	public void setDataShowProposal(Model model){
-		//model.addAttribute("ListCar", arg1);
+	
+	public boolean isProposalOfUser(int proposalID,User user){
+		return proposalService.check_User_Owned_Proposal_Or_Not(proposalID,user);
+	}
+	
+	public ModelCreateorChangeProposal convertProposalToModelShow( Proposal proposal){
+		ModelCreateorChangeProposal modelShow;
+		boolean isUseInDate = proposal.getUsefromdate().equals(proposal.getUsetodate());
+		if(isUseInDate){
+			modelShow = new ModelCreateorChangeProposal(proposal.getProposalID(),proposal.getName(),
+					proposal.getDetail(),"inday",proposal.getUsefromdate(),null,proposal.getCar().getCarID());
+		}
+		else{
+			modelShow = new ModelCreateorChangeProposal(proposal.getProposalID(),proposal.getName(),
+					proposal.getDetail(),"manyday",proposal.getUsefromdate(),proposal.getUsetodate(),null,proposal.getCar().getCarID());
+		}
+		return modelShow;
+	}
+	
+	public String createCalendar(String month, String year){
+		System.out.println(month+"xx" + year);
+		Calendar now = Calendar.getInstance();
+		int y,m;
+		if(month == null || year == null)
+		{
+			m = now.get(Calendar.MONTH);
+			y = now.get(Calendar.YEAR);
+			now.set(y, m, 1);
+		}else{
+			now.clear();
+			y = Integer.parseInt(year);
+			m = Integer.parseInt(month);
+			now.set(y, m, 1);
+		}
+		String html = new ModelCalendar().createCalendar(y, m, now);
+		return html;
+	}
+	
+	public void addNotify(String type, int proposalID, User user){
+		switch(type){
+			case "create":
+				notifyEventService.save(new NotifyEvent(Calendar.getInstance(),
+						typeProposalService.findOne(1), proposalID, 0, user));
+				break;
+			case "change":
+				notifyEventService.save(new NotifyEvent(Calendar.getInstance(),
+						typeProposalService.findOne(2), proposalID, 0, user));
+				break;
+			case "cancel":
+				notifyEventService.save(new NotifyEvent(Calendar.getInstance(),
+						typeProposalService.findOne(3), proposalID, 0, user));
+				break;
+		}
+	}
+	
+	public void SendNotify(List<User> listuser){
+		Thread nThread = new Thread(new SendEmail(listuser));
+		nThread.start();
 	}
 }

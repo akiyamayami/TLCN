@@ -21,7 +21,14 @@ $(document).ready(function(){
         	x = 1;
         }
     });
-    $(".date-picker").datepicker("update",setcurrentday());
+    $(".date-picker").datepicker();
+    //"update",setcurrentday()
+    //
+    $(".date-picker").each(function(){
+    	if($(this).val() == "" || $(this).val() == null){
+    		$(this).datepicker("update",setcurrentday());
+    	}
+    });
     $(".date-picker2").datepicker();
     if($("#select-time-use").val() == "inday"){
             $("#in-day").show();
