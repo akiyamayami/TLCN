@@ -2,6 +2,10 @@ package com.tlcn.model;
 
 import java.util.Date;
 
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.multipart.MultipartFile;
 
 public class ModelCreateorChangeProposal {
@@ -9,8 +13,15 @@ public class ModelCreateorChangeProposal {
 	private String name;
 	private String detail;
 	private String typedateuse;
+	
+	@Temporal(TemporalType.DATE)
+	@DateTimeFormat(pattern = "MM/dd/yyyy")
 	private Date useindate;
+	@Temporal(TemporalType.DATE)
+	@DateTimeFormat(pattern = "MM/dd/yyyy")
 	private Date usefromdate;
+	@Temporal(TemporalType.DATE)
+	@DateTimeFormat(pattern = "MM/dd/yyyy")
 	private Date usetodate;
 	private MultipartFile file;
 	private int carID;

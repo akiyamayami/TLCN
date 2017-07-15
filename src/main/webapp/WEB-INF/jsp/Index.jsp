@@ -76,23 +76,23 @@
 										<div class="form-group">
 											<label>Loại :</label>
 											<form:select path="type" class="form-control set-height-25">
-												<option value="all">Tất cả</option>
-												<option value="create">Tạo</option>
-												<option value="change">Chỉnh sửa</option>
-												<option value="cancel">Hủy</option>
+												<form:option value="0">Tất cả</form:option>
+												<form:option value="1">Tạo</form:option>
+												<form:option value="2">Chỉnh sửa</form:option>
+												<form:option value="3">Hủy</form:option>
 											</form:select>
 										</div>
 										<div class="form-group">
 											<label>Tình trạng :</label>
 											<form:select path="stt" class="form-control set-height-25">
-												<option value="all">Tất cả</option>
-												<option value="comfirm">Đã duyệt</option>
-												<option value="notcomfirm">Chưa duyệt</option>
+												<form:option value="-1">Tất cả</form:option>
+												<form:option value="1">Đã duyệt</form:option>
+												<form:option value="0">Chưa duyệt</form:option>
 											</form:select>
 										</div>
 										<div style="float: right;">
 											<button type="submit" class="btn btn-default set-height-25">Lọc</button>
-											<a href="/" id="cancel-filter"> <i
+											<a href="#" id="cancel-filter"> <i
 												class="fa fa-times fa-lg" aria-hidden="true"></i>
 											</a>
 										</div>
@@ -642,9 +642,9 @@
 										<c:otherwise>
 											<sec:authorize access="hasAuthority('CONFIRM_PROPOSAL')">
 												<div class="item-notify">
-					                                <a href="#">
+					                                <a href="confirm-proposal-${notifys.proposal.proposalID}">
 					                                    <div>
-					                                       <strong><c:out value="${notifys.user.name}"></c:out></strong> 
+					                                       <strong><c:out value="${notifys.proposal.userregister.user.name}"></c:out></strong> 
 					                                        đã <c:out value="${notifys.type.name}"/> một đề nghị
 					                                    </div>
 					                                    <p class="time-ago">

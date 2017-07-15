@@ -322,6 +322,9 @@ a i{
 .list-notify a:hover {
     text-decoration:none;
 }
+.list-notify a{
+	text-decoration:none;
+}
 .list-notify .item-notify:hover{
     background: #e3e3e3;
 }

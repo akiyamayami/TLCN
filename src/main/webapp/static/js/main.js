@@ -63,15 +63,31 @@ $(document).ready(function(){
         $(idinfo).show();
     });
     $("#cancel-filter").hide();
-    if(checkfilterornot()){
-        $("#cancel-filter").show();
+    if($("#datecreate").val() != null){
+    	checkfilterornot();
     }
+    $("#type").change(function(){
+    	checkfilterornot();
+    });
+	$("#stt").change(function(){
+		checkfilterornot();
+	});
+    $("#cancel-filter").click(function(){
+    	$("#datecreate").val("");
+    	$("#type").val("0");
+    	$("#stt").val("-1");
+    });
 });
-function checkfilterornot(currentLocation){
-    if(currentLocation.indexOf("filter-stt=") != -1 || currentLocation.indexOf("filter-type=") != -1 || currentLocation.indexOf("filter-date-create=") != -1){
-        return true;
-    }
-    return false;
+function checkfilterornot(){
+	var date = $("#datecreate").val();
+	var type = $("#type").val();
+	var stt = $("#stt").val();
+	if(date != ""  || type != "0" || stt != "-1"){
+		$("#cancel-filter").show();
+	}
+	else{
+		$("#cancel-filter").hide();
+	}
 }
 function setcurrentday(){
     var today = new Date();

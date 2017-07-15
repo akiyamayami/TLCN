@@ -1,20 +1,15 @@
 package com.tlcn.model;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 
 public class ModelCalendar{
 
-	private int month;
-	private int year;
 	private String[] cal_days_labels = { "CN", "T2", "T3", "T4", "T5", "T6", "T7" };
 	private String[] cal_months_labels = { "January", "February", "March", "April", "May", "June", "July", 
 											"August", "September", "October", "November", "December" };
 	private int[] cal_days_in_month = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
-	private Calendar now;
 	private int startingDay;
 	private int monthLength;
 	private int day = 1;

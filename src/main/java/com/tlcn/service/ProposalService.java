@@ -12,13 +12,15 @@ import com.tlcn.dao.UserRespository;
 import com.tlcn.model.ModelCreateorChangeProposal;
 import com.tlcn.model.ModelFilterProposal;
 import com.tlcn.model.Proposal;
+import com.tlcn.model.TypeProposal;
 import com.tlcn.model.User;
 
 @Service
 public class ProposalService {
 	@Autowired
 	private ProposalRepository proposalRepository;
-	
+	@Autowired
+	private TypeProposalService typeProposalService;
 	
 	public Proposal findOne(int proposalID){
 		return proposalRepository.findOne(proposalID);
@@ -53,9 +55,14 @@ public class ProposalService {
 	}
 	private List<Proposal> getListFilter(ModelFilterProposal filter, User user){
 		Date datecreate = filter.getDatecreate();
-		String type = filter.getType();
+		int typeNumber = Integer.parseInt(filter.getType());
+		TypeProposal type = null;
+		if(typeNumber != 0)
+			type = typeProposalService.findOne(typeNumber);
 		int stt = filter.getStt();
 		if(user != null){
+			if(datecreate == null && stt == -1 && type == null)
+				return findProposalofuser(user);
 			if(datecreate != null && stt != -1 && type != null)
 				return proposalRepository.LPF_all(datecreate, type, stt);
 			if(datecreate != null && stt == -1 && type != null)
@@ -72,6 +79,8 @@ public class ProposalService {
 				return proposalRepository.LPF_stt(stt);
 		}
 		else{
+			if(datecreate == null && stt == -1 && type == null)
+				return findAll();
 			if(datecreate != null && stt != -1 && type != null)
 				return proposalRepository.LPF_all_of_user(datecreate, type, stt, user);
 			if(datecreate != null && stt == -1 && type != null)
