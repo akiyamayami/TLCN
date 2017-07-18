@@ -1,8 +1,8 @@
 package com.tlcn.model;
 
 import java.util.Date;
+import java.util.List;
 
-import javax.persistence.Embeddable;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -11,6 +11,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -30,15 +31,21 @@ public class Proposal {
 	private String detail;
 	
 	@Temporal(TemporalType.DATE)
-	@DateTimeFormat(pattern = "yyyy-MM-dd")
+	@DateTimeFormat(pattern = "dd-MM-yyyy")
 	private Date usefromdate;
 	
 	@Temporal(TemporalType.DATE)
-	@DateTimeFormat(pattern = "yyyy-MM-dd")
+	@DateTimeFormat(pattern = "dd-MM-yyyy")
 	private Date usetodate;
 	private String file;
-	private int stt;
 	
+	@ManyToOne(fetch=FetchType.EAGER)
+	@JoinColumn(name="sttproposalID")
+	private SttProposal stt;
+	
+	
+	@OneToMany(mappedBy = "notifyOfProposal")
+	private List<NotifyEvent> listnotifyofproposal;
 	
 	@ManyToOne(fetch=FetchType.EAGER)
 	@JoinTable
@@ -52,11 +59,32 @@ public class Proposal {
 	@OneToOne(mappedBy = "proposal")
 	private RegisterProposal userregister;
 
+	@OneToOne(mappedBy = "proposalapproved")
+	private ConfirmProposal infoconfirm;
 	public Proposal() {
 		super();
 	}
+	
+	
+	public Proposal(TypeProposal type, String name, String detail, Date usefromdate, Date usetodate, String file,
+			SttProposal stt, List<NotifyEvent> listnotifyofproposal, Car car, RegisterProposal userregister,
+			ConfirmProposal infoconfirm) {
+		super();
+		this.type = type;
+		this.name = name;
+		this.detail = detail;
+		this.usefromdate = usefromdate;
+		this.usetodate = usetodate;
+		this.file = file;
+		this.stt = stt;
+		this.listnotifyofproposal = listnotifyofproposal;
+		this.car = car;
+		this.userregister = userregister;
+		this.infoconfirm = infoconfirm;
+	}
 
-	public Proposal(TypeProposal type, String name, String detail, Date usefromdate, Date usetodate, int stt, Car car) {
+
+	public Proposal(TypeProposal type, String name, String detail, Date usefromdate, Date usetodate, SttProposal stt, Car car) {
 		super();
 		this.type = type;
 		this.name = name;
@@ -68,7 +96,7 @@ public class Proposal {
 	}
 
 	public Proposal(TypeProposal type, String name, String detail, Date usefromdate, Date usetodate, String file,
-			int stt, Car car, RegisterProposal userregister) {
+			SttProposal stt, Car car, RegisterProposal userregister) {
 		super();
 		this.type = type;
 		this.name = name;
@@ -82,7 +110,7 @@ public class Proposal {
 	}
 
 	public Proposal(int proposalID, TypeProposal type, String name, String detail, Date usefromdate, Date usetodate,
-			String file, int stt, Car car, RegisterProposal userregister) {
+			String file, SttProposal stt, Car car, RegisterProposal userregister) {
 		super();
 		this.proposalID = proposalID;
 		this.type = type;
@@ -97,7 +125,7 @@ public class Proposal {
 	}
 
 	public Proposal(int proposalID, TypeProposal type, String name, Date usefromdate, Date usetodate, String file,
-			int stt, Car car, RegisterProposal userregister) {
+			SttProposal stt, Car car, RegisterProposal userregister) {
 		super();
 		this.proposalID = proposalID;
 		this.type = type;
@@ -158,11 +186,11 @@ public class Proposal {
 		this.file = file;
 	}
 
-	public int getStt() {
+	public SttProposal getStt() {
 		return stt;
 	}
 
-	public void setStt(int stt) {
+	public void setStt(SttProposal stt) {
 		this.stt = stt;
 	}
 

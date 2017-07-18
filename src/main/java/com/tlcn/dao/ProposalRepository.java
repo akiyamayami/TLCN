@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 
 import com.tlcn.model.Proposal;
+import com.tlcn.model.SttProposal;
 import com.tlcn.model.TypeProposal;
 import com.tlcn.model.User;
 
@@ -30,10 +31,10 @@ public interface ProposalRepository extends CrudRepository<Proposal, Integer>{
 	public List<Proposal> LPF_type_of_user(TypeProposal type, User user);
 	
 	@Query("select p from proposal p where p.stt = ?1")
-	public List<Proposal> LPF_stt(int stt);
+	public List<Proposal> LPF_stt(SttProposal stt);
 		
 	@Query("select p from proposal p where p.stt = ?1 and p.proposalID in (select p from proposal p, com.tlcn.model.RegisterProposal r where r.user = ?2 and p.proposalID = r.proposal)")
-	public List<Proposal> LPF_stt_of_user(int stt, User user);
+	public List<Proposal> LPF_stt_of_user(SttProposal stt, User user);
 	// 2 sort
 	@Query("select p from com.tlcn.model.RegisterProposal r , proposal p where r.dateregister = ?1 and p.type = ?2 and p.proposalID = r.proposal")
 	public List<Proposal> LPF_datecreate_and_type(Date datecreate,TypeProposal type);
@@ -42,22 +43,27 @@ public interface ProposalRepository extends CrudRepository<Proposal, Integer>{
 	public List<Proposal> LPF_datecreate_and_type_of_user(Date datecreate,TypeProposal type, User user);
 	
 	@Query("select p from com.tlcn.model.RegisterProposal r , proposal p where r.dateregister = ?1 and p.stt = ?2 and p.proposalID = r.proposal")
-	public List<Proposal> LPF_datecreate_and_stt(Date datecreate,int stt);
+	public List<Proposal> LPF_datecreate_and_stt(Date datecreate,SttProposal stt);
 	
 	@Query("select p from com.tlcn.model.RegisterProposal r , proposal p where r.dateregister = ?1 and p.proposalID = r.proposal and p.stt = ?2 and p.proposalID in (select p.proposalID from proposal p, com.tlcn.model.RegisterProposal r where r.user = ?3 and p.proposalID = r.proposal)")
-	public List<Proposal> LPF_datecreate_and_stt_of_user(Date datecreate,int stt, User user);
+	public List<Proposal> LPF_datecreate_and_stt_of_user(Date datecreate,SttProposal stt, User user);
 	
 	@Query("select p from proposal p where p.type = ?1 and p.stt = ?2")
-	public List<Proposal> LPF_type_stt(TypeProposal type, int stt);
+	public List<Proposal> LPF_type_stt(TypeProposal type, SttProposal stt);
 	
 	@Query("select p from proposal p where p.type = ?1 and p.stt = ?2 and p.proposalID in (select p.proposalID from proposal p, com.tlcn.model.RegisterProposal r where r.user = ?3 and p.proposalID = r.proposal)")
-	public List<Proposal> LPF_type_stt_of_user(TypeProposal type, int stt, User user);
+	public List<Proposal> LPF_type_stt_of_user(TypeProposal type, SttProposal stt, User user);
 	
 	// 3 sort
 	@Query("select p from com.tlcn.model.RegisterProposal r , proposal p where r.dateregister = ?1 and p.type = ?2 and p.proposalID = r.proposal and p.stt = ?3")
-	public List<Proposal> LPF_all(Date datecreate,TypeProposal type, int stt);
+	public List<Proposal> LPF_all(Date datecreate,TypeProposal type, SttProposal stt);
 	
 	@Query("select p from com.tlcn.model.RegisterProposal r , proposal p where r.dateregister = ?1 and p.proposalID = r.proposal and p.type = ?2 and p.stt = ?3 and p.proposalID in (select p.proposalID from proposal p, com.tlcn.model.RegisterProposal r where r.user = ?4 and p.proposalID = r.proposal)")
-	public List<Proposal> LPF_all_of_user(Date datecreate,TypeProposal type, int stt, User user);
+	public List<Proposal> LPF_all_of_user(Date datecreate,TypeProposal type, SttProposal stt, User user);
+	///
+
+	
+	@Query("select p from proposal p where p.stt = 1 and p.usefromdate > CURDATE()")
+	public List<Proposal> listProposalReady();
 	
 }

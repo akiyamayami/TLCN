@@ -28,7 +28,7 @@ public class User {
 	private String phone;
 	
 	@Temporal(TemporalType.DATE)
-	@DateTimeFormat(pattern = "yyyy-MM-dd")
+	@DateTimeFormat(pattern = "dd-MM-yyyy")
 	private Date birthday;
 	@ManyToOne(fetch=FetchType.EAGER)
 	@JoinColumn(name="roleID")
@@ -49,6 +49,24 @@ public class User {
 	@OneToMany(mappedBy = "notifyOfUser")
 	private List<NotifyEvent> listnotify;
 	
+	@OneToMany(mappedBy = "userconfirm")
+	private List<ConfirmProposal> listproposalconfirm;
+	
+	public User(String email, String password, String name, String phone, Date birthday, Role roleUser,
+			List<Right> rightUser, List<RegisterProposal> listproposalregister, List<NotifyEvent> listnotify,
+			List<ConfirmProposal> listproposalconfirm) {
+		super();
+		this.email = email;
+		this.password = password;
+		this.name = name;
+		this.phone = phone;
+		this.birthday = birthday;
+		this.roleUser = roleUser;
+		this.rightUser = rightUser;
+		this.listproposalregister = listproposalregister;
+		this.listnotify = listnotify;
+		this.listproposalconfirm = listproposalconfirm;
+	}
 	public User(String email, String password, Date birthday, String name, String phone, Role roleUser,
 			List<Right> rightUser, List<RegisterProposal> listproposalregister) {
 		super();
@@ -140,4 +158,11 @@ public class User {
 	public void setListnotify(List<NotifyEvent> listnotify) {
 		this.listnotify = listnotify;
 	}
+	public List<ConfirmProposal> getListproposalconfirm() {
+		return listproposalconfirm;
+	}
+	public void setListproposalconfirm(List<ConfirmProposal> listproposalconfirm) {
+		this.listproposalconfirm = listproposalconfirm;
+	}
+	
 }

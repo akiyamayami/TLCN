@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import com.tlcn.dao.NotifyEventRepository;
 import com.tlcn.model.ModelShowNotify;
 import com.tlcn.model.NotifyEvent;
+import com.tlcn.model.Proposal;
 import com.tlcn.model.User;
 
 @Service
@@ -28,7 +29,9 @@ public class NotifyEventService {
 		List<ModelShowNotify> listnotify = new ArrayList<>();
 		List<NotifyEvent> x  =  notifyEventRepository.getListNotifyNewest(user);
 		for(NotifyEvent notify : x){
-			listnotify.add(new ModelShowNotify(notify.getNotifyOfUser(), getTime(notify.getDateUpEvent()), notify.getTypeProposal(), propsalService.findOne(notify.getProposalID()), notify.getStt()));
+			Proposal proposal = notify.getNotifyOfProposal();
+			listnotify.add(new ModelShowNotify(notify.getNotifyOfUser(), getTime(notify.getDateUpEvent()), proposal));
+			System.out.println(proposal.getUserregister().getUser().getName());
 		}
 		return listnotify;
 	}

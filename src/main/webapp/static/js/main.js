@@ -10,9 +10,7 @@ $(document).ready(function(){
     });
     $(".icon-show-deital").click(function(){
     	var carID = $("#choicecar").val();
-    	alert(carID);
     	var detaildiverID = "#detail-car-" + carID;
-    	alert(detaildiverID);
         if(x == 1){
             $(detaildiverID).slideDown("slow");
             x = 0;
@@ -57,10 +55,8 @@ $(document).ready(function(){
     $('.show-deital-driver').click(function(){
         $(".driver-info").hide();
         var row_index = $(this).closest("tr").index();
-        alert(row_index);
         var idinfo = "#driver-info-"+row_index;
-        alert(idinfo);
-        $(idinfo).show();
+        $(idinfo).slideDown("slow");
     });
     $("#cancel-filter").hide();
     if($("#datecreate").val() != null){

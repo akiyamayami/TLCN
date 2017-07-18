@@ -30,7 +30,7 @@ public class RegisterProposal{
 	private Proposal proposal;
 	
 	@Temporal(TemporalType.DATE)
-	@DateTimeFormat(pattern = "yyyy-MM-dd")
+	@DateTimeFormat(pattern = "dd-MM-yyyy")
 	private Date dateregister;
 
 	public RegisterProposal() {

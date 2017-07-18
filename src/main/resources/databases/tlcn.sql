@@ -18,9 +18,9 @@ insert into role_right values(2,1);
 insert into role_right values(2,3);
 insert into role_right values(2,5);
 
-insert into user values("akiyamayami1@gmail.com","1996-09-24","","123456","",3);
-insert into user values("lyphucloi.it@gmail.com","1996-09-24","","123456","",2);
-insert into user values("123@gmail.com","1996-09-24","","123456","",1);
+insert into user values("akiyamayami1@gmail.com","1996-09-24","Nguyễn Văn A","123456","",3);
+insert into user values("lyphucloi.it@gmail.com","1996-09-24","Nguyễn Văn B","123456","",2);
+insert into user values("123@gmail.com","1996-09-24","Nguyễn Văn C","123456","",1);
 
 insert into sttcar(name) values("Bình Thường");
 insert into sttcar(name) values("Bảo trì");
@@ -31,6 +31,8 @@ insert into sttdriver(name) values("Bệnh");
 insert into typeproposal(name) values("Tạo");
 insert into typeproposal(name) values("Chỉnh Sửa");
 insert into typeproposal(name) values("Hủy");
+
+
 
 insert into car(licenseplate,seats,type,sttcarid) 
 	values("00-00 6875",4,"BWM",1);
@@ -53,14 +55,21 @@ insert into driver_car values("400@gmail.com",3);
 insert into driver_car values("401@gmail.com",4);
 insert into driver_car values("401@gmail.com",5);
 
-insert into proposal(file,name,detail,stt,usefromdate,usetodate,typeID)
+insert into sttproposal values(1,"Đã duyệt");
+insert into sttproposal values(0,"Chưa duyệt");
+
+
+insert into proposal(file,name,detail,sttproposalid,usefromdate,usetodate,typeid)
 	values(null,"Tham Quan Renasas","Tham quan công ty renasas .....",0,"2017-07-25","2017-07-26",1);
-insert into proposal(file,name,detail,stt,usefromdate,usetodate,typeID)
+insert into proposal(file,name,detail,sttproposalid,usefromdate,usetodate,typeid)
 	values(null,"Tham Quan Renasas","Tham quan công ty renasas .....",0,"2017-07-25","2017-07-26",1);
 
+insert into notifyevent(date_up_event,proposalid,email_user) values(CURDATE(),1,"123@gmail.com");
+insert into notifyevent(date_up_event,proposalid,email_user) values(CURDATE(),2,"123@gmail.com");
 
 insert into registercar values(1,1);
 insert into registercar values(2,2);
 
 insert into registerproposal(dateregister,proposalid,emailuser) values("2017-07-08",1,"123@gmail.com");
 insert into registerproposal(dateregister,proposalid,emailuser) values("2017-07-08",2,"123@gmail.com");
+

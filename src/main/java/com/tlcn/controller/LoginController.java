@@ -33,18 +33,8 @@ public class LoginController {
 	}
 	
 	
-	// page check-stt-car
-	@RequestMapping(value="/check-stt-cars", method = RequestMethod.GET)
-	public String checkSttCar(Model model){
-		model.addAttribute("MODE", "MODE_CHECK_STT_CARS");
-		return "Index";
-	}
-	// page find-car
-	@RequestMapping(value="/find-cars", method = RequestMethod.GET)
-	public String findCar(Model model){
-		model.addAttribute("MODE", "MODE_FIND_CARS");
-		return "Index";
-	}
+	
+	
 	// page Login
 	@RequestMapping(value="/login", method = RequestMethod.GET)
 	public String Login(){

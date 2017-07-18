@@ -21,35 +21,20 @@ public class NotifyEvent {
 	private Calendar dateUpEvent;
 	
 	@ManyToOne(fetch=FetchType.EAGER)
-	@JoinColumn(name="typeID")
-	private TypeProposal typeProposal;
-	private int proposalID;
-	private int stt;
+	@JoinColumn(name="proposalID")
+	private Proposal notifyOfProposal;
 	
 	@ManyToOne(fetch=FetchType.EAGER)
 	@JoinColumn(name="emailUser")
 	private User notifyOfUser;
 
-
-	public NotifyEvent(Calendar dateUpEvent, TypeProposal typeProposal, int proposalID, int stt, User notifyOfUser) {
+	public NotifyEvent(Calendar dateUpEvent, Proposal notifyOfProposal, User notifyOfUser) {
 		super();
 		this.dateUpEvent = dateUpEvent;
-		this.typeProposal = typeProposal;
-		this.proposalID = proposalID;
-		this.stt = stt;
+		this.notifyOfProposal = notifyOfProposal;
 		this.notifyOfUser = notifyOfUser;
 	}
 
-	public NotifyEvent(int notifyID, Calendar dateUpEvent, TypeProposal typeProposal, int proposalID, int stt,
-			User notifyOfUser) {
-		super();
-		this.notifyID = notifyID;
-		this.dateUpEvent = dateUpEvent;
-		this.typeProposal = typeProposal;
-		this.proposalID = proposalID;
-		this.stt = stt;
-		this.notifyOfUser = notifyOfUser;
-	}
 
 	public NotifyEvent() {
 		super();
@@ -64,9 +49,6 @@ public class NotifyEvent {
 	}
 
 
-
-
-
 	public Calendar getDateUpEvent() {
 		return dateUpEvent;
 	}
@@ -77,29 +59,15 @@ public class NotifyEvent {
 
 
 
-	public TypeProposal getTypeProposal() {
-		return typeProposal;
+	public Proposal getNotifyOfProposal() {
+		return notifyOfProposal;
 	}
 
-	public void setTypeProposal(TypeProposal typeProposal) {
-		this.typeProposal = typeProposal;
+
+	public void setNotifyOfProposal(Proposal notifyOfProposal) {
+		this.notifyOfProposal = notifyOfProposal;
 	}
 
-	public int getProposalID() {
-		return proposalID;
-	}
-
-	public void setProposalID(int proposalID) {
-		this.proposalID = proposalID;
-	}
-
-	public int getStt() {
-		return stt;
-	}
-
-	public void setStt(int stt) {
-		this.stt = stt;
-	}
 
 	public User getNotifyOfUser() {
 		return notifyOfUser;
