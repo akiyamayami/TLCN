@@ -60,6 +60,11 @@ public class ProposalService {
 	public void deleteProposal(int proposalID){
 		// code here
 	}
+	
+	public List<Proposal> getListProposalExpired(){
+		return proposalRepository.listProposalExpired();
+	}
+	
 	private List<Proposal> getListFilter(ModelFilterProposal filter, User user){
 		Date datecreate = filter.getDatecreate();
 		int typeNumber = Integer.parseInt(filter.getType());

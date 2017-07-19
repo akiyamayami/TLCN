@@ -66,4 +66,7 @@ public interface ProposalRepository extends CrudRepository<Proposal, Integer>{
 	@Query("select p from proposal p where p.stt = 1 and p.usefromdate > CURDATE()")
 	public List<Proposal> listProposalReady();
 	
+	
+	@Query("select p from proposal p where (p.usetodate < CURDATE() or CURDATE() between p.usefromdate and p.usetodate) and p.stt = 0")
+	public List<Proposal> listProposalExpired();
 }

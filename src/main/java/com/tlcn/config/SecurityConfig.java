@@ -44,7 +44,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter{
 			.antMatchers("/").hasAuthority("FIND_PROPOSAL")
 			.antMatchers("/confirm-proposal").hasAuthority("CONFIRM_PROPOSAL")
 			.antMatchers("/change-proposal").hasAuthority("CHANGE_PROPOSAL")
-			.antMatchers("/create-proposal").hasAuthority("CREATE_PROPOSAL")
+			.antMatchers("/create-proposal","/cancel-proposal").hasAuthority("CREATE_PROPOSAL")
 			.antMatchers("/check-stt-cars","/find-cars").hasAuthority("CHECK_OR_FIND_CARS")
 			.antMatchers("/invalidSession*").anonymous()
 		.and()

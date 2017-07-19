@@ -43,6 +43,7 @@ public class Proposal {
 	@JoinColumn(name="sttproposalID")
 	private SttProposal stt;
 	
+	private boolean expired = false;
 	
 	@OneToMany(mappedBy = "notifyOfProposal")
 	private List<NotifyEvent> listnotifyofproposal;
@@ -61,6 +62,8 @@ public class Proposal {
 
 	@OneToOne(mappedBy = "proposalapproved")
 	private ConfirmProposal infoconfirm;
+	
+	
 	public Proposal() {
 		super();
 	}
@@ -217,9 +220,37 @@ public class Proposal {
 	public void setDetail(String detail) {
 		this.detail = detail;
 	}
-	
-	
-	
+
+
+	public List<NotifyEvent> getListnotifyofproposal() {
+		return listnotifyofproposal;
+	}
+
+
+	public void setListnotifyofproposal(List<NotifyEvent> listnotifyofproposal) {
+		this.listnotifyofproposal = listnotifyofproposal;
+	}
+
+
+	public ConfirmProposal getInfoconfirm() {
+		return infoconfirm;
+	}
+
+
+	public void setInfoconfirm(ConfirmProposal infoconfirm) {
+		this.infoconfirm = infoconfirm;
+	}
+
+
+	public boolean isExpired() {
+		return expired;
+	}
+
+
+	public void setExpired(boolean expired) {
+		this.expired = expired;
+	}
+
 	
 	
 }

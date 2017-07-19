@@ -25,7 +25,7 @@ public class ModelCreateorChangeProposal {
 	private Date usetodate;
 	private MultipartFile file;
 	private int carID;
-	
+	private boolean isFileExist;
 	
 	public ModelCreateorChangeProposal() {
 		super();
@@ -43,7 +43,7 @@ public class ModelCreateorChangeProposal {
 	
 	//use car many day
 	public ModelCreateorChangeProposal(int proposalID, String name, String detail, String typedateuse
-			, Date usefromdate, Date usetodate, MultipartFile file, int carID) {
+			, Date usefromdate, Date usetodate, MultipartFile file, int carID, boolean isFileExitst) {
 		super();
 		this.proposalID = proposalID;
 		this.name = name;
@@ -53,12 +53,13 @@ public class ModelCreateorChangeProposal {
 		this.usetodate = usetodate;
 		this.file = file;
 		this.carID = carID;
+		this.isFileExist = isFileExitst;
 	}
 
 
 	//use car 1 day
 	public ModelCreateorChangeProposal(int proposalID, String name, String detail, String typedateuse, Date useindate,
-			MultipartFile file, int carID) {
+			MultipartFile file, int carID, boolean isFileExitst) {
 		super();
 		this.proposalID = proposalID;
 		this.name = name;
@@ -67,6 +68,7 @@ public class ModelCreateorChangeProposal {
 		this.useindate = useindate;
 		this.file = file;
 		this.carID = carID;
+		this.isFileExist = isFileExitst;
 	}
 
 
@@ -143,6 +145,16 @@ public class ModelCreateorChangeProposal {
 
 	public void setUseindate(Date useindate) {
 		this.useindate = useindate;
+	}
+
+
+	public boolean isFileExist() {
+		return isFileExist;
+	}
+
+
+	public void setFileExist(boolean isFileExist) {
+		this.isFileExist = isFileExist;
 	}
 	
 }

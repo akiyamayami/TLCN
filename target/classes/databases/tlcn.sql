@@ -59,10 +59,10 @@ insert into sttproposal values(1,"Đã duyệt");
 insert into sttproposal values(0,"Chưa duyệt");
 
 
-insert into proposal(file,name,detail,sttproposalid,usefromdate,usetodate,typeid)
-	values(null,"Tham Quan Renasas","Tham quan công ty renasas .....",0,"2017-07-25","2017-07-26",1);
-insert into proposal(file,name,detail,sttproposalid,usefromdate,usetodate,typeid)
-	values(null,"Tham Quan Renasas","Tham quan công ty renasas .....",0,"2017-07-25","2017-07-26",1);
+insert into proposal(file,name,detail,sttproposalid,usefromdate,usetodate,typeid,expired)
+	values(null,"Tham Quan Renasas","Tham quan công ty renasas .....",0,"2017-07-25","2017-07-26",1,false);
+insert into proposal(file,name,detail,sttproposalid,usefromdate,usetodate,typeid,expired)
+	values(null,"Tham Quan Renasas","Tham quan công ty renasas .....",0,"2017-07-25","2017-07-26",1,false);
 
 insert into notifyevent(date_up_event,proposalid,email_user) values(CURDATE(),1,"123@gmail.com");
 insert into notifyevent(date_up_event,proposalid,email_user) values(CURDATE(),2,"123@gmail.com");
@@ -72,4 +72,3 @@ insert into registercar values(2,2);
 
 insert into registerproposal(dateregister,proposalid,emailuser) values("2017-07-08",1,"123@gmail.com");
 insert into registerproposal(dateregister,proposalid,emailuser) values("2017-07-08",2,"123@gmail.com");
-
