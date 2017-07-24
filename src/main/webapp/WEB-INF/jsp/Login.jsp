@@ -55,7 +55,8 @@ function validate() {
 	    			<spring:message code="message.logoutSucc"></spring:message>
 	    		</h1>
 	    	</c:if> 
-            <form name='f' action="login" id="form_login" method="POST" class="form-horizontal" onsubmit="return validate();">
+	    	<sec:authorize access="isAnonymous()">
+	    		<form name='f' action="login" id="form_login" method="POST" class="form-horizontal" onsubmit="return validate();">
                 <h1 ><strong>Login</strong></h1>
                 <div class="form-group">
                     <label class="control-label col-sm-2 col-sm-offset-3" for="email" >Email:</label>
@@ -79,9 +80,12 @@ function validate() {
                     </div>
                 </div>
             </form>
+	    	</sec:authorize>
+            <sec:authorize access="isAuthenticated()">
+            	<h1>You Already Login</h1>
+            	Click <a href="/">here</a> to back Home.
+            </sec:authorize>
         </div>
-        
-        <div id="fogetpass"><a href="/fogetpassword">Foget Password</a></div>
     </div>
 </div>
 <t:footer></t:footer>

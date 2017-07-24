@@ -333,3 +333,42 @@ a i{
     color:#8f98d6;
 }
 
+
+
+
+.time2{
+    height: 32px;
+}
+
+
+.btn-dropdown-page{
+    height: 30px;
+    background: transparent;
+    color: white;
+    border: none;
+    padding:6px 12px;
+}
+
+.btn-dropdown-page:focus,.btn-dropdown-page:hover{
+    background-color:white;
+    color:#364294;
+}
+
+
+
+
+
+
+/*color vaildate*/
+.error{
+	color:red;
+}
+
+
+
+
+
+
+
+
+

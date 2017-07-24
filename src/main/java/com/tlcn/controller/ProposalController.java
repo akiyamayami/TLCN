@@ -4,7 +4,6 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -13,39 +12,36 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.stereotype.Component;
+import org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestWrapper;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.WebDataBinder;
-import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartException;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.mysql.fabric.xmlrpc.base.Array;
+import com.tlcn.dto.ModelCalendar;
+import com.tlcn.dto.ModelCreateorChangeProposal;
+import com.tlcn.dto.ModelFilterProposal;
+import com.tlcn.error.NotOwnerOfProposalException;
+import com.tlcn.error.ProposalNotFoundException;
 import com.tlcn.model.Car;
 import com.tlcn.model.ConfirmProposal;
-import com.tlcn.model.ModelCalendar;
-import com.tlcn.model.ModelCreateorChangeProposal;
-import com.tlcn.model.ModelFilterProposal;
-import com.tlcn.model.ModelShowNotify;
 import com.tlcn.model.NotifyEvent;
 import com.tlcn.model.Proposal;
 import com.tlcn.model.RegisterProposal;
-import com.tlcn.model.TypeProposal;
 import com.tlcn.model.User;
 import com.tlcn.runnable.SendEmail;
-import com.tlcn.runnable.SendSms;
 import com.tlcn.service.CarService;
 import com.tlcn.service.ConfirmProposalService;
 import com.tlcn.service.NotifyEventService;
@@ -58,7 +54,6 @@ import com.tlcn.validator.ProposalValidator;
 
 
 @Controller
-@Component
 public class ProposalController {
 	@Autowired
 	private UserService userService;
@@ -77,20 +72,13 @@ public class ProposalController {
 	@Autowired
 	private ConfirmProposalService confirmProposalService;
 	
-	
 	@Autowired
 	private ProposalValidator proposaValidator;
 	
-	/*
-	@InitBinder
-	protected void initBinder(WebDataBinder binder) {
-		binder.setValidator(proposaValidator);
-	}
-	*/
+	
 	public ProposalController() {
 		super();
 	}
-
 	// page find-proposal
 	@RequestMapping(value = "/", method = RequestMethod.GET)
 	public String findpropsal(Model model, @RequestParam(value = "m", required=false) String month, @RequestParam(value = "y", required=false) String year) {
@@ -113,8 +101,7 @@ public class ProposalController {
 	}
 
 	@RequestMapping(value = "/", method = RequestMethod.POST)
-	public String filterproposal(Model model, @ModelAttribute("filter-model") ModelFilterProposal filterproposal,
-			BindingResult result) {
+	public String filterproposal(Model model, @ModelAttribute("filter-model") ModelFilterProposal filterproposal) {
 		if (checkUserhasAuthority("CHANGE_PROPOSAL")) {
 			// access to mode find-my-proposal for normal user
 			model.addAttribute("MODE", "MODE_FIND_MY_PROPOSAL");
@@ -131,23 +118,29 @@ public class ProposalController {
 		
 		return "Index";
 	}
-
 	// page create-proposal
 	@RequestMapping(value = "/create-proposal", method = RequestMethod.GET)
 	public String createProposal(Model model, @RequestParam(value = "m", required=false) String month, @RequestParam(value = "y", required=false) String year) {
 		model.addAttribute("MODE", "MODE_CREATE_PROPOSAL");
 		model.addAttribute("typeForm", "/create-proposal");
 		model.addAttribute("Proposal", new ModelCreateorChangeProposal());
-		model.addAttribute("carsAvailble", carService.findListCarAvailable());
+		model.addAttribute("carsAvailble", carService.getListCarAvailable());
 		showCalendarAndNotify(model,month,year);
 		return "Index";
 	}
 
 	@RequestMapping(value = "/create-proposal", method = RequestMethod.POST)
-	public String createProposalPOST(Model model, @ModelAttribute("Proposal") ModelCreateorChangeProposal proposal,
-			BindingResult result, HttpServletRequest request) {
+	public String createProposalPOST(Model model,
+			@Valid @ModelAttribute("Proposal") ModelCreateorChangeProposal proposal,BindingResult result, 
+			HttpServletRequest request) throws MultipartException, IOException {
+		proposaValidator.validate(proposal, result);
 		if(result.hasErrors()){
-			return "redirect:/create-proposal";
+			model.addAttribute("MODE", "MODE_CREATE_PROPOSAL");
+			model.addAttribute("typeForm", "/create-proposal");
+			model.addAttribute("Proposal", proposal);
+			model.addAttribute("carsAvailble", carService.findListCarAvailableInTime(proposalService.getDate(proposal.getUsefromdate(), proposal.getUsefromtime()),proposalService.getDate(proposal.getUsetodate(), proposal.getUsetotime())));
+			showCalendarAndNotify(model,null,null);
+			return "Index";
 		}
 		saveProposal(proposal,GetUser(),request);
 		return "redirect:/";
@@ -156,47 +149,72 @@ public class ProposalController {
 	// page change-proposal
 	@RequestMapping(value = "/change-proposal-{proposalID}", method = RequestMethod.GET)
 	public String changeProposal(Model model, @PathVariable int proposalID, HttpSession session, @RequestParam(value = "m", required=false) String month, @RequestParam(value = "y", required=false) String year) {
-		model.addAttribute("MODE", "MODE_CHANGE_PROPOSAL");
 		model.addAttribute("typeForm", "/change-proposal");
+		Proposal x = proposalService.findOne(proposalID);
+		if(x == null)
+			throw new ProposalNotFoundException();
 		if (isProposalOfUser(proposalID,GetUser())) {
 			session.setAttribute("proposalID", proposalID);
-			Proposal x = proposalService.findOne(proposalID);
 			showCalendarAndNotify(model,month,year);
 			ModelCreateorChangeProposal modelShow = convertProposalToModelShow(x);
 			model.addAttribute("Proposal", modelShow);
 			// change position car use to top
 			showCarWhenChangeProposal(modelShow,model,x);
-			checkExpiredOrInTimeUse(x,model);
+			if(checkExceptionProposal(x,model))
+				model.addAttribute("MODE", "MODE_PROPOSAL_EXPIRED");
+			else{
+				isCarAlreadyUsed(x,model);
+				model.addAttribute("MODE", "MODE_CHANGE_PROPOSAL");
+			}
 			return "Index";
 		}
 		return "redirect:/accessDenied";
 	}
 	
 	@RequestMapping(value = "/change-proposal", method = RequestMethod.POST)
-	public String changeProposalPOST(Model model, @ModelAttribute("Proposal") ModelCreateorChangeProposal proposal,
+	public String changeProposalPOST(Model model,@Valid @ModelAttribute("Proposal") ModelCreateorChangeProposal proposal,
 			BindingResult result, HttpServletRequest request, HttpSession session) {
+		model.addAttribute("MODE", "MODE_CHANGE_PROPOSAL");
 		int proposalID = (int) session.getAttribute("proposalID");
-		if (isProposalOfUser(proposalID,GetUser())) {
-			updateProposal(proposalID,proposal,request);
-			return "redirect:/";
+		if (isProposalOfUser(proposalID, GetUser())) {
+			Proposal x = proposalService.findOne(proposalID);
+			proposaValidator.validate(proposal, result);
+			if (checkExceptionProposal(x, model)) {
+				return "redirect:/hackerDetected";
+			}
+			if (result.hasErrors()) {
+				model.addAttribute("typeForm", "/change-proposal");
+				session.setAttribute("proposalID", proposalID);
+				showCalendarAndNotify(model, null, null);
+				model.addAttribute("Proposal", proposal);
+				// change position car use to top
+				showCarWhenChangeProposal(proposal, model, x);
+				return "Index";
+			}
+			return (updateProposal(proposalID, proposal, request)) ? "redirect:/" : "Index";
 		}
-		return "redirect:/accessDenied";
+		else
+			throw new NotOwnerOfProposalException();
 	}
 
 	// page confirm(see)-proposal
 	@RequestMapping(value = "/confirm-proposal-{proposalID}", method = RequestMethod.GET)
 	public String confirmProposal(Model model, @PathVariable int proposalID, HttpSession session, @RequestParam(value = "m", required=false) String month, @RequestParam(value = "y", required=false) String year) {
-		model.addAttribute("MODE", "MODE_CONFIRM_PROPOSAL");
 		model.addAttribute("typeForm", "/confirm-proposal");
 		session.setAttribute("proposalID", proposalID);
 		Proposal proposal = proposalService.findOne(proposalID);
 		ModelCreateorChangeProposal modelShow = convertProposalToModelShow(proposal);
 		model.addAttribute("Proposal", modelShow);
 		showCalendarAndNotify(model,month,year);
-		List<Car> listcars = new ArrayList<Car>();
-		listcars.add(proposal.getCar());
-		model.addAttribute("carsAvailble", listcars);
-		checkExpiredOrInTimeUse(proposal,model);
+		show1Car(proposal.getCar(),model);
+		if(checkExceptionProposal(proposal,model))
+		{
+			model.addAttribute("MODE", "MODE_PROPOSAL_EXPIRED");
+		}
+		else if(!isCarAlreadyUsed(proposal, model)){
+			model.addAttribute("MODE", "MODE_CONFIRM_PROPOSAL");
+		}else model.addAttribute("MODE", "MODE_PROPOSAL_EXPIRED");
+		
 		return "Index";
 	}
 	@RequestMapping(value = "/confirm-proposal", method = RequestMethod.POST)
@@ -206,9 +224,21 @@ public class ProposalController {
 		model.addAttribute("typeForm", "/confirm-proposal");
 		int proposalID = (int) session.getAttribute("proposalID");
 		Proposal x = proposalService.findOne(proposalID);
-		approveProposal(x);
-		return "Index";
+		System.out.println("check 1");
+		if(x.getStt().getSttproposalID() != 1 || !checkExceptionProposal(x,model)){
+			System.out.println("check 1");
+			if(!isCarAlreadyUsed(x, model))
+			{
+				approveProposal(x);
+				for(Proposal p : proposalService.getListProposalHaveCarHasBeenUsed(x)){
+					addNotifyforUser(p, p.getUserregister().getUser(),"CarWasUsed");
+				}
+				return "redirect:/";
+			}
+		}
+		return "redirect:/hackerDetected";
 	}
+	
 	@RequestMapping(value = "/cancel-proposal", method = RequestMethod.GET)
 	public String cancelProposal(Model model, HttpSession session) {
 		int proposalID = (int) session.getAttribute("proposalID");
@@ -225,6 +255,7 @@ public class ProposalController {
 		}
 		return "redirect:/";
 	}
+	
 	private void approveProposal(Proposal proposal) {
 		proposal.setStt(sttProposalService.findOne(1));
 		ConfirmProposal confirmproposal = new ConfirmProposal(GetUser(), proposal, Calendar.getInstance().getTime());
@@ -243,32 +274,32 @@ public class ProposalController {
 	public User GetUser(){
 		return userService.findOne(getUserLogin().getUsername());
 	}
+	
 	// check user has Authority
 	public boolean checkUserhasAuthority(String Authority) {
 		System.out.println(getUserLogin().getUsername());
 		return getUserLogin().getAuthorities().contains(new SimpleGrantedAuthority(Authority));
 	}
 	
-	
-	public void saveProposal(ModelCreateorChangeProposal model, User user, HttpServletRequest request){
-		try{
+	//Save Proposal
+	public void saveProposal(ModelCreateorChangeProposal model, User user, HttpServletRequest request) throws MultipartException, IOException{
+			System.out.println("Save Proposal");
 			Car carRegistered = carService.findOne(model.getCarID());
-			long count = carService.findListCarAvailable().parallelStream().filter(x -> x.equals(carRegistered)).count();
+			long count = carService.findListCarAvailableInTime(proposalService.getDate(model.getUsefromdate(), model.getUsefromtime()),proposalService.getDate(model.getUsetodate(), model.getUsetotime()))
+					.parallelStream().filter(x -> x.equals(carRegistered)).count();
 			Proposal proposalnew = null;
 			if(count != 0)
 			{
-				if(model.getTypedateuse().equals("manyday")){
-					proposalnew = new Proposal(typeProposalService.findOne(1),model.getName(),model.getDetail(),model.getUsefromdate(),model.getUsetodate(),sttProposalService.findOne(0),carRegistered);
-				}else{
-					proposalnew = new Proposal(typeProposalService.findOne(1),model.getName(),model.getDetail(),model.getUseindate(),model.getUseindate(),sttProposalService.findOne(0),carRegistered);
-				}
+				proposalnew = new Proposal(typeProposalService.findOne(1),model.getName(),model.getDetail(),
+						model.getDestination(),model.getPickuplocation(),model.getPickuptime(),
+						model.getUsefromdate(),model.getUsefromtime(),model.getUsetodate(),model.getUsetotime(),
+						sttProposalService.findOne(0),carService.findOne(model.getCarID()));
 			}
 			else{
 				//hacker detected
 				return;
 			}
 			proposalService.save(proposalnew);
-			System.out.println(proposalnew.getProposalID());
 			MultipartFile file = model.getFile();
 			if(!file.isEmpty()){
 				String location = request.getServletContext().getRealPath("static") + "/file/";
@@ -282,75 +313,76 @@ public class ProposalController {
 			proposalnew.setUserregister(register);
 			proposalService.save(proposalnew);
 			addNotify("create",proposalnew);
-			
-		}catch (Exception e) {
-			e.printStackTrace();
-			
-		}
 		
 	}
 	
-	public void updateProposal(int proposalID,ModelCreateorChangeProposal model, HttpServletRequest request){
+	public boolean updateProposal(int proposalID,ModelCreateorChangeProposal model, HttpServletRequest request){
 		try{
-			Proposal old = proposalService.findOne(proposalID);
-			Proposal proposal = old;
-			proposal.setName(model.getName());
-			proposal.setDetail(model.getDetail());
-			proposal.setType(typeProposalService.findOne(2));
+			Proposal proposal = proposalService.findOne(proposalID);
 			MultipartFile file = model.getFile();
 			if(!file.isEmpty())
 			{
 				String location = request.getServletContext().getRealPath("static") + "/file/";
 				String name = file.getOriginalFilename();
 				String namefile = proposal.getProposalID() + name.substring(name.lastIndexOf("."),name.length());
-				uploadfile(file,location,namefile);
+				if(uploadfile(file,location,namefile))
+					return false;
+				if(proposal.getFile() != null){
+					proposal.setFile(namefile);
+				}
 			}
-			if(model.getTypedateuse().equals("manyday"))
-			{
-				proposal.setUsefromdate(model.getUsefromdate());
-				proposal.setUsetodate(model.getUsetodate());
+			System.out.println("fiel is :" + file.isEmpty());
+			System.out.println("check is " + proposal.checkEqual(model));
+			// if proposal change is equal to old return
+			if(proposal.checkEqual(model) && file.isEmpty()){
+				System.out.println("Proposal không có chỉnh sữa gì");
+				return true;
 			}
-			else{
-				proposal.setUsefromdate(model.getUseindate());
-				proposal.setUsetodate(model.getUseindate());
-			}
-			// only allow changing car when proposal not confirm yet
+			proposal.setName(model.getName());
+			proposal.setDetail(model.getDetail());
+			proposal.setType(typeProposalService.findOne(2));
+			proposal.setDestination(model.getDestination());
+			proposal.setPickuplocation(model.getPickuplocation());
+			proposal.setPickuptime(model.getPickuptime());
+			proposal.setUsefromdate(model.getUsefromdate());
+			proposal.setUsefromtime(model.getUsefromtime());
+			proposal.setUsetodate(model.getUsetodate());
+			proposal.setUsetotime(model.getUsetotime());
+			// allow changing car when proposal not confirm yet
 			if(!isConfirmProposal(proposal))
 				proposal.setCar(carService.findOne(model.getCarID()));
-			// if proposal change is equal to old return
-			if(proposal.equals(old))
-				System.out.println("Proposal không có chỉnh sữa gì");
 			if(isConfirmProposal(proposal)){
-				// notify old proposal have been canceled to user,P.TBVT, driver 
+				// notify old proposal have been canceled to user,P.TBVT, driver
 				// and set new proposal to not confirm
 				proposal.setStt(sttProposalService.findOne(0));// set not comfirm
+				confirmProposalService.delete(proposal.getInfoconfirm().getConfrimproposalID());
 				addNotify("change",proposal);
 				// set notify
 			}
 			proposalService.save(proposal);
+			return true;
 		}catch (Exception e) {
-			e.printStackTrace();
-			
+			e.getMessage();
+			return false;
 		}
 		
 	}
+	
 	public boolean isConfirmProposal(Proposal proposal){
 		if(proposal.getStt().getSttproposalID() == 1)
 			return true;
 		return false;
 	}
-	public void uploadfile(MultipartFile file, String localtion,String namefile){
+	
+	public boolean uploadfile(MultipartFile file, String localtion, String namefile)
+			throws IOException, MultipartException {
 		byte[] bytes;
-		try {
-			bytes = file.getBytes();
-			File serverFile = new File(localtion + namefile);
-			BufferedOutputStream stream = new BufferedOutputStream(
-					new FileOutputStream(serverFile));
-			stream.write(bytes);
-			stream.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		bytes = file.getBytes();
+		File serverFile = new File(localtion + namefile);
+		BufferedOutputStream stream = new BufferedOutputStream(new FileOutputStream(serverFile));
+		stream.write(bytes);
+		stream.close();
+		return true;
 	}
 	
 	public boolean isProposalOfUser(int proposalID,User user){
@@ -360,27 +392,14 @@ public class ProposalController {
 	public ModelCreateorChangeProposal convertProposalToModelShow( Proposal proposal){
 		ModelCreateorChangeProposal modelShow;
 		Calendar x = Calendar.getInstance();
-		boolean isUseInDate = proposal.getUsefromdate().equals(proposal.getUsetodate());
-		if(isUseInDate){
-			x.setTime(proposal.getUsefromdate());
-			if(!proposal.getFile().isEmpty())
-				modelShow = new ModelCreateorChangeProposal(proposal.getProposalID(),proposal.getName(),
-						proposal.getDetail(),"inday",x.getTime(),null,proposal.getCar().getCarID(),true);
-			else
-				modelShow = new ModelCreateorChangeProposal(proposal.getProposalID(),proposal.getName(),
-						proposal.getDetail(),"inday",x.getTime(),null,proposal.getCar().getCarID(),false);
-		}
-		else{
-			Calendar y = Calendar.getInstance();
-			x.setTime(proposal.getUsefromdate());
-			y.setTime(proposal.getUsetodate());
-			if(!proposal.getFile().isEmpty())
-				modelShow = new ModelCreateorChangeProposal(proposal.getProposalID(),proposal.getName(),
-						proposal.getDetail(),"manyday",x.getTime(),y.getTime(),null,proposal.getCar().getCarID(),true);
-			else
-				modelShow = new ModelCreateorChangeProposal(proposal.getProposalID(),proposal.getName(),
-						proposal.getDetail(),"manyday",x.getTime(),y.getTime(),null,proposal.getCar().getCarID(),false);
-		}
+		Calendar y = Calendar.getInstance();
+		x.setTime(proposal.getUsefromdate());
+		y.setTime(proposal.getUsetodate());
+		boolean exitstfile = (proposal.getFile() != null) ? true : false;
+		modelShow = new ModelCreateorChangeProposal(proposal.getProposalID(),
+				proposal.getName(),proposal.getDetail(),proposal.getDestination(),proposal.getPickuplocation(),
+				proposal.getPickuptime(),x.getTime(),proposal.getUsefromtime(),
+				y.getTime(),proposal.getUsetotime(),proposal.getCar().getCarID(),exitstfile,proposal.getStt());
 		return modelShow;
 	}
 	
@@ -406,14 +425,21 @@ public class ProposalController {
 	public void addNotify(String type, Proposal proposal){
 		switch(type){
 			case "confirm":
-				notifyEventService.save(new NotifyEvent(Calendar.getInstance(),proposal, proposal.getUserregister().getUser()));
+				addNotifyforUser(proposal,proposal.getUserregister().getUser(),"");
 				break;
 			default:
-				notifyEventService.save(new NotifyEvent(Calendar.getInstance(),proposal, userService.findOne("akiyamayami1@gmail.com")));
-				notifyEventService.save(new NotifyEvent(Calendar.getInstance(),proposal, userService.findOne("lyphucloi.it@gmail.com")));
+				addNotifyforUser(proposal,userService.findOne("akiyamayami1@gmail.com"),"");
+				addNotifyforUser(proposal,userService.findOne("lyphucloi.it@gmail.com"),"");
+				//notifyEventService.save(new NotifyEvent(Calendar.getInstance(),proposal, userService.findOne("akiyamayami1@gmail.com")));
+				//notifyEventService.save(new NotifyEvent(Calendar.getInstance(),proposal, userService.findOne("lyphucloi.it@gmail.com")));
 				break;
 		}
 		
+	}
+	public void addNotifyforUser(Proposal proposal, User user, String type){
+		NotifyEvent notify = new NotifyEvent(Calendar.getInstance(),proposal, user);
+		notify.setMessage(notifyEventService.generateMessageNotify(notify, true, type));
+		notifyEventService.save(notify);
 	}
 	public void showCalendarAndNotify(Model model, String month, String year){
 		model.addAttribute("listNotify", notifyEventService.getListNotifyNewest(GetUser()));
@@ -426,17 +452,20 @@ public class ProposalController {
 	}
 	
 	public void showCarWhenChangeProposal(ModelCreateorChangeProposal modelShow, Model model, Proposal proposal){
-		List<Car> carShow = carService.findListCarAvailable();
+		System.out.println("Show car");
+		List<Car> carShow = carService.findListCarAvailableInTime(proposalService.getDate(proposal.getUsefromdate(), proposal.getUsefromtime()),proposalService.getDate(proposal.getUsetodate(), proposal.getUsetotime()));
+		System.out.println("list car show "+ carShow.size());
 		List<Car> listcars = new ArrayList<>();
 		Car trash = carService.findOne(modelShow.getCarID());
-		// if proposal has been confirmed show only car proposal registered
+		// if proposal has been confirmed or expired show only car proposal registered
 		// else show car available and car proposal registered
 		System.out.println(proposal.getStt().getSttproposalID());
-		if(isConfirmProposal(proposal)){
-			listcars.add(trash);
-			model.addAttribute("carsAvailble", listcars);
+		if(checkExceptionProposal(proposal,model) || isConfirmProposal(proposal)){
+			System.out.println("Exception");
+			show1Car(trash,model);
 		}
 		else{
+			System.out.println("Normal");
 			carShow.remove(trash);
 			listcars.add(trash);
 			listcars.addAll(carShow);			
@@ -446,31 +475,59 @@ public class ProposalController {
 		
 	}
 	
+	public void show1Car(Car car, Model model){
+		List<Car> listcars = new ArrayList<Car>();
+		listcars.add(car);
+		model.addAttribute("carsAvailble", listcars);
+	}
+	
 	public boolean isInTimeUse(Proposal proposal){
 		Calendar now = Calendar.getInstance();
 		if(proposal.getUsetodate().getTime() >= now.getTime().getTime() && proposal.getUsefromdate().getTime() <= now.getTime().getTime() && proposal.getStt().getSttproposalID() == 1)
 			return true;
 		return false;
 	}
+	
 	public boolean isProposalExpired(Proposal proposal){
 		Calendar now = Calendar.getInstance();
 		System.out.println(proposal.getUsetodate() +  "+ now = " + now.getTime());
+		long timeFrom = ProposalValidator.getDate(proposal.getUsefromdate(),proposal.getUsefromtime());
+		long timeTo = ProposalValidator.getDate(proposal.getUsetodate(),proposal.getUsetotime());
+		long timeNow = now.getTime().getTime();
 		if(proposal.getStt().getSttproposalID() == 1){
-			if(proposal.getUsetodate().getTime() < now.getTime().getTime())
+			if(timeTo < timeNow)
 				return true;
 			return false;
 		}
 		else{
-			if(proposal.getUsefromdate().getTime() < now.getTime().getTime())
+			if(timeFrom < timeNow)
 				return true;
 			return false;
 		}
 	}
-	
-	public void checkExpiredOrInTimeUse(Proposal proposal, Model model){
-		if(isProposalExpired(proposal))
+	public boolean isCarAlreadyUsed(Proposal proposal, Model model){
+		Proposal x = proposalService.isProposalHaveCarWasUsed(proposal.getCar(), proposal);
+		if(proposal.getStt().getSttproposalID() == 1)
+			return false;
+		if(x != null){
+			System.out.println("Đề nghị :" + proposal.getProposalID() + "sử dụng xe đã được đăng ký");
+			model.addAttribute("message2", "Xe đăng ký đã được xử dụng");
+			return true;
+		}
+		return false;
+	}
+
+	public boolean checkExceptionProposal(Proposal proposal, Model model){
+		if(isProposalExpired(proposal)){
+			System.out.println("Đề nghị :" + proposal.getProposalID() + "Hết hạn");
 			model.addAttribute("message", "Đề nghị này đã hết hạn");
-		if(isInTimeUse(proposal))
+			return true;
+		}
+		if(isInTimeUse(proposal)){
 			model.addAttribute("message", "Đề nghị này đang trong thời gian thực hiện");
+			System.out.println("Đề nghị :" + proposal.getProposalID() + "Trong thời gian thực hiện");
+			return true;
+		}
+		return false;
 	}
 }

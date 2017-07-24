@@ -1,6 +1,9 @@
 package com.tlcn.controller;
 
 
+import java.security.Principal;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -15,9 +18,13 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
-import com.tlcn.model.ModelFilterProposal;
+import com.tlcn.dto.ModelFilterProposal;
+import com.tlcn.model.Proposal;
+import com.tlcn.report.ProposalReport;
 import com.tlcn.service.ProposalService;
 import com.tlcn.service.UserService;
+
+import net.sf.jasperreports.engine.JRException;
 
 @Controller
 @Component
@@ -37,7 +44,10 @@ public class LoginController {
 	
 	// page Login
 	@RequestMapping(value="/login", method = RequestMethod.GET)
-	public String Login(){
+	public String Login(Principal user){
+		/*ProposalReport x = new ProposalReport();
+		List<Proposal> proposals = proposalService.findAll();
+		x.generatePdfReport(proposals);*/
 		return "Login";
 	}
 	
@@ -56,4 +66,8 @@ public class LoginController {
 		return "accessDenied";
 	}
 	
+	@RequestMapping(value="/hackerDetected", method = RequestMethod.GET)
+	public String hackerDetected(){
+		return "hackerDetected";
+	}
 }

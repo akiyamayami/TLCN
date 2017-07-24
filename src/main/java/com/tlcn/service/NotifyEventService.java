@@ -9,7 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.tlcn.dao.NotifyEventRepository;
-import com.tlcn.model.ModelShowNotify;
+import com.tlcn.dto.ModelShowNotify;
 import com.tlcn.model.NotifyEvent;
 import com.tlcn.model.Proposal;
 import com.tlcn.model.User;
@@ -18,8 +18,6 @@ import com.tlcn.model.User;
 public class NotifyEventService {
 	@Autowired
 	private NotifyEventRepository notifyEventRepository;
-	@Autowired
-	private ProposalService propsalService;
 	
 	public NotifyEventService() {
 		super();
@@ -30,10 +28,61 @@ public class NotifyEventService {
 		List<NotifyEvent> x  =  notifyEventRepository.getListNotifyNewest(user);
 		for(NotifyEvent notify : x){
 			Proposal proposal = notify.getNotifyOfProposal();
-			listnotify.add(new ModelShowNotify(notify.getNotifyOfUser(), getTime(notify.getDateUpEvent()), proposal));
+			listnotify.add(new ModelShowNotify(notify.getNotifyOfProposal().getProposalID(),notify.getMessage(), getTime(notify.getDateUpEvent())));
 			System.out.println(proposal.getUserregister().getUser().getName());
 		}
 		return listnotify;
+	}
+	
+	public String generateMessageNotify(NotifyEvent notify, boolean isUser,String type){
+		boolean isProposalConfirm = (notify.getNotifyOfProposal().getStt().getSttproposalID() == 1);
+		boolean typeProposalisCancel = (notify.getNotifyOfProposal().getType().getTypeID() == 3);
+		String message = ""; 
+		switch(type){
+			case "CarWasUsed":
+				message += "<div>Xe bạn đăng ký cho đề nghị <strong>"+notify.getNotifyOfProposal().getName()+"</strong>"
+						+ " đã được sủ dụng vui lòng đổi xe khác.</div>"
+						+ "<p class='time-ago'><i class='fa fa-bell' aria-hidden='true'></i>";
+				return message;
+			default:
+				if(isProposalConfirm && !typeProposalisCancel){
+					if(!isUser){
+						message += "<div><strong>" + notify.getNotifyOfProposal().getInfoconfirm().getUserconfirm().getRoleUser().getName() + "</strong>"
+							+ " đã duyệt đề nghị <strong>"+notify.getNotifyOfProposal().getName() +"</strong>"
+							+ " của <strong>"+ notify.getNotifyOfProposal().getUserregister().getUser().getName() + "</strong>"
+							+ "</div>";
+					}else{
+						message += "<div><strong>" + notify.getNotifyOfProposal().getInfoconfirm().getUserconfirm().getRoleUser().getName() + "</strong>"
+							+ " đã duyệt đề nghị <strong>"+notify.getNotifyOfProposal().getName() +"</strong>"
+							+ " của bạn"
+							+ "</div>";
+					}
+					message += "<p class='time-ago'><i class='fa fa-plus-circle' aria-hidden='true'></i>";
+				}else if(notify.getNotifyOfProposal().isExpired() && isProposalConfirm){
+					message += "<div>Đề nghị <strong>"+ notify.getNotifyOfProposal().getName() +"</strong>"
+							+ " đã bị hủy bởi <strong>Hệ thống</strong> vì thời gian sử dụng đã quá hạn"
+							+ "</div>";
+					message += "<p class='time-ago'><i class='fa fa-trash' aria-hidden='true'></i>";
+				}else{
+					message += "<div><strong>"+ notify.getNotifyOfProposal().getUserregister().getUser().getName() +"</strong>"
+							+ " đã "+ notify.getNotifyOfProposal().getType().getName() +" một đề nghị </div>";
+					message += "<p class='time-ago'><i class='fa " 
+							+ getIconOfType(notify.getNotifyOfProposal().getType().getName()) +" ' aria-hidden='true'></i>";
+				}
+				System.out.println(message);
+				return message;
+		}
+	}
+	
+	public String getIconOfType(String type){
+		switch(type){
+			case "Tạo":
+				return "fa-plus-circle";
+			case "Chỉnh sửa":
+				return "fa-pencil-square-o";
+			default:
+				return "fa-trash";
+		}
 	}
 	public String getTime(Calendar x){
 		Calendar now = Calendar.getInstance();

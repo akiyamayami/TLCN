@@ -20,4 +20,8 @@ public class ConfirmProposalService {
 		confirmProposalRespository.save(confirmproposal);
 	}
 	
+	public void delete(int confirmproposalID){
+		confirmProposalRespository.delete(confirmproposalID);
+	}
+	
 }

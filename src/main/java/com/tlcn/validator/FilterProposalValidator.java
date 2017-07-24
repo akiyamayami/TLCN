@@ -3,7 +3,7 @@ package com.tlcn.validator;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 
-import com.tlcn.model.ModelFilterProposal;
+import com.tlcn.dto.ModelFilterProposal;
 
 public class FilterProposalValidator implements Validator{
 

@@ -59,10 +59,10 @@ insert into sttproposal values(1,"Đã duyệt");
 insert into sttproposal values(0,"Chưa duyệt");
 
 
-insert into proposal(file,name,detail,sttproposalid,usefromdate,usetodate,typeid,expired)
-	values(null,"Tham Quan Renasas","Tham quan công ty renasas .....",0,"2017-07-25","2017-07-26",1,false);
-insert into proposal(file,name,detail,sttproposalid,usefromdate,usetodate,typeid,expired)
-	values(null,"Tham Quan Renasas","Tham quan công ty renasas .....",0,"2017-07-25","2017-07-26",1,false);
+insert into proposal(file,name,detail,sttproposalid,usefromdate,usetodate,typeid,expired,destination,pickuplocation,pickuptime,usefromtime,usetotime)
+	values(null,"Tham Quan Renasas","Tham quan công ty renasas .....",0,"2017-07-25","2017-07-26",1,false,"TP.HCM","TPHCM","12:30","12:30","15:30");
+insert into proposal(file,name,detail,sttproposalid,usefromdate,usetodate,typeid,expired,destination,pickuplocation,pickuptime,usefromtime,usetotime)
+	values(null,"Tham Quan Renasas","Tham quan công ty renasas .....",0,"2017-07-25","2017-07-26",1,false,"TP.HCM","TPHCM","12:30","12:30","15:30");
 
 insert into notifyevent(date_up_event,proposalid,email_user) values(CURDATE(),1,"123@gmail.com");
 insert into notifyevent(date_up_event,proposalid,email_user) values(CURDATE(),2,"123@gmail.com");

@@ -19,36 +19,23 @@ $(document).ready(function(){
         	x = 1;
         }
     });
-    $(".date-picker").datepicker();
-    //"update",setcurrentday()
-    //
+    // date time picker
+    $(".date-picker2").datepicker({
+        format: "dd-mm-yyyy"
+    });
+    $(".date-picker").datepicker({
+        format: "dd-mm-yyyy"
+    });
     $(".date-picker").each(function(){
     	if($(this).val() == "" || $(this).val() == null){
     		$(this).datepicker("update",setcurrentday());
     	}
     });
-    $(".date-picker2").datepicker();
-    if($("#select-time-use").val() == "inday"){
-            $("#in-day").show();
-            $("#many-day").hide();
-        }
-        else{
-            $("#in-day").hide();
-            $("#many-day").show();
-        }
-    $("#select-time-use").change(function(){
-        if($(this).val() == "inday"){
-            $("#in-day").show();
-            $("#many-day").hide();
-        }
-        else{
-            $("#in-day").hide();
-            $("#many-day").show();
-        }
-    });
-    $("#qwe").click(function(){
-       alert($(this).val());
-    });
+    $(".input-small").timepicker({
+    	showMeridian:false,
+	    minuteStep:30
+    })
+   
     
     //Show hide info driver
     $(".driver-info").hide();
@@ -98,5 +85,5 @@ function setcurrentday(){
     if(mm<10) {
         mm = '0'+mm
     } 
-    return mm + "-" + dd + "-" + yyyy;
+    return dd + "-" + mm + "-" + yyyy;
 }

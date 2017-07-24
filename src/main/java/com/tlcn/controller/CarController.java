@@ -11,9 +11,9 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
+import com.tlcn.dto.ModelCarReady;
+import com.tlcn.dto.ModelFilterCar;
 import com.tlcn.model.Car;
-import com.tlcn.model.ModelCarReady;
-import com.tlcn.model.ModelFilterCar;
 import com.tlcn.service.CarService;
 
 @Controller

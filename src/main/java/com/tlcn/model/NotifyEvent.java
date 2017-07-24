@@ -27,6 +27,9 @@ public class NotifyEvent {
 	@ManyToOne(fetch=FetchType.EAGER)
 	@JoinColumn(name="emailUser")
 	private User notifyOfUser;
+	
+	private String message;
+	
 
 	public NotifyEvent(Calendar dateUpEvent, Proposal notifyOfProposal, User notifyOfUser) {
 		super();
@@ -34,6 +37,17 @@ public class NotifyEvent {
 		this.notifyOfProposal = notifyOfProposal;
 		this.notifyOfUser = notifyOfUser;
 	}
+
+
+
+	public NotifyEvent(Calendar dateUpEvent, Proposal notifyOfProposal, User notifyOfUser, String message) {
+		super();
+		this.dateUpEvent = dateUpEvent;
+		this.notifyOfProposal = notifyOfProposal;
+		this.notifyOfUser = notifyOfUser;
+		this.message = message;
+	}
+
 
 
 	public NotifyEvent() {
@@ -75,6 +89,16 @@ public class NotifyEvent {
 
 	public void setNotifyOfUser(User notifyOfUser) {
 		this.notifyOfUser = notifyOfUser;
+	}
+
+
+	public String getMessage() {
+		return message;
+	}
+
+
+	public void setMessage(String message) {
+		this.message = message;
 	}
 
 	

@@ -2,7 +2,11 @@ package com.tlcn.service;
 
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.List;import java.util.function.Predicate;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,9 +14,9 @@ import org.springframework.stereotype.Service;
 
 import com.tlcn.dao.CarRepository;
 import com.tlcn.dao.ProposalRepository;
+import com.tlcn.dto.ModelCarReady;
+import com.tlcn.dto.ModelCarRegistered;
 import com.tlcn.model.Car;
-import com.tlcn.model.ModelCarReady;
-import com.tlcn.model.ModelCarRegistered;
 import com.tlcn.model.Proposal;
 
 @Service
@@ -21,8 +25,9 @@ public class CarService {
 	private CarRepository carRepository;
 
 	@Autowired
-	private ProposalRepository proposalRepository;
-	
+	private ProposalService proposalService;
+	@Autowired
+	private TypeProposalService typeProposalService;
 	
 	public CarService() {
 		super();
@@ -38,38 +43,42 @@ public class CarService {
 		}
 		return cars;
 	}
-	public List<Car> findListCarAvailable(){
-		List<Car> cars = new ArrayList<>();
-		for(Car car : carRepository.getListCarAvaliable()){
-			cars.add(car);
-		}
-		return cars;
+	public List<Car> getListCarAvailable(){
+		return carRepository.getListCarAvaliable();
 	}
+	public List<Car> findListCarAvailableInTime(long TimeFrom, long timeTo){
+		List<Proposal> listProposal =  proposalService.findAll();
+		System.out.println("start find car availble in time");
+		
+		Set<Car> x = new HashSet<>(listProposal.parallelStream()
+				.filter(p -> p.getStt().getSttproposalID() == 1 && p.getType().getTypeID() != 3 && !isBetween(TimeFrom,timeTo,getDate(p.getUsefromdate(), p.getUsefromtime()),getDate(p.getUsetodate(), p.getUsetotime())))
+				.map(Proposal::getCar)
+				.collect(Collectors.toList()));
+		List<Car> cars = new ArrayList<>(x);
+		findAll().parallelStream().filter(c -> c.getListproposal() ==  null 
+				|| !c.getListproposal().parallelStream().filter(p -> p.getType().getTypeID() != 3 && p.getStt().getSttproposalID() == 1).findFirst().isPresent())
+				.forEach(c -> cars.add(c));
+		for(Car c : findAll()){
+			if(c.getListproposal() ==  null || !c.getListproposal().parallelStream().filter(p -> p.getType().getTypeID() != 3 && p.getStt().getSttproposalID() == 1).findFirst().isPresent()){
+				cars.add(c);
+			}
+		}
+
+		return cars;
+ 	}
 	
 	public List<Car> findListFilter_Type(String type){
-		List<Car> cars = new ArrayList<>();
-		for(Car car : carRepository.getListFilter_Type(type)){
-			cars.add(car);
-		}
-		return cars;
+		return carRepository.getListFilter_Type(type);
 	}
 	public List<Car> findListFilter_Seat(int seats){
-		List<Car> cars = new ArrayList<>();
-		for(Car car : carRepository.getListFilter_Seat(seats)){
-			cars.add(car);
-		}
-		return cars;
+		return carRepository.getListFilter_Seat(seats);
 	}
 	public List<Car> findListFilter_Type_Seat(String type, int seats){
-		List<Car> cars = new ArrayList<>();
-		for(Car car : carRepository.getListFilter_Type_Seat(type, seats)){
-			cars.add(car);
-		}
-		return cars;
+		return carRepository.getListFilter_Type_Seat(type, seats);
 	}
 	
 	public List<ModelCarReady> getListCarReady(){
-		 List<Proposal> listProposal = proposalRepository.listProposalReady();
+		 List<Proposal> listProposal = proposalService.getListProposalReady();
 		 if(listProposal.isEmpty())
 			 return null;
 		 List<ModelCarReady> listCarReady = new ArrayList<>();
@@ -98,5 +107,27 @@ public class CarService {
 	
 	public List<Car> getListCarNotRegistered(){
 		return carRepository.getListCarNotRegistered();
+	}
+	
+	public Long getDate(Date date, Date time){
+		Calendar Cdate = Calendar.getInstance(),Ctime = Calendar.getInstance(),dateTime = Calendar.getInstance();
+		Cdate.setTime(date);
+		Ctime.setTime(time);
+		dateTime.set(Cdate.get(Calendar.YEAR), Cdate.get(Calendar.MONTH), Cdate.get(Calendar.DATE), 
+				Ctime.get(Calendar.HOUR_OF_DAY), Ctime.get(Calendar.MINUTE));
+		return dateTime.getTime().getTime();
+		
+	}
+	
+	public boolean isBetween(long timeCheckFrom,long timeCheckTo, long timeFrom, long timeTo){
+		System.out.println("time check from" + timeCheckFrom);
+		System.out.println("time check to " + timeCheckTo);
+		System.out.println("time timeFrom" + timeFrom);
+		System.out.println("time timeTo" + timeTo);
+		System.out.println(timeCheckFrom >= timeFrom && timeCheckFrom <= timeTo);
+		System.out.println(timeCheckTo >= timeFrom && timeCheckTo <= timeTo);
+		if((timeCheckFrom >= timeFrom && timeCheckFrom <= timeTo) || (timeCheckTo >= timeFrom && timeCheckTo <= timeTo))
+			return true;
+		return false;
 	}
 }

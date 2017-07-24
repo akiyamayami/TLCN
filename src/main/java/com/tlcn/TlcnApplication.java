@@ -23,21 +23,6 @@ public class TlcnApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(TlcnApplication.class, args);
 	}
-	@Bean
-	public ViewResolver getViewResolver() {
-	    InternalResourceViewResolver resolver = new InternalResourceViewResolver();
-	    resolver.setPrefix("/WEB-INF/jsp/");
-	    resolver.setSuffix(".jsp");
-	    resolver.setViewClass(JstlView.class);
-	    return resolver;
-	}
-	@Bean
-    public MessageSource messageSource() {
-	    final ReloadableResourceBundleMessageSource messageSource = new ReloadableResourceBundleMessageSource();
-	    messageSource.setBasename("classpath:messages");
-	    messageSource.setUseCodeAsDefaultMessage(true);
-	    messageSource.setDefaultEncoding("UTF-8");
-	    messageSource.setCacheSeconds(0);
-	    return messageSource;
-    }
+	
+	
 }

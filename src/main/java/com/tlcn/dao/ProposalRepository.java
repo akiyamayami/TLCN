@@ -6,6 +6,7 @@ import java.util.List;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 
+import com.tlcn.model.Car;
 import com.tlcn.model.Proposal;
 import com.tlcn.model.SttProposal;
 import com.tlcn.model.TypeProposal;
@@ -69,4 +70,13 @@ public interface ProposalRepository extends CrudRepository<Proposal, Integer>{
 	
 	@Query("select p from proposal p where (p.usetodate < CURDATE() or CURDATE() between p.usefromdate and p.usetodate) and p.stt = 0")
 	public List<Proposal> listProposalExpired();
+	
+	
+	@Query("select p from proposal p where p.stt = 0 and p.car = ?1 and p.type != 3")
+	public List<Proposal> getListProposalNotCofirmOfCar(Car car);
+	
+	@Query("select p from proposal p where p.stt = 1 and p.car = ?1 and p.type != 3")
+	public List<Proposal> getListProposalConfirmOfCar(Car car);
+	
+	
 }

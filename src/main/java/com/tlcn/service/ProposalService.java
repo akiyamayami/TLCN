@@ -1,18 +1,23 @@
 package com.tlcn.service;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.tlcn.dao.ProposalRepository;
-import com.tlcn.model.ModelFilterProposal;
+import com.tlcn.dto.ModelFilterProposal;
+import com.tlcn.model.Car;
 import com.tlcn.model.Proposal;
 import com.tlcn.model.SttProposal;
 import com.tlcn.model.TypeProposal;
 import com.tlcn.model.User;
+import com.tlcn.validator.ProposalValidator;
+
 
 @Service
 public class ProposalService {
@@ -23,6 +28,9 @@ public class ProposalService {
 	@Autowired
 	private SttProposalService sttProposalService;
 	
+	public List<Proposal> getListProposalReady(){
+		return proposalRepository.listProposalReady();
+	}
 	
 	
 	public Proposal findOne(int proposalID){
@@ -110,12 +118,53 @@ public class ProposalService {
 		}
 		
 	}
+	public List<Proposal> getListProposalHaveCarHasBeenUsed(Proposal proposal){
+		List<Proposal> listProposal = proposalRepository.getListProposalNotCofirmOfCar(proposal.getCar());
+		long timeFrom = getDate(proposal.getUsefromdate(), proposal.getUsefromtime());
+		long timeTo = getDate(proposal.getUsetodate(), proposal.getUsetotime());
+		List<Proposal> x = listProposal.parallelStream()
+				.filter(p -> isBetween(getDate(p.getUsefromdate(), p.getUsefromtime()),getDate(p.getUsetodate(), p.getUsetotime()),timeFrom,timeTo))
+				.collect(Collectors.toList());
+		return x;
+	}
 	
+	public Proposal isProposalHaveCarWasUsed(Car car, Proposal proposal){
+		List<Proposal> listProposal = proposalRepository.getListProposalConfirmOfCar(car);
+		long timeFrom =  getDate(proposal.getUsefromdate(), proposal.getUsefromtime());
+		long timeTo = getDate(proposal.getUsetodate(), proposal.getUsetotime());
+		Proposal x = null;
+		// time check is X
+		// time Already used is Y 
+		// first check X is Between Yfrom and YTo
+		// second check Y is Between Xfrom and XTo
+		x = listProposal.parallelStream()
+				.filter(p -> isBetween(timeFrom,timeTo,getDate(p.getUsefromdate(), p.getUsefromtime()),getDate(p.getUsetodate(), p.getUsetotime()))
+						|| isBetween(getDate(p.getUsefromdate(), p.getUsefromtime()),getDate(p.getUsetodate(), p.getUsetotime()),timeFrom,timeTo))
+				.findFirst().orElse(null);
+		if(x != null){
+			System.out.println(" Proposal register car is : " + x.getProposalID());
+		}
+		return x;
+	}
 	public boolean check_User_Owned_Proposal_Or_Not(int proposalID, User user){
 		if(proposalRepository.checkProposalOwnedByUserOrNot(proposalID, user) == 0){
 			return false;
 		}
 		return true;
+	}
+	public boolean isBetween(long timeCheckFrom,long timeCheckTo, long timeFrom, long timeTo){
+		if((timeCheckFrom >= timeFrom && timeCheckFrom <= timeTo) || (timeCheckTo >= timeFrom && timeCheckTo <= timeTo))
+			return true;
+		return false;
+	}
+	public Long getDate(Date date, Date time){
+		Calendar Cdate = Calendar.getInstance(),Ctime = Calendar.getInstance(),dateTime = Calendar.getInstance();
+		Cdate.setTime(date);
+		Ctime.setTime(time);
+		dateTime.set(Cdate.get(Calendar.YEAR), Cdate.get(Calendar.MONTH), Cdate.get(Calendar.DATE), 
+				Ctime.get(Calendar.HOUR_OF_DAY), Ctime.get(Calendar.MINUTE));
+		return dateTime.getTime().getTime();
+		
 	}
 	
 }

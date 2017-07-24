@@ -29,13 +29,19 @@
 <link
 	href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.7.0/css/bootstrap-datepicker3.min.css"
 	rel="stylesheet" />
+<link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-timepicker/0.5.2/css/bootstrap-timepicker.min.css" rel="stylesheet" />
 <script type="text/javascript"
 	src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
 <script type="text/javascript" src="static/js/main.js"></script>
+<script type="text/javascript" src="static/js/ckeditor/ckeditor.js"></script>
 <script type="text/javascript"
 	src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.7.0/js/bootstrap-datepicker.min.js"></script>
 <script type="text/javascript"
 	src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-timepicker/0.5.2/js/bootstrap-timepicker.min.js" ></script>
+	<script type="text/javascript">
+		CKEDITOR.replace( 'detail' );
+	</script>
 </head>
 <body>
 	<t:header>
@@ -167,352 +173,242 @@
 								<form:form method="post" modelAttribute="Proposal"
 									action="${typeForm}" class="form-horizontal"
 									enctype="multipart/form-data">
-									<c:choose>
-										<c:when test="${not empty message}">
-											<div class="form-group">
-	                            				<div style="color:red;font-size:15px;text-align:center;"><c:out value="${message}"/> </div>
-	                            			</div>
-	                            			<div class="form-group">
-												<label class="control-label col-sm-3">Tên</label>
-												<div class="col-sm-7">
-													<form:input disabled="true" path="name" type="text" class="form-control"
-														value="" />
-													<c:out value="${proposalInfo.name}"></c:out>
-												</div>
+									<c:if test="${not empty message2}">
+										<div class="form-group">
+											<div style="color: red; font-size: 15px; text-align: center;">
+												<c:out value="${message2}" />
 											</div>
-											<div class="form-group">
-												<label class="control-label col-sm-3">Chi Tiết</label>
-												<div class="col-sm-7">
-													<form:textarea disabled="true" path="detail" class="form-control" cols="30"
-														rows="10"></form:textarea>
-												</div>
+										</div>
+									</c:if>
+									<c:if test="${not empty error}">
+										<div class="form-group">
+											<div style="color: red; font-size: 15px; text-align: center;">
+												<c:out value="${error}" />
 											</div>
-											<div class="form-group">
-												<label class="control-label col-sm-3">Xe</label>
-												<div class="col-sm-7">
-													<form:select disabled="true" id="choicecar" path="carID"
-														class="btn btn-choose">
-														<c:forEach items="${carsAvailble}" var="listcar">
-															<option value='<c:out value="${listcar.carID}"/>'>
-																<c:out value="${listcar.licenseplate}" /> -
-																<c:out value="${listcar.type}" /> -
-																<c:out value="${listcar.seats}" /> Chỗ
-															</option>
-														</c:forEach>
-													</form:select>
-													<i class="fa fa-info-circle fa-lg icon-show-deital"
-														aria-hidden="true"></i>
-												</div>
-												<div class="col-sm-offset-3 col-sm-7">
-													<div class="detail-car">
-														<c:forEach items="${carsAvailble}" var="listcar">
-															<div class="row"
-																id='detail-car-<c:out value="${listcar.carID}"/>'>
-																<div class="col-sm-2">
-																	<img
-																		src='static/img/user/<c:out value="${listcar.driver.email}"/>.jpg'
-																		width="70px" height="80px">
-																</div>
-																<div class="col-sm-5 padding-zero">
-																	<div class="col-sm-6">
-																		<p>
-																			<strong>Tên :</strong>
-																		</p>
-																		<p>
-																			<strong>Email :</strong>
-																		</p>
-																		<p>
-																			<strong>Ngày sinh :</strong>
-																		</p>
-																	</div>
-																	<div class="col-sm-6 padding-zero">
-																		<p>
-																			<c:out value="${listcar.driver.name}" />
-																			/p>
-																		<p>
-																			<c:out value="${listcar.driver.email}" />
-																		</p>
-																		<p>
-																			<c:out value="${listcar.driver.birthday}" />
-																		</p>
-																	</div>
-																</div>
-																<div class="col-sm-5 padding-zero">
-																	<div class="col-sm-6 padding-zero">
-																		<p>
-																			<strong>SĐT :</strong>
-																		</p>
-																		<p>
-																			<strong>Kinh nghiệm :</strong>
-																		</p>
-																		<p>
-																			<strong>Bằng Lái :</strong>
-																		</p>
-																	</div>
-																	<div class="col-sm-6 padding-zero">
-																		<p>
-																			<c:out value="${listcar.driver.phone}" />
-																		</p>
-																		<p>
-																			<c:out value="${listcar.driver.experience}" />
-																			năm
-																		</p>
-																		<p>
-																			<c:out value="${listcar.driver.license}" />
-																		</p>
-																	</div>
-																</div>
+										</div>
+									</c:if>
+									
+									<div class="form-group">
+										<label class="control-label col-sm-3">Tên</label>
+										<div class="col-sm-7">
+											<form:input path="name" type="text" class="form-control" />
+											<div class="has-error">
+												<form:errors class="control-label" path="name" />
+											</div>
+										</div>
+										
+									</div>
+									<div class="form-group">
+										<label class="control-label col-sm-3">Nơi đến</label>
+										<div class="col-sm-7">
+											<form:input path="destination" type="text"
+												class="form-control" />
+											<div class="has-error">
+												<form:errors class="control-label" path="destination" />
+											</div>
+										</div>
+										
+									</div>
+									<div class="form-group">
+										<label class="control-label col-sm-3">Địa điểm đón</label>
+										<div class="col-sm-7">
+											<form:input path="pickuplocation" type="text"
+												class="form-control" />
+											<div class="has-error">
+												<form:errors class="control-label" path="pickuplocation" />
+											</div>
+										</div>
+										
+									</div>
+									<div class="form-group">
+										<label class="control-label col-sm-3">Thời gian đón</label>
+										<div class="col-sm-7">
+											<div class="input-group bootstrap-timepicker timepicker">
+												<form:input path="pickuptime" id="pickuptime" type="text"
+													class="form-control input-small" />
+												<span class="input-group-addon"> <i
+													class="glyphicon glyphicon-time"></i>
+												</span>
+											</div>
+											<div class="has-error">
+												<form:errors class="control-label" path="pickuptime" />
+											</div>
+										</div>
+										
+									</div>
+									<div class="form-group">
+										<label class="control-label col-sm-3">Chi Tiết</label>
+										<div class="col-sm-7">
+											<form:textarea path="detail" id="detail" class="form-control"
+												cols="30" rows="10"></form:textarea>
+											<div class="has-error">
+												<form:errors class="control-label" path="detail" />
+											</div>
+										</div>
+										
+									</div>
+									<div class="form-group">
+										<label class="control-label col-sm-3">Xe</label>
+										<div class="col-sm-7">
+											<form:select id="choicecar" path="carID"
+												class="btn btn-choose">
+												<c:forEach items="${carsAvailble}" var="listcar">
+													<form:option value="${listcar.carID}">
+														<c:out value="${listcar.licenseplate}" /> -
+														<c:out value="${listcar.type}" /> -
+														<c:out value="${listcar.seats}" /> Chỗ
+													</form:option>
+												</c:forEach>
+											</form:select>
+											<i class="fa fa-info-circle fa-lg icon-show-deital"
+												aria-hidden="true"></i>
+											<div class="has-error">
+												<form:errors class="control-label" path="carID" />
+											</div>
+										</div>
+										<div class="col-sm-offset-3 col-sm-7">
+											<div class="detail-car">
+												<c:forEach items="${carsAvailble}" var="listcar">
+													<div class="row"
+														id='detail-car-<c:out value="${listcar.carID}"/>'>
+														<div class="col-sm-2">
+															<img
+																src='static/img/user/<c:out value="${listcar.driver.email}"/>.jpg'
+																width="70px" height="80px">
+														</div>
+														<div class="col-sm-5 padding-zero">
+															<div class="col-sm-6">
+																<p>
+																	<strong>Tên :</strong>
+																</p>
+																<p>
+																	<strong>Email :</strong>
+																</p>
+																<p>
+																	<strong>Ngày sinh :</strong>
+																</p>
 															</div>
-		
-														</c:forEach>
-													</div>
-												</div>
-											</div>
-											<div class="form-group">
-												<label class="control-label col-sm-3">Thời gian sử
-													dụng</label>
-												<div class="col-sm-7">
-													<div class="col-sm-3" style="padding-left: 0px;">
-														<form:select disabled="true" path="typedateuse" class="btn btn-choose"
-															id="select-time-use">
-															<c:choose>
-																<c:when test='${Proposal.typedateuse == "manyday" }'>
-																	<option value="inday">Trong Ngày</option>
-																	<option selected value="manyday">Nhiều Ngày</option>
-																</c:when>
-																<c:otherwise>
-																	<option selected value="inday">Trong Ngày</option>
-																	<option value="manyday">Nhiều Ngày</option>
-																</c:otherwise>
-															</c:choose>
-														</form:select>
-													</div>
-													<div class="col-sm-4" id="in-day">
-														<form:input disabled="true" path="useindate"
-															class="form-control date-picker" type="text" />
-													</div>
-													<div class="col-sm-9 padding-right-zero" id="many-day">
-														<div class="col-sm-1 padding-left-zero">
-															<label class="control-label">Từ</label>
-														</div>
-														<div class="col-sm-5 padding-left-zero">
-															<form:input disabled="true" path="usefromdate" type="text"
-																class="form-control date-picker" />
-														</div>
-														<div class="col-sm-1 padding-left-zero">
-															<label class="control-label">Đến</label>
-														</div>
-														<div class="col-sm-5 padding-right-zero">
-															<form:input disabled="true" path="usetodate" type="text"
-																class="form-control date-picker" />
-														</div>
-													</div>
-												</div>
-											</div>
-											<div class="form-group">
-												<label class="control-label col-sm-3">Tệp đính kèm</label>
-												<c:if test='${MODE == "MODE_CHANGE_PROPOSAL" && Proposal.isFileExist == true}'>
-													<a href="/static/file/${Proposal.proposalID}.pdf"
-														class="control-label col-sm-3" style="text-align: left;"
-														download>File</a>
-												</c:if>
-											</div>
-											<div class="form-group">
-												<div class="col-sm-offset-5 col-sm-2">
-													<a href="/" class="btn btn-default">Trở về</a>
-												</div>
-											</div>
-										</c:when>
-										<c:otherwise>
-											<div class="form-group">
-												<label class="control-label col-sm-3">Tên</label>
-												<div class="col-sm-7">
-													<form:input path="name" type="text" class="form-control"
-														value="" />
-													<c:out value="${proposalInfo.name}"></c:out>
-													<div class="has-error">
-							                        	<form:errors class="control-label" path="name"/>
-							                        </div>
-												</div>
-											</div>
-											<div class="form-group">
-												<label class="control-label col-sm-3">Chi Tiết</label>
-												<div class="col-sm-7">
-													<form:textarea path="detail" class="form-control" cols="30"
-														rows="10"></form:textarea>
-													<div class="has-error">
-							                        	<form:errors class="control-label" path="detail"/>
-							                        </div>
-												</div>
-											</div>
-											<div class="form-group">
-												<label class="control-label col-sm-3">Xe</label>
-												<div class="col-sm-7">
-													<form:select id="choicecar" path="carID"
-														class="btn btn-choose">
-														<c:forEach items="${carsAvailble}" var="listcar">
-															<option value='<c:out value="${listcar.carID}"/>'>
-																<c:out value="${listcar.licenseplate}" /> -
-																<c:out value="${listcar.type}" /> -
-																<c:out value="${listcar.seats}" /> Chỗ
-															</option>
-														</c:forEach>
-													</form:select>
-													<i class="fa fa-info-circle fa-lg icon-show-deital"
-														aria-hidden="true"></i>
-													<div class="has-error">
-							                        	<form:errors class="control-label" path="carID"/>
-							                        </div>
-												</div>
-												<div class="col-sm-offset-3 col-sm-7">
-													<div class="detail-car">
-														<c:forEach items="${carsAvailble}" var="listcar">
-															<div class="row"
-																id='detail-car-<c:out value="${listcar.carID}"/>'>
-																<div class="col-sm-2">
-																	<img
-																		src='static/img/user/<c:out value="${listcar.driver.email}"/>.jpg'
-																		width="70px" height="80px">
-																</div>
-																<div class="col-sm-5 padding-zero">
-																	<div class="col-sm-6">
-																		<p>
-																			<strong>Tên :</strong>
-																		</p>
-																		<p>
-																			<strong>Email :</strong>
-																		</p>
-																		<p>
-																			<strong>Ngày sinh :</strong>
-																		</p>
-																	</div>
-																	<div class="col-sm-6 padding-zero">
-																		<p>
-																			<c:out value="${listcar.driver.name}" />
-																			/p>
-																		<p>
-																			<c:out value="${listcar.driver.email}" />
-																		</p>
-																		<p>
-																			<c:out value="${listcar.driver.birthday}" />
-																		</p>
-																	</div>
-																</div>
-																<div class="col-sm-5 padding-zero">
-																	<div class="col-sm-6 padding-zero">
-																		<p>
-																			<strong>SĐT :</strong>
-																		</p>
-																		<p>
-																			<strong>Kinh nghiệm :</strong>
-																		</p>
-																		<p>
-																			<strong>Bằng Lái :</strong>
-																		</p>
-																	</div>
-																	<div class="col-sm-6 padding-zero">
-																		<p>
-																			<c:out value="${listcar.driver.phone}" />
-																		</p>
-																		<p>
-																			<c:out value="${listcar.driver.experience}" />
-																			năm
-																		</p>
-																		<p>
-																			<c:out value="${listcar.driver.license}" />
-																		</p>
-																	</div>
-																</div>
+															<div class="col-sm-6 padding-zero">
+																<p>
+																	<c:out value="${listcar.driver.name}" />
+																	/p>
+																<p>
+																	<c:out value="${listcar.driver.email}" />
+																</p>
+																<p>
+																	<c:out value="${listcar.driver.birthday}" />
+																</p>
 															</div>
-		
-														</c:forEach>
-													</div>
-												</div>
-											</div>
-											<div class="form-group">
-												<label class="control-label col-sm-3">Thời gian sử
-													dụng</label>
-												<div class="col-sm-7">
-													<div class="col-sm-3" style="padding-left: 0px;">
-														<form:select path="typedateuse" class="btn btn-choose"
-															id="select-time-use">
-															<c:choose>
-																<c:when test='${Proposal.typedateuse == "manyday" }'>
-																	<option value="inday">Trong Ngày</option>
-																	<option selected value="manyday">Nhiều Ngày</option>
-																</c:when>
-																<c:otherwise>
-																	<option selected value="inday">Trong Ngày</option>
-																	<option value="manyday">Nhiều Ngày</option>
-																</c:otherwise>
-															</c:choose>
-														</form:select>
-														<div class="has-error">
-								                        	<form:errors class="control-label" path="typedateuse"/>
-								                        </div>
-													</div>
-													<div class="col-sm-4" id="in-day">
-														<form:input path="useindate"
-															class="form-control date-picker" type="text" />
-													</div>
-													<div class="col-sm-9 padding-right-zero" id="many-day">
-														<div class="col-sm-1 padding-left-zero">
-															<label class="control-label">Từ</label>
 														</div>
-														<div class="col-sm-5 padding-left-zero">
-															<form:input path="usefromdate" type="text"
-																class="form-control date-picker" />
-														</div>
-														<div class="col-sm-1 padding-left-zero">
-															<label class="control-label">Đến</label>
-														</div>
-														<div class="col-sm-5 padding-right-zero">
-															<form:input path="usetodate" type="text"
-																class="form-control date-picker" />
+														<div class="col-sm-5 padding-zero">
+															<div class="col-sm-6 padding-zero">
+																<p>
+																	<strong>SĐT :</strong>
+																</p>
+																<p>
+																	<strong>Kinh nghiệm :</strong>
+																</p>
+																<p>
+																	<strong>Bằng Lái :</strong>
+																</p>
+															</div>
+															<div class="col-sm-6 padding-zero">
+																<p>
+																	<c:out value="${listcar.driver.phone}" />
+																</p>
+																<p>
+																	<c:out value="${listcar.driver.experience}" />
+																	năm
+																</p>
+																<p>
+																	<c:out value="${listcar.driver.license}" />
+																</p>
+															</div>
 														</div>
 													</div>
-													<div class="has-error">
-								                    	<form:errors class="control-label" path="usefromdate"/>
-								                    </div>
-								                    <div class="has-error">
-								                    	<form:errors class="control-label" path="usetodate"/>
-								                    </div>
-								                    <div class="has-error">
-								                    	<form:errors class="control-label" path="useindate"/>
-								                    </div>
+												</c:forEach>
+											</div>
+										</div>
+									</div>
+									<div class="form-group">
+										<label class="control-label col-sm-3">Thời gian sử
+											dụng</label>
+										<div class="col-sm-9">
+											<div class="col-sm-2 padding-zero">
+												<form:input path="usefromdate" id="usefromdate" type="text"
+													class="form-control date-picker" />
+											</div>
+											<div class="col-sm-3 padding-right-zero">
+												<div class="input-group bootstrap-timepicker timepicker">
+													<form:input path="usefromtime" id="usefromtime" type="text"
+														class="form-control input-small time2" />
+													<span class="input-group-addon"> <i
+														class="glyphicon glyphicon-time"></i>
+													</span>
 												</div>
 											</div>
-											<div class="form-group">
-												<label class="control-label col-sm-3">Tệp đính kèm</label>
-												<div class="col-sm-5">
-													<form:input path="file" type="file" class="form-control" />
-												</div>
-												<div class="has-error">
-													<form:errors class="control-label" path="file" />
-												</div>
-												<c:if test='${MODE == "MODE_CHANGE_PROPOSAL" && Proposal.isFileExist == true}'>
-													<a href="/static/file/${Proposal.proposalID}.pdf"
-														class="control-label col-sm-3" style="text-align: left;"
-														download>File</a>
-												</c:if>
+											<label class="control-label col-sm-1"
+												style="text-align: center;">-</label>
+											<div class="col-sm-2 padding-zero">
+												<form:input id="usetodate" path="usetodate" type="text"
+													class="form-control date-picker" />
 											</div>
-											<div class="form-group">
-												<c:if test='${MODE == "MODE_CREATE_PROPOSAL" }'>
-													<div class="col-sm-offset-5 col-sm-2">
-														<button type="submit" class="btn btn-default">Submit</button>
-													</div>
-												</c:if>
-												<c:if test='${MODE == "MODE_CHANGE_PROPOSAL"}'>
-													<div class="col-sm-offset-5 col-sm-4">
-														<button type="submit" name="type" value="change" class="btn btn-default">Chỉnh sữa</button>
-														<a href="/cancel-proposal" type="submit" class="btn btn-default">Hủy</a> 
-														<a href="/" class="btn btn-default">Trở về</a>
-													</div>
-												</c:if>
+											<div class="col-sm-3 padding-right-zero">
+												<div class="input-group bootstrap-timepicker timepicker">
+													<form:input type="text" path="usetotime" id="usetotime"
+														class="form-control input-small time2" />
+													<span class="input-group-addon"> <i
+														class="glyphicon glyphicon-time"></i>
+													</span>
+												</div>
 											</div>
-										</c:otherwise>
-									</c:choose>
-	
+											<div class="col-sm-1">&nbsp;</div>
+											<div class="has-error">
+												<form:errors class="control-label" path="usefromdate" />
+											</div>
+											<div class="has-error">
+												<form:errors class="control-label" path="usefromtime" />
+											</div>
+											<div class="has-error">
+												<form:errors class="control-label" path="usetodate" />
+											</div>
+											<div class="has-error">
+												<form:errors class="control-label" path="usetotime" />
+											</div>
+										</div>
+									</div>
+									<div class="form-group">
+										<label class="control-label col-sm-3">Tệp đính kèm</label>
+										<div class="col-sm-5">
+											<form:input path="file" type="file" class="form-control" />
+											<div class="has-error">
+												<form:errors class="control-label" path="file" />
+											</div>
+										</div>
+										<c:if
+											test='${MODE == "MODE_CHANGE_PROPOSAL" && Proposal.fileexist == true}'>
+											<a href="/static/file/${Proposal.proposalID}.pdf"
+												class="control-label col-sm-3" style="text-align: left;"
+												download>File</a>
+										</c:if>
+									</div>
+									<div class="form-group">
+										<c:if test='${MODE == "MODE_CREATE_PROPOSAL" }'>
+											<div class="col-sm-offset-5 col-sm-3">
+												<button type="submit" class="btn btn-default">Submit</button>
+												<a href="/" class="btn btn-default">Trở về</a>
+											</div>
+										</c:if>
+										<c:if test='${MODE == "MODE_CHANGE_PROPOSAL"}'>
+											<div class="col-sm-offset-5 col-sm-4">
+												<button type="submit" name="type" value="change"
+													class="btn btn-default">Chỉnh sữa</button>
+												<a href="/cancel-proposal" type="submit"
+													class="btn btn-default">Hủy</a> <a href="/"
+													class="btn btn-default">Trở về</a>
+											</div>
+										</c:if>
+									</div>
 								</form:form>
 							</c:when>
 							<c:when test='${MODE == "MODE_CONFIRM_PROPOSAL"}'>
@@ -520,23 +416,43 @@
 								<form:form method="post" modelAttribute="Proposal"
 									action="${typeForm}" class="form-horizontal"
 									enctype="multipart/form-data">
-									<c:if test="${not empty message}">
-										<div class="form-group">
-											<div style="color: red; font-size: 15px; text-align: center;">
-												<c:out value="${message}" />
-											</div>
-										</div>
-									</c:if>
 									<div class="form-group">
 										<label class="control-label col-sm-3">Tên</label>
 										<div class="col-sm-7">
-											<form:input path="name" disabled="true" type="text" class="form-control" />
+											<form:input disabled="true" path="name" type="text" class="form-control" />
+										</div>
+									</div>
+									<div class="form-group">
+										<label class="control-label col-sm-3">Nơi đến</label>
+										<div class="col-sm-7">
+											<form:input disabled="true" path="destination" type="text"
+												class="form-control" />
+										</div>
+									</div>
+									<div class="form-group">
+										<label class="control-label col-sm-3">Địa điểm đón</label>
+										<div class="col-sm-7">
+											<form:input disabled="true" path="pickuplocation" type="text"
+												class="form-control" />
+										</div>
+									</div>
+									<div class="form-group">
+										<label class="control-label col-sm-3">Thời gian đón</label>
+										<div class="col-sm-7">
+											<div class="input-group bootstrap-timepicker timepicker">
+												<form:input disabled="true" path="pickuptime" id="pickuptime" type="text"
+													class="form-control input-small" />
+												<span class="input-group-addon"> <i
+													class="glyphicon glyphicon-time"></i>
+												</span>
+											</div>
 										</div>
 									</div>
 									<div class="form-group">
 										<label class="control-label col-sm-3">Chi Tiết</label>
 										<div class="col-sm-7">
-											<form:textarea disabled="true" path="detail" class="form-control" cols="30" rows="10"></form:textarea>
+											<form:textarea disabled="true" path="detail" id="detail" class="form-control"
+												cols="30" rows="10"></form:textarea>
 										</div>
 									</div>
 									<div class="form-group">
@@ -622,54 +538,56 @@
 									<div class="form-group">
 										<label class="control-label col-sm-3">Thời gian sử
 											dụng</label>
-										<div class="col-sm-7">
-											<div class="col-sm-3" style="padding-left: 0px;">
-												<form:select disabled="true" path="typedateuse" class="btn btn-choose"
-													id="select-time-use">
-													<c:choose>
-														<c:when test='${Proposal.typedateuse == "manyday" }'>
-															<option value="inday">Trong Ngày</option>
-															<option selected value="manyday">Nhiều Ngày</option>
-														</c:when>
-														<c:otherwise>
-															<option selected value="inday">Trong Ngày</option>
-															<option value="manyday">Nhiều Ngày</option>
-														</c:otherwise>
-													</c:choose>
-												</form:select>
+										<div class="col-sm-9">
+											<div class="col-sm-2 padding-zero">
+												<form:input disabled="true" path="usefromdate" id="usefromdate" type="text"
+													class="form-control date-picker" />
 											</div>
-											<div class="col-sm-4" id="in-day">
-												<form:input disabled="true" path="useindate"
-													class="form-control date-picker" type="text" />
+											<div class="col-sm-3 padding-right-zero">
+												<div class="input-group bootstrap-timepicker timepicker">
+													<form:input disabled="true" path="usefromtime" id="usefromtime" type="text"
+														class="form-control input-small time2" />
+													<span class="input-group-addon"> <i
+														class="glyphicon glyphicon-time"></i>
+													</span>
+												</div>
 											</div>
-											<div class="col-sm-9 padding-right-zero" id="many-day">
-												<div class="col-sm-1 padding-left-zero">
-													<label class="control-label">Từ</label>
-												</div>
-												<div class="col-sm-5 padding-left-zero">
-													<form:input disabled="true" path="usefromdate" type="text"
-														class="form-control date-picker" />
-												</div>
-												<div class="col-sm-1 padding-left-zero">
-													<label class="control-label">Đến</label>
-												</div>
-												<div class="col-sm-5 padding-right-zero">
-													<form:input disabled="true" path="usetodate" type="text"
-														class="form-control date-picker" />
+											<label class="control-label col-sm-1"
+												style="text-align: center;">-</label>
+											<div class="col-sm-2 padding-zero">
+												<form:input disabled="true" id="usetodate" path="usetodate" type="text"
+													class="form-control date-picker" />
+											</div>
+											<div class="col-sm-3 padding-right-zero">
+												<div class="input-group bootstrap-timepicker timepicker">
+													<form:input disabled="true" type="text" path="usetotime" id="usetotime"
+														class="form-control input-small time2" />
+													<span class="input-group-addon"> <i
+														class="glyphicon glyphicon-time"></i>
+													</span>
 												</div>
 											</div>
 										</div>
 									</div>
 									<div class="form-group">
-										<label class="control-label col-sm-3">Tệp đính kèm</label> <a
-											href="/static/file/${Proposal.proposalID}.pdf"
-											class="control-label col-sm-3" style="text-align: left;"
-											download>File</a>
+										<label class="control-label col-sm-3">Tệp đính kèm</label>
+										<c:choose>
+											<c:when test='${Proposal.fileexist == true}'>
+												<a href="/static/file/${Proposal.proposalID}.pdf"
+												class="control-label col-sm-3" style="text-align: left;"
+												download>File</a>
+											</c:when>
+											<c:otherwise>
+												<label class="control-label">Không có tệp đính kèm</label>
+											</c:otherwise>
+										</c:choose>
 									</div>
 									<div class="form-group">
 										<div class="col-sm-offset-5 col-sm-4">
-											<button type="submit" name="type" value="confirm"
+											<c:if test="${Proposal.stt.sttproposalID == 0}">
+												<button type="submit" name="type" value="confirm"
 												class="btn btn-default">Duyệt</button>
+											</c:if>
 											<a href="/" class="btn btn-default">Trở về</a>
 										</div>
 									</div>
@@ -807,6 +725,198 @@
 									</tbody>
 								</table>
 							</c:when>
+							<c:when test="${MODE == 'MODE_PROPOSAL_EXPIRED'}">
+								<form:form method="post" modelAttribute="Proposal"
+									action="${typeForm}" class="form-horizontal"
+									enctype="multipart/form-data">
+									<c:if test="${not empty message}">
+										<div class="form-group">
+											<div style="color: red; font-size: 15px; text-align: center;">
+												<c:out value="${message}" />
+											</div>
+										</div>
+									</c:if>
+									<c:if test="${not empty message2}">
+										<div class="form-group">
+											<div style="color: red; font-size: 15px; text-align: center;">
+												<c:out value="${message2}" />
+											</div>
+										</div>
+									</c:if>
+									<div class="form-group">
+										<label class="control-label col-sm-3">Tên</label>
+										<div class="col-sm-7">
+											<form:input disabled="true" path="name" type="text" class="form-control" />
+										</div>
+									</div>
+									<div class="form-group">
+										<label class="control-label col-sm-3">Nơi đến</label>
+										<div class="col-sm-7">
+											<form:input disabled="true" path="destination" type="text"
+												class="form-control" />
+										</div>
+									</div>
+									<div class="form-group">
+										<label class="control-label col-sm-3">Địa điểm đón</label>
+										<div class="col-sm-7">
+											<form:input disabled="true" path="pickuplocation" type="text"
+												class="form-control" />
+										</div>
+									</div>
+									<div class="form-group">
+										<label class="control-label col-sm-3">Thời gian đón</label>
+										<div class="col-sm-7">
+											<div class="input-group bootstrap-timepicker timepicker">
+												<form:input disabled="true" path="pickuptime" id="pickuptime" type="text"
+													class="form-control input-small" />
+												<span class="input-group-addon"> <i
+													class="glyphicon glyphicon-time"></i>
+												</span>
+											</div>
+										</div>
+									</div>
+									<div class="form-group">
+										<label class="control-label col-sm-3">Chi Tiết</label>
+										<div class="col-sm-7">
+											<form:textarea disabled="true" path="detail" id="detail" class="form-control"
+												cols="30" rows="10"></form:textarea>
+										</div>
+									</div>
+									<div class="form-group">
+										<label class="control-label col-sm-3">Xe</label>
+										<div class="col-sm-7">
+											<form:select disabled="true" id="choicecar" path="carID"
+												class="btn btn-choose">
+												<c:forEach items="${carsAvailble}" var="listcar">
+													<option value='<c:out value="${listcar.carID}"/>'>
+														<c:out value="${listcar.licenseplate}" /> -
+														<c:out value="${listcar.type}" /> -
+														<c:out value="${listcar.seats}" /> Chỗ
+													</option>
+												</c:forEach>
+											</form:select>
+											<i class="fa fa-info-circle fa-lg icon-show-deital"
+												aria-hidden="true"></i>
+										</div>
+										<div class="col-sm-offset-3 col-sm-7">
+											<div class="detail-car">
+												<c:forEach items="${carsAvailble}" var="listcar">
+													<div class="row"
+														id='detail-car-<c:out value="${listcar.carID}"/>'>
+														<div class="col-sm-2">
+															<img
+																src='static/img/user/<c:out value="${listcar.driver.email}"/>.jpg'
+																width="70px" height="80px">
+														</div>
+														<div class="col-sm-5 padding-zero">
+															<div class="col-sm-6">
+																<p>
+																	<strong>Tên :</strong>
+																</p>
+																<p>
+																	<strong>Email :</strong>
+																</p>
+																<p>
+																	<strong>Ngày sinh :</strong>
+																</p>
+															</div>
+															<div class="col-sm-6 padding-zero">
+																<p>
+																	<c:out value="${listcar.driver.name}" />
+																	/p>
+																<p>
+																	<c:out value="${listcar.driver.email}" />
+																</p>
+																<p>
+																	<c:out value="${listcar.driver.birthday}" />
+																</p>
+															</div>
+														</div>
+														<div class="col-sm-5 padding-zero">
+															<div class="col-sm-6 padding-zero">
+																<p>
+																	<strong>SĐT :</strong>
+																</p>
+																<p>
+																	<strong>Kinh nghiệm :</strong>
+																</p>
+																<p>
+																	<strong>Bằng Lái :</strong>
+																</p>
+															</div>
+															<div class="col-sm-6 padding-zero">
+																<p>
+																	<c:out value="${listcar.driver.phone}" />
+																</p>
+																<p>
+																	<c:out value="${listcar.driver.experience}" />
+																	năm
+																</p>
+																<p>
+																	<c:out value="${listcar.driver.license}" />
+																</p>
+															</div>
+														</div>
+													</div>
+												</c:forEach>
+											</div>
+										</div>
+									</div>
+									<div class="form-group">
+										<label class="control-label col-sm-3">Thời gian sử
+											dụng</label>
+										<div class="col-sm-9">
+											<div class="col-sm-2 padding-zero">
+												<form:input disabled="true" path="usefromdate" id="usefromdate" type="text"
+													class="form-control date-picker" />
+											</div>
+											<div class="col-sm-3 padding-right-zero">
+												<div class="input-group bootstrap-timepicker timepicker">
+													<form:input disabled="true" path="usefromtime" id="usefromtime" type="text"
+														class="form-control input-small time2" />
+													<span class="input-group-addon"> <i
+														class="glyphicon glyphicon-time"></i>
+													</span>
+												</div>
+											</div>
+											<label class="control-label col-sm-1"
+												style="text-align: center;">-</label>
+											<div class="col-sm-2 padding-zero">
+												<form:input disabled="true" id="usetodate" path="usetodate" type="text"
+													class="form-control date-picker" />
+											</div>
+											<div class="col-sm-3 padding-right-zero">
+												<div class="input-group bootstrap-timepicker timepicker">
+													<form:input disabled="true" type="text" path="usetotime" id="usetotime"
+														class="form-control input-small time2" />
+													<span class="input-group-addon"> <i
+														class="glyphicon glyphicon-time"></i>
+													</span>
+												</div>
+											</div>
+										</div>
+									</div>
+									<div class="form-group">
+										<label class="control-label col-sm-3">Tệp đính kèm</label>
+										<c:choose>
+											<c:when test='${Proposal.fileexist == true}'>
+												<a href="/static/file/${Proposal.proposalID}.pdf"
+												class="control-label col-sm-3" style="text-align: left;"
+												download>File</a>
+											</c:when>
+											<c:otherwise>
+												<label class="control-label">Không có tệp đính kèm</label>
+											</c:otherwise>
+										</c:choose>
+									</div>
+									<div class="form-group">
+										<div class="col-sm-offset-5 col-sm-2">
+											<a href="/" class="btn btn-default">Trở về</a>
+										</div>
+									</div>
+								</form:form>
+							</c:when>
+							
 							<c:otherwise>
 								<div class="title-content">Kiểm tra tình trạng hoạt động
 									của xe</div>
@@ -924,87 +1034,22 @@
 						<div class="title-notify">Notification</div>
 						<div class="list-notify">
 							<c:forEach items="${listNotify}" var="notifys">
-								<c:choose>
-									<c:when test="${notifys.proposal.stt.sttproposalID == 1 && notifys.proposal.type.typeID != 3}">
-										<div class="item-notify">
-											<sec:authorize access="hasAuthority('CONFIRM_PROPOSAL')">
-												<a href="confirm-proposal-${notifys.proposal.proposalID}">
-													<div>
-														<strong><c:out value="${notifys.proposal.infoconfirm.userconfirm.roleUser.name}" /></strong> đã duyệt đề
-														nghị
-														<strong><c:out value="${notifys.proposal.name}" /></strong>
-														của <strong><c:out value="${notifys.proposal.userregister.user.name}" /></strong>
-													</div>
-													<p class="time-ago">
-														<i class="fa fa-plus-circle" aria-hidden="true"></i> 
-														<c:out value="${notifys.time}" />
-													</p>
-												</a>
-											</sec:authorize>
-											<sec:authorize access="hasAuthority('CHANGE_PROPOSAL')">
-												<a href="change-proposal-${notifys.proposal.proposalID}">
-													<div>
-														<strong><c:out value="${notifys.proposal.infoconfirm.userconfirm.roleUser.name}" /></strong> đã duyệt đề
-														nghị
-														<c:out value="${notifys.proposal.name}" />
-														của bạn
-													</div>
-													<p class="time-ago">
-														<i class="fa fa-plus-circle" aria-hidden="true"></i>
-														<c:out value="${notifys.time}" />
-													</p>
-												</a>
-											</sec:authorize>
-										</div>
-									</c:when>
-									<c:when test="${notifys.proposal.expired == true && notifys.proposal.stt.sttproposalID == 1}">
-										<sec:authorize access="hasAuthority('CHANGE_PROPOSAL')">
-											<div class="item-notify">
-												<a href="change-proposal-${notifys.proposal.proposalID}">
-													<div>
-														Đề nghị 
-														<strong><c:out value="${notifys.proposal.type.name}" /></strong> 
-														đã bị hủy vì thời gian sử dụng đã quá hạn bởi <strong>Hệ Thống</strong>
-													</div>
-													<p class="time-ago">
-														<i class="fa fa-trash" aria-hidden="true"></i>
-														<c:out value="${notifys.time}" />
-													</p>
-												</a>
-											</div>
-										</sec:authorize>
-									</c:when>
-									<c:otherwise>
-										<sec:authorize access="hasAuthority('CONFIRM_PROPOSAL')">
-											<div class="item-notify">
-												<a href="confirm-proposal-${notifys.proposal.proposalID}">
-													<div>
-														<strong>
-															<c:out value="${notifys.proposal.userregister.user.name}"></c:out>
-														</strong>
-														đã
-														<c:out value="${notifys.proposal.type.name}" />
-														một đề nghị
-													</div>
-													<p class="time-ago">
-														<c:choose>
-															<c:when test="${notifys.proposal.type.name == 'Tạo'}">
-																<i class="fa fa-plus-circle" aria-hidden="true"></i>
-															</c:when>
-															<c:when test="${notifys.proposal.type.name == 'Chỉnh Sửa'}">
-																<i class="fa fa-pencil-square-o" aria-hidden="true"></i>
-															</c:when>
-															<c:otherwise>
-																<i class="fa fa-trash" aria-hidden="true"></i>
-															</c:otherwise>
-														</c:choose>
-														<c:out value="${notifys.time}" />
-													</p>
-												</a>
-											</div>
-										</sec:authorize>
-									</c:otherwise>
-								</c:choose>
+								<div class="item-notify">
+									<sec:authorize access="hasAuthority('CONFIRM_PROPOSAL')">
+										<a href="confirm-proposal-${notifys.proposalID}">
+											${notifys.message}
+											${notifys.time}
+											</p>
+										</a>
+									</sec:authorize>
+									<sec:authorize access="hasAuthority('CHANGE_PROPOSAL')">
+										<a href="change-proposal-${notifys.proposalID}">
+											${notifys.message}
+											${notifys.time}
+											</p>
+										</a>
+									</sec:authorize>
+								</div>
 							</c:forEach>
 						</div>
 					</div>

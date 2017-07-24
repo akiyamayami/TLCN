@@ -6,18 +6,12 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 
+import com.tlcn.dto.ModelCarReady;
 import com.tlcn.model.Car;
-import com.tlcn.model.ModelCarReady;
 
 
 public interface CarRepository extends CrudRepository<Car, Integer>{
-	@Query("select c "
-			+ "from car c "
-			+ "where c not in "
-			+ "(select c "
-			+ "from car c, com.tlcn.model.Proposal p "
-			+ "where p.stt = 1 and p.type != 3 and CURDATE() between p.usefromdate and p.usetodate "
-			+ "and p.car = c)")
+	@Query("select c from car c where c.sttcar = 1")
 	public List<Car> getListCarAvaliable();
 	
 	@Query("select c from car c where c.type = ?1")
@@ -34,6 +28,7 @@ public interface CarRepository extends CrudRepository<Car, Integer>{
 	
 	@Query("select p.car from com.tlcn.model.Proposal p where p.stt = 0 and p.usefromdate > CURDATE()")
 	public List<Car> getListCarRegistered();
+	
 }
 
 

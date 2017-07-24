@@ -1,5 +1,7 @@
 package com.tlcn.model;
 
+import java.lang.reflect.Field;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
@@ -18,6 +20,8 @@ import javax.persistence.TemporalType;
 
 import org.springframework.format.annotation.DateTimeFormat;
 
+import com.tlcn.dto.ModelCreateorChangeProposal;
+
 @Entity(name="proposal")
 public class Proposal {
 	@Id
@@ -29,15 +33,33 @@ public class Proposal {
 	private TypeProposal type;
 	private String name;
 	private String detail;
+	private String destination;
+	private String pickuplocation;
+	
+	@Temporal(TemporalType.TIME)
+	@DateTimeFormat(pattern = "HH:mm")
+	private Date pickuptime;
 	
 	@Temporal(TemporalType.DATE)
 	@DateTimeFormat(pattern = "dd-MM-yyyy")
 	private Date usefromdate;
 	
+	@Temporal(TemporalType.TIME)
+	@DateTimeFormat(pattern = "HH:mm")
+	private Date usefromtime;
+	
+	
 	@Temporal(TemporalType.DATE)
 	@DateTimeFormat(pattern = "dd-MM-yyyy")
 	private Date usetodate;
+	
+	@Temporal(TemporalType.TIME)
+	@DateTimeFormat(pattern = "HH:mm")
+	private Date usetotime;
+	
+	
 	private String file;
+	
 	
 	@ManyToOne(fetch=FetchType.EAGER)
 	@JoinColumn(name="sttproposalID")
@@ -68,18 +90,46 @@ public class Proposal {
 		super();
 	}
 	
+	public boolean checkEqual(ModelCreateorChangeProposal p){
+		SimpleDateFormat x = new SimpleDateFormat("HH:mm");
+		SimpleDateFormat y = new SimpleDateFormat("dd-MM-yyyy");
+		System.out.println(x.format(p.getPickuptime()) + "/////" + x.format(this.getPickuptime()));
+		System.out.println(p.toString());
+		System.out.println(this.toString());
+		if( !p.getName().equals(this.getName()) || !p.getDetail().equals(this.getDetail())
+				|| !p.getDestination().equals(this.getDestination()) 
+				|| !p.getPickuplocation().equals(this.getPickuplocation()) 
+				|| !x.format(p.getPickuptime()).equals(x.format(this.getPickuptime()))
+				|| !y.format(p.getUsefromdate()).equals(y.format(this.getUsefromdate())) 
+				|| !x.format(p.getUsefromtime()).equals(x.format(this.getUsefromtime())) 
+				|| !y.format(p.getUsetodate()).equals(y.format(this.getUsetodate())) 
+				|| !x.format(p.getUsetotime()).equals(x.format(this.getUsetotime()))  
+				|| p.getCarID() != this.getCar().getCarID()){
+			
+			return false;
+		}
+		return true;
+	}
 	
-	public Proposal(TypeProposal type, String name, String detail, Date usefromdate, Date usetodate, String file,
-			SttProposal stt, List<NotifyEvent> listnotifyofproposal, Car car, RegisterProposal userregister,
-			ConfirmProposal infoconfirm) {
+
+	public Proposal(TypeProposal type, String name, String detail, String destination, String pickuplocation,
+			Date pickuptime, Date usefromdate, Date usefromtime, Date usetodate, Date usetotime, String file,
+			SttProposal stt, boolean expired, List<NotifyEvent> listnotifyofproposal, Car car,
+			RegisterProposal userregister, ConfirmProposal infoconfirm) {
 		super();
 		this.type = type;
 		this.name = name;
 		this.detail = detail;
+		this.destination = destination;
+		this.pickuplocation = pickuplocation;
+		this.pickuptime = pickuptime;
 		this.usefromdate = usefromdate;
+		this.usefromtime = usefromtime;
 		this.usetodate = usetodate;
+		this.usetotime = usetotime;
 		this.file = file;
 		this.stt = stt;
+		this.expired = expired;
 		this.listnotifyofproposal = listnotifyofproposal;
 		this.car = car;
 		this.userregister = userregister;
@@ -87,59 +137,28 @@ public class Proposal {
 	}
 
 
-	public Proposal(TypeProposal type, String name, String detail, Date usefromdate, Date usetodate, SttProposal stt, Car car) {
+	
+
+	public Proposal(TypeProposal type, String name, String detail, String destination, String pickuplocation,
+			Date pickuptime, Date usefromdate, Date usefromtime, Date usetodate, Date usetotime, SttProposal stt,
+			Car car) {
 		super();
 		this.type = type;
 		this.name = name;
 		this.detail = detail;
+		this.destination = destination;
+		this.pickuplocation = pickuplocation;
+		this.pickuptime = pickuptime;
 		this.usefromdate = usefromdate;
+		this.usefromtime = usefromtime;
 		this.usetodate = usetodate;
+		this.usetotime = usetotime;
 		this.stt = stt;
 		this.car = car;
 	}
 
-	public Proposal(TypeProposal type, String name, String detail, Date usefromdate, Date usetodate, String file,
-			SttProposal stt, Car car, RegisterProposal userregister) {
-		super();
-		this.type = type;
-		this.name = name;
-		this.detail = detail;
-		this.usefromdate = usefromdate;
-		this.usetodate = usetodate;
-		this.file = file;
-		this.stt = stt;
-		this.car = car;
-		this.userregister = userregister;
-	}
 
-	public Proposal(int proposalID, TypeProposal type, String name, String detail, Date usefromdate, Date usetodate,
-			String file, SttProposal stt, Car car, RegisterProposal userregister) {
-		super();
-		this.proposalID = proposalID;
-		this.type = type;
-		this.name = name;
-		this.detail = detail;
-		this.usefromdate = usefromdate;
-		this.usetodate = usetodate;
-		this.file = file;
-		this.stt = stt;
-		this.car = car;
-		this.userregister = userregister;
-	}
 
-	public Proposal(int proposalID, TypeProposal type, String name, Date usefromdate, Date usetodate, String file,
-			SttProposal stt, Car car, RegisterProposal userregister) {
-		super();
-		this.proposalID = proposalID;
-		this.type = type;
-		this.name = name;
-		this.usefromdate = usefromdate;
-		this.usetodate = usetodate;
-		this.file = file;
-		this.stt = stt;
-		this.car = car;
-		this.userregister = userregister;
-	}
 
 	public int getProposalID() {
 		return proposalID;
@@ -249,6 +268,56 @@ public class Proposal {
 
 	public void setExpired(boolean expired) {
 		this.expired = expired;
+	}
+
+
+	public String getDestination() {
+		return destination;
+	}
+
+
+	public void setDestination(String destination) {
+		this.destination = destination;
+	}
+
+
+	public String getPickuplocation() {
+		return pickuplocation;
+	}
+
+
+	public void setPickuplocation(String pickuplocation) {
+		this.pickuplocation = pickuplocation;
+	}
+
+
+	public Date getPickuptime() {
+		return pickuptime;
+	}
+
+
+	public void setPickuptime(Date pickuptime) {
+		this.pickuptime = pickuptime;
+	}
+
+
+	public Date getUsefromtime() {
+		return usefromtime;
+	}
+
+
+	public void setUsefromtime(Date usefromtime) {
+		this.usefromtime = usefromtime;
+	}
+
+
+	public Date getUsetotime() {
+		return usetotime;
+	}
+
+
+	public void setUsetotime(Date usetotime) {
+		this.usetotime = usetotime;
 	}
 
 	
