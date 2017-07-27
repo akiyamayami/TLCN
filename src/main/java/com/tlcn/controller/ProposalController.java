@@ -231,7 +231,7 @@ public class ProposalController {
 			{
 				approveProposal(x);
 				for(Proposal p : proposalService.getListProposalHaveCarHasBeenUsed(x)){
-					addNotifyforUser(p, p.getUserregister().getUser(),"CarWasUsed");
+					notifyEventService.addNotifyforUser(p, p.getUserregister().getUser(),"CarWasUsed");
 				}
 				return "redirect:/";
 			}
@@ -425,22 +425,17 @@ public class ProposalController {
 	public void addNotify(String type, Proposal proposal){
 		switch(type){
 			case "confirm":
-				addNotifyforUser(proposal,proposal.getUserregister().getUser(),"");
+				notifyEventService.addNotifyforUser(proposal,proposal.getUserregister().getUser(),"");
 				break;
 			default:
-				addNotifyforUser(proposal,userService.findOne("akiyamayami1@gmail.com"),"");
-				addNotifyforUser(proposal,userService.findOne("lyphucloi.it@gmail.com"),"");
+				notifyEventService.addNotifyforUser(proposal,userService.findOne("akiyamayami1@gmail.com"),"");
+				notifyEventService.addNotifyforUser(proposal,userService.findOne("lyphucloi.it@gmail.com"),"");
 				//notifyEventService.save(new NotifyEvent(Calendar.getInstance(),proposal, userService.findOne("akiyamayami1@gmail.com")));
 				//notifyEventService.save(new NotifyEvent(Calendar.getInstance(),proposal, userService.findOne("lyphucloi.it@gmail.com")));
 				break;
 		}
-		
 	}
-	public void addNotifyforUser(Proposal proposal, User user, String type){
-		NotifyEvent notify = new NotifyEvent(Calendar.getInstance(),proposal, user);
-		notify.setMessage(notifyEventService.generateMessageNotify(notify, true, type));
-		notifyEventService.save(notify);
-	}
+	
 	public void showCalendarAndNotify(Model model, String month, String year){
 		model.addAttribute("listNotify", notifyEventService.getListNotifyNewest(GetUser()));
 		model.addAttribute("calendar", createCalendar(month,year));
@@ -481,18 +476,13 @@ public class ProposalController {
 		model.addAttribute("carsAvailble", listcars);
 	}
 	
-	public boolean isInTimeUse(Proposal proposal){
-		Calendar now = Calendar.getInstance();
-		if(proposal.getUsetodate().getTime() >= now.getTime().getTime() && proposal.getUsefromdate().getTime() <= now.getTime().getTime() && proposal.getStt().getSttproposalID() == 1)
-			return true;
-		return false;
-	}
+	
 	
 	public boolean isProposalExpired(Proposal proposal){
 		Calendar now = Calendar.getInstance();
 		System.out.println(proposal.getUsetodate() +  "+ now = " + now.getTime());
-		long timeFrom = ProposalValidator.getDate(proposal.getUsefromdate(),proposal.getUsefromtime());
-		long timeTo = ProposalValidator.getDate(proposal.getUsetodate(),proposal.getUsetotime());
+		long timeFrom = proposalService.getDate(proposal.getUsefromdate(),proposal.getUsefromtime());
+		long timeTo = proposalService.getDate(proposal.getUsetodate(),proposal.getUsetotime());
 		long timeNow = now.getTime().getTime();
 		if(proposal.getStt().getSttproposalID() == 1){
 			if(timeTo < timeNow)
@@ -523,7 +513,7 @@ public class ProposalController {
 			model.addAttribute("message", "Đề nghị này đã hết hạn");
 			return true;
 		}
-		if(isInTimeUse(proposal)){
+		if(proposalService.isInTimeUse(proposal)){
 			model.addAttribute("message", "Đề nghị này đang trong thời gian thực hiện");
 			System.out.println("Đề nghị :" + proposal.getProposalID() + "Trong thời gian thực hiện");
 			return true;

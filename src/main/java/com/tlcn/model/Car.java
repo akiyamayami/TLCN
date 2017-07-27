@@ -2,6 +2,7 @@ package com.tlcn.model;
 
 import java.util.List;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -14,6 +15,8 @@ import javax.persistence.OneToMany;
 
 @Entity(name="car")
 public class Car {
+	
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private int carID;
@@ -34,7 +37,7 @@ public class Car {
 	)
 	private Driver driver;
 	
-	@OneToMany(mappedBy="car")
+	@OneToMany(fetch = FetchType.EAGER, mappedBy = "car", cascade = CascadeType.ALL)
 	private List<Proposal> listproposal;
 
 	
@@ -42,6 +45,26 @@ public class Car {
 	public Car() {
 		super();
 	}
+
+	
+	public Car(String licenseplate, String type, int seats, SttCar sttcar) {
+		super();
+		this.licenseplate = licenseplate;
+		this.type = type;
+		this.seats = seats;
+		this.sttcar = sttcar;
+	}
+
+
+	public Car(String licenseplate, String type, int seats, SttCar sttcar, Driver driver) {
+		super();
+		this.licenseplate = licenseplate;
+		this.type = type;
+		this.seats = seats;
+		this.sttcar = sttcar;
+		this.driver = driver;
+	}
+
 
 	public Car(int carID, String licenseplate, String type, int seats, SttCar sttcar, Driver driver,
 			List<Proposal> listproposal) {
@@ -53,6 +76,13 @@ public class Car {
 		this.sttcar = sttcar;
 		this.driver = driver;
 		this.listproposal = listproposal;
+	}
+
+	public Car(String licenseplate, String type, int seats) {
+		super();
+		this.licenseplate = licenseplate;
+		this.type = type;
+		this.seats = seats;
 	}
 
 	public int getCarID() {
@@ -110,7 +140,6 @@ public class Car {
 	public void setListproposal(List<Proposal> listproposal) {
 		this.listproposal = listproposal;
 	}
-	
 	
 	
 }

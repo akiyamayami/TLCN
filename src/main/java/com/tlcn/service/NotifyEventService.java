@@ -33,7 +33,11 @@ public class NotifyEventService {
 		}
 		return listnotify;
 	}
-	
+	public void addNotifyforUser(Proposal proposal, User user, String type){
+		NotifyEvent notify = new NotifyEvent(Calendar.getInstance(),proposal, user);
+		notify.setMessage(generateMessageNotify(notify, true, type));
+		save(notify);
+	}
 	public String generateMessageNotify(NotifyEvent notify, boolean isUser,String type){
 		boolean isProposalConfirm = (notify.getNotifyOfProposal().getStt().getSttproposalID() == 1);
 		boolean typeProposalisCancel = (notify.getNotifyOfProposal().getType().getTypeID() == 3);
@@ -42,6 +46,27 @@ public class NotifyEventService {
 			case "CarWasUsed":
 				message += "<div>Xe bạn đăng ký cho đề nghị <strong>"+notify.getNotifyOfProposal().getName()+"</strong>"
 						+ " đã được sủ dụng vui lòng đổi xe khác.</div>"
+						+ "<p class='time-ago'><i class='fa fa-bell' aria-hidden='true'></i>";
+				return message;
+			case "CancelProposalExpired":
+				message += "<div>Đề nghị <strong>"+notify.getNotifyOfProposal().getName()+"</strong>"
+						+ " đã bị hủy bởi <strong>Hệ Thống</strong> vì thời gian sử dụng đã quá hạn</div>"
+						+ "<p class='time-ago'><i class='fa fa-trash' aria-hidden='true'></i>";
+				return message;
+			case "DriverQuitJob":
+				message += "<div>Tài xế của xe bạn chọn cho đề nghị <strong>"+notify.getNotifyOfProposal().getName() + "</strong> đã nghỉ việc. Vui lòng chọn xe khác!</div>"
+						+ "<p class='time-ago'><i class='fa fa-bell' aria-hidden='true'></i>";
+				return message;
+			case "CarIsRepair":
+				message += "<div>Xe bạn chọn cho đề nghị <strong>"+notify.getNotifyOfProposal().getName() + "</strong> đang được đem đi bảo trì. Vui lòng chọn xe khác!</div>"
+						+ "<p class='time-ago'><i class='fa fa-bell' aria-hidden='true'></i>";
+				return message;
+			case "NoDriver":
+				message += "<div>Xe bạn chọn cho đề nghị <strong>"+notify.getNotifyOfProposal().getName() + "</strong> đang không có tài xế. Vui lòng chọn xe khác!</div>"
+						+ "<p class='time-ago'><i class='fa fa-bell' aria-hidden='true'></i>";
+				return message;
+			case "DriverBack":
+				message += "<div>Xe bạn chọn cho đề nghị <strong>"+notify.getNotifyOfProposal().getName() + "</strong> đã có tài xế mới.</div>"
 						+ "<p class='time-ago'><i class='fa fa-bell' aria-hidden='true'></i>";
 				return message;
 			default:

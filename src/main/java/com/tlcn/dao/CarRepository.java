@@ -26,9 +26,9 @@ public interface CarRepository extends CrudRepository<Car, Integer>{
 	@Query("select c from car c where c not in (select p.car from com.tlcn.model.Proposal p where p.usefromdate > CURDATE() or CURDATE() between p.usefromdate and p.usetodate)")
 	public List<Car> getListCarNotRegistered();
 	
-	@Query("select p.car from com.tlcn.model.Proposal p where p.stt = 0 and p.usefromdate > CURDATE()")
-	public List<Car> getListCarRegistered();
 	
+	@Query("select c from car c where c.driver = null")
+	public List<Car> getListCarFree();
 }
 
 

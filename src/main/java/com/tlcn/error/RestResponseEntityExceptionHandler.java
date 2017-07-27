@@ -58,6 +58,27 @@ public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionH
     	return handleExceptionInternal(ex, bodyOfResponse, new HttpHeaders(), HttpStatus.NOT_FOUND, request);
     }
     
+    @ExceptionHandler({ DriverNotFoundException.class })
+    public ResponseEntity<Object> handleDriverNotFound(final RuntimeException ex, final WebRequest request){
+    	logger.error("404 Status Code", ex);
+    	final GenericResponse bodyOfResponse = new GenericResponse(messages.getMessage("message.driverNotFound", null, request.getLocale()), "ProposalNotFound");
+    	return handleExceptionInternal(ex, bodyOfResponse, new HttpHeaders(), HttpStatus.NOT_FOUND, request);
+    }
+    
+    @ExceptionHandler({ CarNotFoundException.class })
+    public ResponseEntity<Object> handleCarNotFound(final RuntimeException ex, final WebRequest request){
+    	logger.error("404 Status Code", ex);
+    	final GenericResponse bodyOfResponse = new GenericResponse(messages.getMessage("message.carNotFound", null, request.getLocale()), "ProposalNotFound");
+    	return handleExceptionInternal(ex, bodyOfResponse, new HttpHeaders(), HttpStatus.NOT_FOUND, request);
+    }
+    
+    @ExceptionHandler({ HaveProposalInTimeUseException.class })
+    public ResponseEntity<Object> handleHaveProposalInTimeUse(final RuntimeException ex, final WebRequest request){
+    	logger.error("405 Status Code", ex);
+    	final GenericResponse bodyOfResponse = new GenericResponse(messages.getMessage("message.haveProposalInTimeUse", null, request.getLocale()), "ProposalNotFound");
+    	return handleExceptionInternal(ex, bodyOfResponse, new HttpHeaders(), HttpStatus.METHOD_NOT_ALLOWED, request);
+    }
+    
     @ExceptionHandler({IOException.class, MultipartException.class})
     public ResponseEntity<Object> handleErrorProcessingFile(final RuntimeException ex, final WebRequest request){
     	logger.error("500 Status Code", ex);

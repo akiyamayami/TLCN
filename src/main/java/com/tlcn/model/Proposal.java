@@ -70,7 +70,7 @@ public class Proposal {
 	@OneToMany(mappedBy = "notifyOfProposal")
 	private List<NotifyEvent> listnotifyofproposal;
 	
-	@ManyToOne(fetch=FetchType.EAGER)
+	@ManyToOne()
 	@JoinTable
 	(
 			name = "registercar",

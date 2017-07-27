@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import com.tlcn.dao.ProposalRepository;
 import com.tlcn.dto.ModelFilterProposal;
+import com.tlcn.dto.ModelFormProposal;
 import com.tlcn.model.Car;
 import com.tlcn.model.Proposal;
 import com.tlcn.model.SttProposal;
@@ -167,4 +168,15 @@ public class ProposalService {
 		
 	}
 	
+	public ModelFormProposal genarateFormProposal(Proposal proposal){
+		ModelFormProposal x = new ModelFormProposal(1,"1231231","12312321","!23123213","123123123","12312321");
+		return x;
+	}
+	
+	public boolean isInTimeUse(Proposal proposal){
+		Calendar now = Calendar.getInstance();
+		if(proposal.getUsetodate().getTime() >= now.getTime().getTime() && proposal.getUsefromdate().getTime() <= now.getTime().getTime() && proposal.getStt().getSttproposalID() == 1)
+			return true;
+		return false;
+	}
 }

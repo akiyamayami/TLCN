@@ -1,4 +1,6 @@
 $(document).ready(function(){
+	
+	// validate form proposal
 	$.validator.addMethod("greaterThan", function(value, element, params) {
         if (!/Invalid|NaN/.test(new Date(value)))
             return new Date(value) > new Date($(params).val());
@@ -35,6 +37,17 @@ $(document).ready(function(){
                 pdfOnly: true,
                 filesize : 10240,
             }
+        }
+    });
+    //
+    $('#form-create-car').validate({
+    	rules: {
+    		licenseplate: "required",
+    		type : "required",
+    		seats : {
+    			required: true,
+    			digits: true,
+    		}
         }
     });
 });

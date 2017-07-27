@@ -36,17 +36,7 @@ public class ProposalScheduler {
 			proposal.setType(typeProposalService.findOne(3));
 			proposal.setExpired(true);
 			proposalService.save(proposal);
-			addNotify("cancel-proposal-expired",proposal);
-		}
-	}
-	
-	public void addNotify(String type,Proposal proposal){
-		switch(type){
-			case "cancel-proposal-expired":
-				// send to user
-				notifyEventService.save(new NotifyEvent(Calendar.getInstance(), proposal, 
-						proposal.getUserregister().getUser()));
-				break;
+			notifyEventService.addNotifyforUser(proposal, proposal.getUserregister().getUser(), "CancelProposalExpired");
 		}
 	}
 }

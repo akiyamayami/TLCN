@@ -1,5 +1,6 @@
 package com.tlcn.model;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
@@ -13,6 +14,8 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
 import org.springframework.format.annotation.DateTimeFormat;
+
+import com.tlcn.dto.ModelCreateorChangeDriver;
 
 @Entity(name="driver")
 public class Driver {
@@ -35,6 +38,20 @@ public class Driver {
 	
 	@OneToMany(mappedBy="driver")
 	private List<Car> listcar;
+	
+
+	public Driver(String name, Date birthday, String phone, int experience, String license, String address,
+			SttDriver sttdriver, List<Car> listcar) {
+		super();
+		this.name = name;
+		this.birthday = birthday;
+		this.phone = phone;
+		this.experience = experience;
+		this.license = license;
+		this.address = address;
+		this.sttdriver = sttdriver;
+		this.listcar = listcar;
+	}
 
 
 	public Driver(String email, String name, Date birthday, String phone, int experience, String license,
@@ -50,6 +67,7 @@ public class Driver {
 		this.sttdriver = sttdriver;
 		this.listcar = listcar;
 	}
+
 
 
 	public Driver() {
@@ -145,6 +163,8 @@ public class Driver {
 	public void setListcar(List<Car> listcar) {
 		this.listcar = listcar;
 	}
+
+
 	
 	
 }

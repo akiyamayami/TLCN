@@ -16,6 +16,9 @@ import com.tlcn.dao.CarRepository;
 import com.tlcn.dao.ProposalRepository;
 import com.tlcn.dto.ModelCarReady;
 import com.tlcn.dto.ModelCarRegistered;
+import com.tlcn.dto.ModelCreateorChangeCar;
+import com.tlcn.error.CarNotFoundException;
+import com.tlcn.error.HaveProposalInTimeUseException;
 import com.tlcn.model.Car;
 import com.tlcn.model.Proposal;
 
@@ -27,12 +30,25 @@ public class CarService {
 	@Autowired
 	private ProposalService proposalService;
 	@Autowired
+	private NotifyEventService notifyEventService;
+	@Autowired
+	private DriverService driverService;
+	@Autowired
 	private TypeProposalService typeProposalService;
+	@Autowired 
+	private SttCarService sttCarService;
+	
 	
 	public CarService() {
 		super();
 	}
 	
+	public void save(Car car){
+		carRepository.save(car);
+	}
+	public List<Car> getListCarFree(){
+		return carRepository.getListCarFree();
+	}
 	public Car findOne(int carID){
 		return carRepository.findOne(carID);
 	}
@@ -77,6 +93,9 @@ public class CarService {
 		return carRepository.getListFilter_Type_Seat(type, seats);
 	}
 	
+	public void remove(Car car){
+		carRepository.delete(car);
+	}
 	public List<ModelCarReady> getListCarReady(){
 		 List<Proposal> listProposal = proposalService.getListProposalReady();
 		 if(listProposal.isEmpty())
@@ -88,23 +107,51 @@ public class CarService {
 		 }
 		 return listCarReady;
 	}
-	
-	public List<ModelCarRegistered> getListCarRegistered(){
-		// get time now
-		Calendar x = Calendar.getInstance();
-		List<Car> listCar = carRepository.getListCarRegistered();
-		if(listCar.isEmpty())
-			 return null;
-		List<ModelCarRegistered> listCarRegistered = new ArrayList<>();
-		for(Car c : listCar){
-			listCarRegistered.add(new ModelCarRegistered(c.getLicenseplate(),c.getListproposal()
-					.parallelStream()
-					.filter(p -> p.getUsefromdate().getTime() >= x.getTime().getTime())
-					.collect(Collectors.toList()))); 
+	public void converAndSave(ModelCreateorChangeCar car){
+		Car x = new Car(car.getLicenseplate(),car.getType(),car.getSeats(),
+				sttCarService.findOne(car.getSttcarID()),driverService.findOne(car.getEmailDriver()));
+		carRepository.save(x);
+	}
+	public ModelCreateorChangeCar convertCarToShow(Car car){
+		return new ModelCreateorChangeCar(car.getLicenseplate(),car.getType(),car.getSeats(),car.getSttcar().getSttcarID(),car.getDriver().getEmail());
+	}
+	public void converAndChange(ModelCreateorChangeCar car, Car caradd){
+		long timeNow = Calendar.getInstance().getTime().getTime();
+		if(car.getSttcarID() != 1){
+			boolean isCarinTimeUse = caradd.getListproposal().parallelStream()
+					.filter(p -> p.getStt().getSttproposalID() == 1 && proposalService.isInTimeUse(p))
+					.findFirst().isPresent();
+			if(isCarinTimeUse){
+				throw new HaveProposalInTimeUseException();
+			}
 		}
-		return listCarRegistered;
+		caradd.setDriver(driverService.findOne(car.getEmailDriver()));
+		caradd.setLicenseplate(car.getLicenseplate());
+		caradd.setSeats(car.getSeats());
+		caradd.setSttcar(sttCarService.findOne(car.getSttcarID()));
+		caradd.setType(car.getType());
+		if(caradd.getSttcar().getSttcarID() == 2){
+			caradd.getListproposal().parallelStream()
+				.filter(p -> p.getType().getTypeID() != 3 && proposalService.getDate(p.getUsefromdate(),p.getUsefromtime()) > timeNow)
+				.forEach(p -> notifyEventService.addNotifyforUser(p,p.getUserregister().getUser(),"CarIsRepair"));
+		}
+		carRepository.save(caradd);
 	}
 	
+	public List<ModelCarRegistered> getListCarRegistered(){
+		long timeNow = Calendar.getInstance().getTime().getTime();
+		List<Car> allCar = findAll();
+		List<ModelCarRegistered> listcarRegister = new ArrayList<>();
+		allCar.parallelStream()
+			  .filter(c -> c.getListproposal().parallelStream()
+												.filter(p -> p.getStt().getSttproposalID() == 0 && getDate(p.getUsefromdate(),p.getUsefromtime()) > timeNow)
+												.findFirst().isPresent())
+			  .forEach(c -> listcarRegister.add(new ModelCarRegistered(c.getLicenseplate(), c.getListproposal()
+					  .parallelStream().filter(p -> getDate(p.getUsefromdate(), p.getUsefromtime()) >= timeNow)
+					  .collect(Collectors.toList()))));
+		return listcarRegister;
+	}
+
 	public List<Car> getListCarNotRegistered(){
 		return carRepository.getListCarNotRegistered();
 	}

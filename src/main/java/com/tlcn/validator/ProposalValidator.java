@@ -39,9 +39,9 @@ public class ProposalValidator implements Validator{
 		
 		if(x.getUsefromdate() != null && x.getUsetodate() != null && x.getUsefromtime() != null && x.getUsetotime() != null)
 		{
-			startDate = getDate(x.getUsefromdate(),x.getUsefromtime());
+			startDate = propsosalService.getDate(x.getUsefromdate(),x.getUsefromtime());
 			long today = now.getTime().getTime();
-			endDate = getDate(x.getUsetodate(),x.getUsetotime());
+			endDate = propsosalService.getDate(x.getUsetodate(),x.getUsetotime());
 			boolean startDateBiggerThanToday = (startDate > today) ? true : false;
 			boolean endDateBiggerThanStartDate = (endDate > startDate ) ? true :false;
 			if(!startDateBiggerThanToday || !endDateBiggerThanStartDate)
@@ -62,8 +62,11 @@ public class ProposalValidator implements Validator{
 			System.out.println(ext);
 			System.out.println(name);
 			System.out.println(x.getFile().getSize());
-			if(ext.equals(name) || !ext.equals("pdf") || x.getFile().getSize() > 102400)
+			if(ext.equals(name) || !ext.equals("pdf"))
 				errors.rejectValue("file", "InvalidExt.Proposal.file");
+			else if(x.getFile().getSize() > 102400){
+				errors.rejectValue("file", "BigSize.Proposal.file");
+			}
 		}
 		System.out.println(errors.toString());
 		ValidationUtils.rejectIfEmptyOrWhitespace(errors, "name", "NotEmpty.Proposal.name");
@@ -77,13 +80,4 @@ public class ProposalValidator implements Validator{
 		ValidationUtils.rejectIfEmptyOrWhitespace(errors, "pickuplocation", "NotEmpty.Proposal.pickuplocation");
 	}
 
-	public static Long getDate(Date date, Date time){
-		Calendar Cdate = Calendar.getInstance(),Ctime = Calendar.getInstance(),dateTime = Calendar.getInstance();
-		Cdate.setTime(date);
-		Ctime.setTime(time);
-		dateTime.set(Cdate.get(Calendar.YEAR), Cdate.get(Calendar.MONTH), Cdate.get(Calendar.DATE), 
-				Ctime.get(Calendar.HOUR_OF_DAY), Ctime.get(Calendar.MINUTE));
-		return dateTime.getTime().getTime();
-		
-	}
 }
