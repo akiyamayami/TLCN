@@ -4,7 +4,6 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -18,7 +17,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestWrapper;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -33,11 +31,12 @@ import org.springframework.web.multipart.MultipartFile;
 import com.tlcn.dto.ModelCalendar;
 import com.tlcn.dto.ModelCreateorChangeProposal;
 import com.tlcn.dto.ModelFilterProposal;
+import com.tlcn.dto.ModelShowNotify;
 import com.tlcn.error.NotOwnerOfProposalException;
 import com.tlcn.error.ProposalNotFoundException;
 import com.tlcn.model.Car;
 import com.tlcn.model.ConfirmProposal;
-import com.tlcn.model.NotifyEvent;
+import com.tlcn.model.Driver;
 import com.tlcn.model.Proposal;
 import com.tlcn.model.RegisterProposal;
 import com.tlcn.model.User;
@@ -86,7 +85,7 @@ public class ProposalController {
 			// access to mode find-my-proposal for normal user
 			model.addAttribute("MODE", "MODE_FIND_MY_PROPOSAL");
 			model.addAttribute("listProposal",
-					proposalService.findProposalofuser(GetUser()));
+			proposalService.findProposalofuser(GetUser()));
 		} else {
 			// mode find-all-proposal for P.TBVT and BGM
 			model.addAttribute("MODE", "MODE_FIND_PROPOSAL");
@@ -109,6 +108,7 @@ public class ProposalController {
 					proposalService.listProposalFind(filterproposal, GetUser()));
 		} else {
 			// mode find-all-proposal for P.TBVT and BGM
+			System.out.println("BGM or PVT");
 			model.addAttribute("MODE", "MODE_FIND_PROPOSAL");
 			model.addAttribute("listProposal", proposalService.listProposalFind(filterproposal,null));
 		}
@@ -134,7 +134,7 @@ public class ProposalController {
 			@Valid @ModelAttribute("Proposal") ModelCreateorChangeProposal proposal,BindingResult result, 
 			HttpServletRequest request) throws MultipartException, IOException {
 		proposaValidator.validate(proposal, result);
-		if(result.hasErrors()){
+		if(checkExceptionCarAndDriver(carService.findOne(proposal.getCarID()),model,"change") || result.hasErrors()){
 			model.addAttribute("MODE", "MODE_CREATE_PROPOSAL");
 			model.addAttribute("typeForm", "/create-proposal");
 			model.addAttribute("Proposal", proposal);
@@ -142,6 +142,7 @@ public class ProposalController {
 			showCalendarAndNotify(model,null,null);
 			return "Index";
 		}
+		System.out.println("email user crea : " + GetUser().getEmail());
 		saveProposal(proposal,GetUser(),request);
 		return "redirect:/";
 	}
@@ -163,6 +164,7 @@ public class ProposalController {
 			if(checkExceptionProposal(x,model))
 				model.addAttribute("MODE", "MODE_PROPOSAL_EXPIRED");
 			else{
+				checkExceptionCarAndDriver(x.getCar(),model,"change");
 				isCarAlreadyUsed(x,model);
 				model.addAttribute("MODE", "MODE_CHANGE_PROPOSAL");
 			}
@@ -178,11 +180,12 @@ public class ProposalController {
 		int proposalID = (int) session.getAttribute("proposalID");
 		if (isProposalOfUser(proposalID, GetUser())) {
 			Proposal x = proposalService.findOne(proposalID);
+			proposal.setProposalID(proposalID);
 			proposaValidator.validate(proposal, result);
 			if (checkExceptionProposal(x, model)) {
 				return "redirect:/hackerDetected";
 			}
-			if (result.hasErrors()) {
+			if (checkExceptionCarAndDriver(carService.findOne(proposal.getCarID()),model,"change") || result.hasErrors()) {
 				model.addAttribute("typeForm", "/change-proposal");
 				session.setAttribute("proposalID", proposalID);
 				showCalendarAndNotify(model, null, null);
@@ -191,6 +194,8 @@ public class ProposalController {
 				showCarWhenChangeProposal(proposal, model, x);
 				return "Index";
 			}
+			showCalendarAndNotify(model,null,null);
+				
 			return (updateProposal(proposalID, proposal, request)) ? "redirect:/" : "Index";
 		}
 		else
@@ -207,7 +212,7 @@ public class ProposalController {
 		model.addAttribute("Proposal", modelShow);
 		showCalendarAndNotify(model,month,year);
 		show1Car(proposal.getCar(),model);
-		if(checkExceptionProposal(proposal,model))
+		if(checkExceptionProposal(proposal,model) || checkExceptionCarAndDriver(proposal.getCar(),model,"confirm"))
 		{
 			model.addAttribute("MODE", "MODE_PROPOSAL_EXPIRED");
 		}
@@ -229,11 +234,14 @@ public class ProposalController {
 			System.out.println("check 1");
 			if(!isCarAlreadyUsed(x, model))
 			{
+				checkExceptionCarAndDriver(x.getCar(),model,"confirm");
 				approveProposal(x);
 				for(Proposal p : proposalService.getListProposalHaveCarHasBeenUsed(x)){
 					notifyEventService.addNotifyforUser(p, p.getUserregister().getUser(),"CarWasUsed");
 				}
 				return "redirect:/";
+			}else{
+				return "redirect:/confirm-proposal-" + proposalID;
 			}
 		}
 		return "redirect:/hackerDetected";
@@ -243,6 +251,8 @@ public class ProposalController {
 	public String cancelProposal(Model model, HttpSession session) {
 		int proposalID = (int) session.getAttribute("proposalID");
 		Proposal proposal = proposalService.findOne(proposalID);
+		if(proposal == null)
+			throw new ProposalNotFoundException();
 		if(isConfirmProposal(proposal)){
 			proposal.setType(typeProposalService.findOne(3));
 			proposal.setStt(sttProposalService.findOne(1));
@@ -254,6 +264,11 @@ public class ProposalController {
 			proposalService.save(proposal);
 		}
 		return "redirect:/";
+	}
+	@RequestMapping(value = "/cancel-proposal-{proposalID}", method = RequestMethod.GET)
+	public String cancelProposalID(Model model, HttpSession session, @PathVariable("proposalID") int proposalID) {
+		session.setAttribute("proposalID", proposalID);
+		return "redirect:/cancel-proposal";
 	}
 	
 	private void approveProposal(Proposal proposal) {
@@ -437,7 +452,11 @@ public class ProposalController {
 	}
 	
 	public void showCalendarAndNotify(Model model, String month, String year){
-		model.addAttribute("listNotify", notifyEventService.getListNotifyNewest(GetUser()));
+		List<ModelShowNotify> listNotify = notifyEventService.getListNotifyNewest(GetUser());
+		if(listNotify != null && listNotify.size() < 5)
+			model.addAttribute("listNotify",listNotify);
+		else
+			model.addAttribute("listNotify", notifyEventService.getListNotifyNewest(GetUser()).subList(0, 5));
 		model.addAttribute("calendar", createCalendar(month,year));
 	}
 	
@@ -460,6 +479,7 @@ public class ProposalController {
 			show1Car(trash,model);
 		}
 		else{
+			checkExceptionCarAndDriver(carService.findOne(modelShow.getCarID()),model,"change");
 			System.out.println("Normal");
 			carShow.remove(trash);
 			listcars.add(trash);
@@ -501,7 +521,7 @@ public class ProposalController {
 			return false;
 		if(x != null){
 			System.out.println("Đề nghị :" + proposal.getProposalID() + "sử dụng xe đã được đăng ký");
-			model.addAttribute("message2", "Xe đăng ký đã được xử dụng");
+			model.addAttribute("message", "Xe đăng ký đã được xử dụng");
 			return true;
 		}
 		return false;
@@ -518,6 +538,67 @@ public class ProposalController {
 			System.out.println("Đề nghị :" + proposal.getProposalID() + "Trong thời gian thực hiện");
 			return true;
 		}
+		
 		return false;
+	}
+	public boolean checkExceptionCarAndDriver(Car car, Model model, String type){
+		if(type.equals("confirm")){
+			switch(car.getSttcar().getSttcarID()){
+				case 2:
+					model.addAttribute("message", "Xe đăng ký đang được bảo trì");
+					return true;
+				case 3:
+					model.addAttribute("message", "Xe đăng ký đã bị xóa khỏi hệ thống");
+					return true;
+				case 4:
+					model.addAttribute("message", "Xe đăng ký hiện không có tài xế");
+					return true;
+			}
+			Driver driver = car.getDriver();
+			if(driver == null){
+				model.addAttribute("message", "Xe hiện không có tài xế");
+				return true;
+			}
+			else{
+				switch(driver.getSttdriver().getSttdriverID()){
+					case 2:
+						model.addAttribute("message", "Tài xế xe đăng ký đang nghỉ bệnh/phép");
+						return true;
+					case 3:
+						model.addAttribute("message", "Tài xế xe đăng ký đã nghỉ việc");
+						return true;
+				}
+			}
+			return false;
+		}
+		else{
+			switch(car.getSttcar().getSttcarID()){
+				case 2:
+					model.addAttribute("message", "Xe đăng ký đang được bảo trì, Vui lòng đổi xe khác.");
+					return true;
+				case 3:
+					model.addAttribute("message", "Xe đăng ký đã bị xóa khỏi hệ thống, Vui lòng đổi xe khác.");
+					return true;
+				case 4:
+					model.addAttribute("message", "Xe đăng ký hiện không có tài xế, Vui lòng đổi xe khác.");
+					return true;
+			}
+			Driver driver = car.getDriver();
+			if(driver == null){
+				model.addAttribute("message", "Xe hiện không có tài xế, Vui lòng đổi xe khác.");
+				return true;
+			}
+			else{
+				switch(driver.getSttdriver().getSttdriverID()){
+					case 2:
+						model.addAttribute("message", "Tài xế xe đăng ký đang nghỉ bệnh/phép, Vui lòng đổi xe khác.");
+						return true;
+					case 3:
+						model.addAttribute("message", "Tài xế xe đăng ký đã nghỉ việc, Vui lòng đổi xe khác.");
+						return true;
+				}
+			}
+			return false;
+		}
 	}
 }

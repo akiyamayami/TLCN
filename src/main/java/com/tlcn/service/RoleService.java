@@ -21,4 +21,8 @@ public class RoleService {
 		}
 		return roles;
 	}
+	
+	public Role findOne(int roleID){
+		return roleRepository.findOne(roleID);
+	}
 }

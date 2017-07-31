@@ -14,7 +14,7 @@ import org.springframework.web.servlet.ViewResolver;
 import org.springframework.web.servlet.view.InternalResourceViewResolver;
 import org.springframework.web.servlet.view.JstlView;
 
-import com.tlcn.controller.LoginController;
+import com.tlcn.controller.MainController;
 
 @SpringBootApplication
 //@ComponentScan(basePackages={"com.tlcn.*"})

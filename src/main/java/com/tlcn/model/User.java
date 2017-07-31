@@ -23,13 +23,13 @@ public class User {
 	private String email;
 	private String password;
 	
-	
 	private String name;
 	private String phone;
 	
 	@Temporal(TemporalType.DATE)
 	@DateTimeFormat(pattern = "dd-MM-yyyy")
 	private Date birthday;
+	
 	@ManyToOne(fetch=FetchType.EAGER)
 	@JoinColumn(name="roleID")
 	private Role roleUser;
@@ -43,13 +43,13 @@ public class User {
 	)
 	private List<Right> rightUser;
 	
-	@OneToMany(mappedBy = "user")
+	@OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
 	private List<RegisterProposal> listproposalregister;
 	
-	@OneToMany(mappedBy = "notifyOfUser")
+	@OneToMany(mappedBy = "notifyOfUser", cascade = CascadeType.REMOVE, orphanRemoval = true)
 	private List<NotifyEvent> listnotify;
 	
-	@OneToMany(mappedBy = "userconfirm")
+	@OneToMany(mappedBy = "userconfirm", cascade = CascadeType.REMOVE, orphanRemoval = true)
 	private List<ConfirmProposal> listproposalconfirm;
 	
 	public User(String email, String password, String name, String phone, Date birthday, Role roleUser,
@@ -78,6 +78,16 @@ public class User {
 		this.roleUser = roleUser;
 		this.rightUser = rightUser;
 		this.listproposalregister = listproposalregister;
+	}
+	
+	public User(String email, String password, String name, String phone, Date birthday, Role roleUser) {
+		super();
+		this.email = email;
+		this.password = password;
+		this.name = name;
+		this.phone = phone;
+		this.birthday = birthday;
+		this.roleUser = roleUser;
 	}
 	public User(String email, String password, String name, String phone, Date birthday, Role roleUser,
 			List<Right> rightUser, List<RegisterProposal> listproposalregister, List<NotifyEvent> listnotify) {

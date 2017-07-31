@@ -11,6 +11,7 @@ import org.springframework.validation.Validator;
 
 import com.tlcn.dto.ModelCreateorChangeProposal;
 import com.tlcn.model.Car;
+import com.tlcn.model.Proposal;
 import com.tlcn.service.CarService;
 import com.tlcn.service.ProposalService;
 
@@ -35,7 +36,7 @@ public class ProposalValidator implements Validator{
 		Calendar now = Calendar.getInstance();
 		long startDate = 0;
 		long endDate = 0;
-		
+		Proposal proposal = propsosalService.findOne(x.getProposalID());
 		
 		if(x.getUsefromdate() != null && x.getUsetodate() != null && x.getUsefromtime() != null && x.getUsetotime() != null)
 		{
@@ -48,12 +49,15 @@ public class ProposalValidator implements Validator{
 				errors.rejectValue("usefromdate", "WrongDate.Proposal.usedate");
 		}
 		Car car = carService.findOne(x.getCarID());
-		boolean isCarNotUsedYet = carService.findListCarAvailableInTime(startDate, endDate).parallelStream()
-				.filter(c -> c.equals(car))
-				.findFirst().isPresent();
-		if(!isCarNotUsedYet){
-			errors.rejectValue("carID", "CarAlreadyUsed.Proposal.carID");
+		if(proposal != null){
+			boolean isCarNotUsedYet = carService.findListCarAvailableInTime(startDate, endDate).parallelStream()
+					.filter(c -> c.equals(car))
+					.findFirst().isPresent();
+			if(!isCarNotUsedYet && proposal.getCar().getCarID() != car.getCarID()){
+				errors.rejectValue("carID", "CarAlreadyUsed.Proposal.carID");
+			}
 		}
+		
 		String name = x.getFile().getOriginalFilename();
 		String ext = null;
 		if(x.getFile().getSize() > 0)
@@ -64,7 +68,7 @@ public class ProposalValidator implements Validator{
 			System.out.println(x.getFile().getSize());
 			if(ext.equals(name) || !ext.equals("pdf"))
 				errors.rejectValue("file", "InvalidExt.Proposal.file");
-			else if(x.getFile().getSize() > 102400){
+			else if(x.getFile().getSize() > 10240000){
 				errors.rejectValue("file", "BigSize.Proposal.file");
 			}
 		}

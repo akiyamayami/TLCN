@@ -1,8 +1,11 @@
 package com.tlcn.controller;
 
+import java.security.Principal;
 import java.util.Calendar;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -28,6 +31,7 @@ import com.tlcn.dto.ModelCarReady;
 import com.tlcn.dto.ModelCreateorChangeCar;
 import com.tlcn.dto.ModelCreateorChangeDriver;
 import com.tlcn.dto.ModelFilterCar;
+import com.tlcn.dto.ModelShowNotify;
 import com.tlcn.error.CarNotFoundException;
 import com.tlcn.model.Car;
 import com.tlcn.service.CarService;
@@ -72,15 +76,25 @@ public class CarController {
 	public CarController() {
 		super();
 	}
-	
+	public void addListTypeAndSeat(Model model){
+		Set<String>  listtype = new HashSet<>();
+		Set<Integer>  listseats = new HashSet<>();
+		for(Car c : carService.findAll()){
+			listtype.add(c.getType());
+			listseats.add(c.getSeats());
+		
+		}
+		model.addAttribute("listtype", listtype);
+		model.addAttribute("listseats", listseats);
+	}
 	
 	// page find-car
 	@RequestMapping(value="/find-cars", method = RequestMethod.GET)
 	public String findCar(Model model) throws Exception{
 		showCalendarAndNotify(model, null, null);
 		model.addAttribute("MODE", "MODE_FIND_CARS");
+		addListTypeAndSeat(model);
 		model.addAttribute("listcars", carService.findAll());
-		model.addAttribute("listtype_seats", carService.findAll());
 		model.addAttribute("filter-car", new ModelFilterCar());
 		return "carManager";
 	}
@@ -91,7 +105,7 @@ public class CarController {
 			BindingResult result) throws Exception{
 		showCalendarAndNotify(model, null, null);
 		model.addAttribute("MODE", "MODE_FIND_CARS");
-		model.addAttribute("listtype_seats", carService.findAll());
+		addListTypeAndSeat(model);
 		model.addAttribute("listcars", getListCarFilter(filtercar));
 		model.addAttribute("filter-car", filtercar);
 		
@@ -127,6 +141,7 @@ public class CarController {
 	public String createCar(Model model, @ModelAttribute("Car") ModelCreateorChangeCar car, BindingResult result) throws Exception{
 		modelCarValidator.validate(car, result);
 		if(result.hasErrors()){
+			showCalendarAndNotify(model, null, null);
 			model.addAttribute("MODE", "MODE_CREATE_CAR");
 			model.addAttribute("SttCar", new SttCar());
 			model.addAttribute("typeForm", "/create-car");
@@ -145,60 +160,71 @@ public class CarController {
 		if(car == null){
 			throw new CarNotFoundException();
 		}
+		showCalendarAndNotify(model, null, null);
 		session.setAttribute("carID", carID);
 		model.addAttribute("MODE", "MODE_CHANGE_CAR");
 		model.addAttribute("typeForm", "/change-car");
-		model.addAttribute("listDriver", driverService.findAll());
+		model.addAttribute("listDriver", driverService.getListDriverAvailable());
 		model.addAttribute("liststtcar", sttCarService.findAll());
 		model.addAttribute("Car", carService.convertCarToShow(car)); 
 		return "carManager";
 	}
 	
-	@RequestMapping(value="/remove-car", method = RequestMethod.GET)
-	public String removeCar(Model model, HttpSession session) throws Exception{
-		int carID = (int) session.getAttribute("carID");
+	@RequestMapping(value="/remove-car-{carID}", method = RequestMethod.GET)
+	public String removeCar(Model model,@PathVariable int carID) throws Exception{		
 		Car car = carService.findOne(carID);
 		if(car == null){
 			throw new CarNotFoundException();
 		}
-		boolean isCarinTimeUse = car.getListproposal().parallelStream()
-							.filter(p -> p.getStt().getSttproposalID() == 1 && proposalService.isInTimeUse(p))
-							.findFirst().isPresent();
 		long timeNow = Calendar.getInstance().getTime().getTime();
-		if(car.getListproposal().isEmpty() || car.getListproposal() == null){
+		if(car.getListproposal() == null){
 			carService.remove(car);
-		}else if(!isCarinTimeUse){
-			car.setSttcar(sttCarService.findOne(3));
-			car.getListproposal().parallelStream()
-		    	.filter(p -> p.getType().getTypeID() != 3 && proposalService.getDate(p.getUsefromdate(),p.getUsefromtime()) > timeNow)
-		    	.forEach(p -> notifyEventService.addNotifyforUser(p,p.getUserregister().getUser(),"CarIsRepair"));
-			carService.save(car);
-		}else{
-			model.addAttribute("message", "Xe đang được sử dụng không thể xóa");
+		}else {
+			boolean isCarinTimeUse = car.getListproposal().parallelStream()
+					.filter(p -> proposalService.isInTimeUse(p))
+					.findFirst().isPresent();
+			if(!isCarinTimeUse){
+				car.setSttcar(sttCarService.findOne(3));
+				notifyEventService.SendNotifyChange(car,"RemoveCar",timeNow);
+				carService.save(car);
+			}else{
+				model.addAttribute("message", "Xe đang được sử dụng không thể xóa");
+				showCalendarAndNotify(model, null, null);
+				model.addAttribute("MODE", "MODE_FIND_CARS");
+				addListTypeAndSeat(model);
+				model.addAttribute("listcars", carService.findAll());
+				model.addAttribute("filter-car", new ModelFilterCar());
+				return "carManager";
+			}
 		}
 		return "redirect:/find-cars";
 	}
 	
-	@RequestMapping(value="/change-car", method = RequestMethod.POST)
+	@RequestMapping(value = "/change-car", method = RequestMethod.POST)
 	public String changeCarPOST(Model model, @ModelAttribute("Car") ModelCreateorChangeCar car, BindingResult result,
-			HttpSession session){
-		try{
-			modelCarValidator.validate(car, result);
-			if(result.hasErrors()){
-				model.addAttribute("MODE", "MODE_CHANGE_CAR");
-				model.addAttribute("typeForm", "/change-car");
-				model.addAttribute("listDriver", driverService.findAll());
-				model.addAttribute("liststtcar", sttCarService.findAll());
-				model.addAttribute("Car", car);
-				return "carManager";
-			}
-			int carID = (int) session.getAttribute("carID");
-			Car caradd = carService.findOne(carID);
-			carService.converAndChange(car,caradd);
-			return "redirect:/find-cars";
-		}catch(Exception e){
-			return null;
+			HttpSession session) {
+		modelCarValidator.validate(car, result);
+		System.out.println("change-car-1");
+		if (result.hasErrors()) {
+			System.out.println("change-car-2");
+			model.addAttribute("MODE", "MODE_CHANGE_CAR");
+			model.addAttribute("typeForm", "/change-car");
+			model.addAttribute("listDriver", driverService.getListDriverAvailable());
+			model.addAttribute("liststtcar", sttCarService.findAll());
+			model.addAttribute("Car", car);
+			showCalendarAndNotify(model, null, null);
+			return "carManager";
 		}
+		System.out.println("change-car-3");
+		int carID = (int) session.getAttribute("carID");
+		Car caradd = carService.findOne(carID);
+		if (caradd == null) {
+			System.out.println("change-car-4");
+			throw new CarNotFoundException();
+		}
+		System.out.println("change-car-5");
+		carService.converAndChange(car, caradd);
+		return "redirect:/find-cars";
 	}
 	
 	@RequestMapping(value="/create-car-x", method = RequestMethod.POST)
@@ -208,7 +234,7 @@ public class CarController {
 		if(result.hasErrors()){
 			return "errors";
 		}
-		Car c = new Car(car.getLicenseplate(),car.getType(),car.getSeats());
+		Car c = new Car(car.getLicenseplate(),car.getType(),car.getSeats(),sttCarService.findOne(1));
 		carService.save(c);
 		Random r = new Random();
 		int count = r.nextInt(20 - 10 + 1) + 10;
@@ -255,7 +281,11 @@ public class CarController {
 		return html;
 	}
 	public void showCalendarAndNotify(Model model, String month, String year){
-		model.addAttribute("listNotify", notifyEventService.getListNotifyNewest(GetUser()));
+		List<ModelShowNotify> listNotify = notifyEventService.getListNotifyNewest(GetUser());
+		if(listNotify != null && listNotify.size() < 5)
+			model.addAttribute("listNotify",listNotify);
+		else
+			model.addAttribute("listNotify", notifyEventService.getListNotifyNewest(GetUser()).subList(0, 5));
 		model.addAttribute("calendar", createCalendar(month,year));
 	}
 	public UserDetails getUserLogin() {

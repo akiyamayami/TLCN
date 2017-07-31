@@ -79,10 +79,10 @@ public class Proposal {
 	)
 	private Car car;
 	
-	@OneToOne(mappedBy = "proposal")
+	@OneToOne(mappedBy = "proposal", orphanRemoval=true)
 	private RegisterProposal userregister;
 
-	@OneToOne(mappedBy = "proposalapproved")
+	@OneToOne(mappedBy = "proposalapproved", orphanRemoval=true)
 	private ConfirmProposal infoconfirm;
 	
 	

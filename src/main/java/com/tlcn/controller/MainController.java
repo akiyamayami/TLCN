@@ -30,14 +30,14 @@ import net.sf.jasperreports.engine.JRException;
 
 @Controller
 @Component
-public class LoginController {
+public class MainController {
 	@Autowired
 	private UserService userService;
 	@Autowired
 	private ProposalService proposalService;
 	
 	
-	public LoginController() {
+	public MainController() {
 		super();
 	}
 	
@@ -54,10 +54,6 @@ public class LoginController {
 		return "Login";
 	}
 	
-	@RequestMapping(value="/fail", method = RequestMethod.GET)
-	public String LoginFail(){
-		return "Fail";
-	}
 	// page warnning out time Session
 	@RequestMapping(value="/invalidSession", method = RequestMethod.GET)
 	public String invalidSession(){

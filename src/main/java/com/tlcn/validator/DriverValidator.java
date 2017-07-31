@@ -37,9 +37,9 @@ public class DriverValidator implements Validator{
 			ext = name.substring(name.lastIndexOf(".")+1,name.length()).toLowerCase();
 			System.out.println(ext);
 			if(!ext.equals("") && (ext.equals(name) || !ext.equals("jpg")))
-				errors.rejectValue("file", "InvalidExt.Proposal.file");
+				errors.rejectValue("file", "InvalidExt.Driver.file");
 			else if(driver.getFile().getSize() > 1024000){
-				errors.rejectValue("file", "BigSize.Proposal.file");
+				errors.rejectValue("file", "BigSize.Driver.file");
 			}
 		}
 	}

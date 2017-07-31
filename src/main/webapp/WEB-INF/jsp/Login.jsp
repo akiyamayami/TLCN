@@ -22,6 +22,7 @@
     height:calc(100vh - 200px);
     margin-top:10px;
     margin-bottom:10px;
+        text-align: center;
 }
 </style>
 <script type="text/javascript">
@@ -48,13 +49,18 @@ function validate() {
 <t:header>
 </t:header>
 <div class="container">
-    <div id="main-region1">
-        <div class="form">
-	        <c:if test="${param.logSucc}">
-	    		<h1 id="error" class="alert alert-danger">
-	    			<spring:message code="message.logoutSucc"></spring:message>
-	    		</h1>
-	    	</c:if> 
+		<c:if test="${param.logSucc}">
+			<h1 id="error" class="alert alert-success">
+				<spring:message code="message.logoutSucc"></spring:message>
+			</h1>
+		</c:if>
+		<c:if test="${not empty messages}">
+			<h1 id="error" class="alert alert-success">
+				${messages}
+			</h1>
+		</c:if>
+		<div id="main-region1">
+        <div class="form"> 
 	    	<sec:authorize access="isAnonymous()">
 	    		<form name='f' action="login" id="form_login" method="POST" class="form-horizontal" onsubmit="return validate();">
                 <h1 ><strong>Login</strong></h1>
@@ -86,6 +92,7 @@ function validate() {
             	Click <a href="/">here</a> to back Home.
             </sec:authorize>
         </div>
+        <a href="/foget-password">Foget password</a>
     </div>
 </div>
 <t:footer></t:footer>

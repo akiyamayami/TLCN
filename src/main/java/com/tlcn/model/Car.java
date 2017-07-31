@@ -13,9 +13,8 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 
-@Entity(name="car")
+@Entity(name = "car")
 public class Car {
-	
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
@@ -23,30 +22,23 @@ public class Car {
 	private String licenseplate;
 	private String type;
 	private int seats;
-	
-	@ManyToOne(fetch=FetchType.EAGER)
-	@JoinColumn(name="sttcarID")
+
+	@ManyToOne(fetch = FetchType.EAGER)
+	@JoinColumn(name = "sttcarID")
 	private SttCar sttcar;
-	
-	@ManyToOne(fetch=FetchType.EAGER)
-	@JoinTable
-	(
-			name = "driver_car",
-			joinColumns={ @JoinColumn(name="carID", unique=true) },
-			inverseJoinColumns={ @JoinColumn(name="email")}
-	)
+
+	@ManyToOne(fetch = FetchType.EAGER)
+	@JoinTable(name = "driver_car", joinColumns = { @JoinColumn(name = "carID", unique = true) }, inverseJoinColumns = {
+			@JoinColumn(name = "email") })
 	private Driver driver;
-	
+
 	@OneToMany(fetch = FetchType.EAGER, mappedBy = "car", cascade = CascadeType.ALL)
 	private List<Proposal> listproposal;
 
-	
-	
 	public Car() {
 		super();
 	}
 
-	
 	public Car(String licenseplate, String type, int seats, SttCar sttcar) {
 		super();
 		this.licenseplate = licenseplate;
@@ -54,7 +46,6 @@ public class Car {
 		this.seats = seats;
 		this.sttcar = sttcar;
 	}
-
 
 	public Car(String licenseplate, String type, int seats, SttCar sttcar, Driver driver) {
 		super();
@@ -64,7 +55,6 @@ public class Car {
 		this.sttcar = sttcar;
 		this.driver = driver;
 	}
-
 
 	public Car(int carID, String licenseplate, String type, int seats, SttCar sttcar, Driver driver,
 			List<Proposal> listproposal) {
@@ -140,6 +130,11 @@ public class Car {
 	public void setListproposal(List<Proposal> listproposal) {
 		this.listproposal = listproposal;
 	}
-	
-	
+
+	@Override
+	public String toString() {
+		return "Car [carID=" + carID + ", licenseplate=" + licenseplate + ", type=" + type + ", seats=" + seats
+				+ ", sttcar=" + sttcar + ", driver=" + driver + ", listproposal=" + listproposal + "]";
+	}
+
 }

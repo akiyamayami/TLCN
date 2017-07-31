@@ -9,7 +9,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 
 public class ModelFilterProposal {
 	@Temporal(TemporalType.DATE)
-	@DateTimeFormat(pattern = "MM/dd/yyyy")
+	@DateTimeFormat(pattern = "dd-MM-yyyy")
 	private Date datecreate;
 	private String type;
 	private int stt;

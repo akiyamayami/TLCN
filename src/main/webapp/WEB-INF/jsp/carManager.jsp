@@ -47,17 +47,29 @@
 		<div id="main-region">
 			<div class="row">
 				<div class="col-sm-9">
+					<c:if test="${not empty messagesSuc}">
+						<h1 id="error" class="alert alert-danger">
+							${messagesSuc}
+						</h1>
+					</c:if>
+					<c:if test="${not empty messagesEro}">
+						<h1 id="error" class="alert alert-success">
+							${messagesEro}
+						</h1>
+					</c:if>
 					<div class="main-content">
 						<c:choose>
 							<c:when test='${MODE == "MODE_FIND_CARS"}'>
 								<div class="title-content">
 									<div class="row">
 										Tra cứu xe
-										<div class="col-sm-1" style="float: right; margin-top: 3px;">
-											<a href="/create-car" data-toggle="tooltip"
-												data-placement="top" title="Thêm xe mới"><i
-												class="fa fa-plus fa-lg" aria-hidden="true"></i></a>
-										</div>
+										<sec:authorize access="hasAuthority('ADD-CAR')">
+											<div class="col-sm-1" style="float: right; margin-top: 3px;">
+												<a href="/create-car" data-toggle="tooltip"
+													data-placement="top" title="Thêm xe mới"><i
+													class="fa fa-plus fa-lg" aria-hidden="true"></i></a>
+											</div>
+										</sec:authorize>
 									</div>
 								</div>
 								<div class="title-content2">
@@ -67,9 +79,9 @@
 											<label class="control-label">Loại :</label>
 											<form:select path="type" class="form-control set-height-25">
 												<form:option value="all">Tất cả</form:option>
-												<c:forEach items="${listtype_seats}" var="car">
-													<form:option value='${car.type}'>
-														<c:out value="${car.type}" />
+												<c:forEach items="${listtype}" var="type">
+													<form:option value='${type}'>
+														<c:out value="${type}" />
 													</form:option>
 												</c:forEach>
 											</form:select>
@@ -78,9 +90,9 @@
 											<label class="control-label">Chỗ Ngồi :</label>
 											<form:select path="seat" class="form-control set-height-25">
 												<form:option value="-1">Tất cả</form:option>
-												<c:forEach items="${listtype_seats}" var="car">
-													<form:option value='${car.seats}'>
-														<c:out value="${car.seats}" />
+												<c:forEach items="${listseats}" var="seats">
+													<form:option value='${seats}'>
+														<c:out value="${seats}" />
 													</form:option>
 												</c:forEach>
 											</form:select>
@@ -102,8 +114,12 @@
 											<th>Chỗ Ngồi</th>
 											<th>Tình Trạng</th>
 											<th style="width: 8%;">Chi tiết</th>
-											<th style="width: 6%;">Sửa</th>
-											<th style="width: 6%;">Xóa</th>
+											<sec:authorize access="hasAuthority('CHANGE_CAR')">
+												<th style="width: 6%;">Sửa</th>
+											</sec:authorize>
+											<sec:authorize access="hasAuthority('REMOVE_CAR')">
+												<th style="width: 6%;">Xóa</th>
+											</sec:authorize>
 										</tr>
 									</thead>
 									<tbody>
@@ -116,25 +132,34 @@
 												<td><c:out value="${car.type}" /></td>
 												<td><c:out value="${car.seats}" /> Chỗ</td>
 												<td><c:out value="${car.sttcar.name}" /></td>
-												<td class="show-deital-driver last-item-table"><a href="#"
+												<td class="show-deital-driver last-item-table"><a 
 													data-toggle="tooltip" data-placement="top"
-													title="Thông tin tài xế"> <i
+													title="Thông tin tài xế" class="myClickableThingy"> <i
 														class="fa fa-info-circle fa-lg" aria-hidden="true"></i>
 												</a></td>
-												<td ><a
+												<sec:authorize access="hasAuthority('CHANGE_CAR')">
+													<td ><a
 													href="/change-car-${car.carID}"> <i
 														class="fa fa-pencil-square-o fa-lg" aria-hidden="true"></i>
-												</a></td>
-												<td><a
-													href="/remove-car-${car.carID}"> <i
-														class="fa fa-trash-o fa-lg" aria-hidden="true"></i>
-												</a></td>
+													</a></td>
+												</sec:authorize>
+												<sec:authorize access="hasAuthority('REMOVE_CAR')">
+													<td>
+														<c:if test="${car.sttcar.sttcarID != 3}">
+															<a href="/remove-car-${car.carID}">
+																<i class="fa fa-trash-o fa-lg" aria-hidden="true"></i>
+															</a>
+														</c:if>
+														
+													</td>
+												</sec:authorize>
+												
 											</tr>
 											<tr class="driver-info" id="driver-info-<%=x%>">
 												<%
 													x += 2;
 												%>
-												<td colspan='5'>
+												<td colspan='7'>
 													<div
 														style="text-align: center; margin-bottom: 8px; border-bottom: 1px solid #ddd; padding-bottom: 3px;">
 														<strong>Thông tin tài xế</strong>
@@ -320,7 +345,7 @@
 										<div class="col-sm-7">
 											<form:input path="licenseplate" type="text" class="form-control" />
 											<div class="has-error">
-												<form:errors class="control-label" path="name" />
+												<form:errors class="control-label" path="licenseplate" />
 											</div>
 										</div>
 									</div>
@@ -337,7 +362,7 @@
 									<div class="form-group">
 										<label class="control-label col-sm-3">Chỗ ngồi</label>
 										<div class="col-sm-7">
-											<form:input path="seats" type="number" class="form-control date-picker" />
+											<form:input path="seats" type="number" class="form-control" />
 											<div class="has-error">
 												<form:errors class="control-label" path="seats" />
 											</div>
@@ -348,7 +373,7 @@
 										<div class="col-sm-7">
 											<form:select  path="emailDriver" class="btn btn-choose">
 												<c:forEach items="${listDriver}" var="driver">
-													<form:option value="<c:out value='${driver.email}'/>">
+													<form:option value="${driver.email}">
 														<c:out value='${driver.name}'/>
 													</form:option>
 												</c:forEach>
@@ -363,11 +388,11 @@
 											<label class="control-label col-sm-3">Tình trạng</label>
 											<div class="col-sm-7">
 												<form:select path="sttcarID" class="btn btn-choose">
-												<c:forEach items="${liststtcar}" var="stt">
-													<form:option value="<c:out value='${stt.name}'/>">
-														<c:out value='${stt.name}'/>
-													</form:option>
-												</c:forEach>
+													<c:forEach items="${liststtcar}" var="stt">
+														<form:option value="${stt.sttcarID}">
+															<c:out value='${stt.name}'/>
+														</form:option>
+													</c:forEach>
 												</form:select>
 												<div class="has-error">
 													<form:errors class="control-label" path="sttcarID" />
@@ -379,14 +404,16 @@
 									<div class="form-group">
 										<c:if test="${MODE == 'MODE_CREATE_CAR' }">
 											<div class="col-sm-offset-5 col-sm-3">
-												<button type="submit" class="btn btn-default">Submit</button>
+												<button type="submit" class="btn btn-default">Thêm</button>
 												<a href="/" class="btn btn-default">Trở về</a>
 											</div>
 										</c:if>
 										<c:if test="${MODE == 'MODE_CHANGE_CAR' }">
 											<div class="col-sm-offset-5 col-sm-5">
 												<button type="submit" class="btn btn-default">Chỉnh sữa</button>
-												<a href="/remove-car" class="btn btn-default">Xóa</a>
+												<sec:authorize access="hasAuthority('REMOVE-CAR')">
+													<a href="/remove-car-${Car.carID}" class="btn btn-default">Xóa</a>
+												</sec:authorize>
 												<a href="/" class="btn btn-default">Trở về</a>
 											</div>
 										</c:if>
@@ -430,6 +457,9 @@
 								</div>
 							</c:forEach>
 						</div>
+						<a href="/show-all-notify">
+							<div class="show-all-notify">Xem tất cả</div>
+						</a>
 					</div>
 				</div>
 			</div>

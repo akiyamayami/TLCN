@@ -2,6 +2,7 @@ package com.tlcn.model;
 
 import java.util.Date;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -25,7 +26,7 @@ public class RegisterProposal{
     @JoinColumn(name = "emailuser")
 	private User user;
 
-	@OneToOne
+	@OneToOne(cascade = CascadeType.REMOVE, orphanRemoval = true)
 	@JoinColumn(name="proposalID",unique=true)
 	private Proposal proposal;
 	

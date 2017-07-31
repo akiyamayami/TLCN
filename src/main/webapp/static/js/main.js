@@ -8,7 +8,7 @@ $(document).ready(function(){
     	$(".detail-car").slideUp("slow");
     	x = 1;
     });
-    $(".icon-show-deital").click(function(){
+    $(".icon-show-detail").click(function(){
     	var carID = $("#choicecar").val();
     	var detaildiverID = "#detail-car-" + carID;
         if(x == 1){

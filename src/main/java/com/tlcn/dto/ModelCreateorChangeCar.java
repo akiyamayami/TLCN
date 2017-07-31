@@ -1,6 +1,8 @@
 package com.tlcn.dto;
 
 public class ModelCreateorChangeCar {
+	private int carID;
+	
 	private String licenseplate;
 	private String type;
 	private int seats;
@@ -11,13 +13,23 @@ public class ModelCreateorChangeCar {
 		super();
 	}
 
-	public ModelCreateorChangeCar(String licenseplate, String type, int seats, int sttcarID, String emailDriver) {
+	public ModelCreateorChangeCar(int carID, String licenseplate, String type, int seats, int sttcarID,
+			String emailDriver) {
 		super();
+		this.carID = carID;
 		this.licenseplate = licenseplate;
 		this.type = type;
 		this.seats = seats;
 		this.sttcarID = sttcarID;
 		this.emailDriver = emailDriver;
+	}
+
+	public int getCarID() {
+		return carID;
+	}
+
+	public void setCarID(int carID) {
+		this.carID = carID;
 	}
 
 	public String getLicenseplate() {

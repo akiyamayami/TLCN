@@ -44,6 +44,13 @@ public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionH
         return handleExceptionInternal(ex, bodyOfResponse, new HttpHeaders(), HttpStatus.BAD_REQUEST, request);
     }
     
+    @ExceptionHandler({ InvalidOldPasswordException.class })
+    public ResponseEntity<Object> handleInvalidOldPassword(final RuntimeException ex, final WebRequest request) {
+        logger.error("400 Status Code", ex);
+        final GenericResponse bodyOfResponse = new GenericResponse(messages.getMessage("message.invalidOldPassword", null, request.getLocale()), "InvalidOldPassword");
+        return handleExceptionInternal(ex, bodyOfResponse, new HttpHeaders(), HttpStatus.BAD_REQUEST, request);
+    }
+    
     @ExceptionHandler({NotOwnerOfProposalException.class})
     public ResponseEntity<Object> handleNotOwnerOfThisProposal(final RuntimeException ex, final WebRequest request){
     	logger.error("403 Status Code", ex);
@@ -61,21 +68,28 @@ public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionH
     @ExceptionHandler({ DriverNotFoundException.class })
     public ResponseEntity<Object> handleDriverNotFound(final RuntimeException ex, final WebRequest request){
     	logger.error("404 Status Code", ex);
-    	final GenericResponse bodyOfResponse = new GenericResponse(messages.getMessage("message.driverNotFound", null, request.getLocale()), "ProposalNotFound");
+    	final GenericResponse bodyOfResponse = new GenericResponse(messages.getMessage("message.driverNotFound", null, request.getLocale()), "DriverNotFound");
     	return handleExceptionInternal(ex, bodyOfResponse, new HttpHeaders(), HttpStatus.NOT_FOUND, request);
     }
     
     @ExceptionHandler({ CarNotFoundException.class })
     public ResponseEntity<Object> handleCarNotFound(final RuntimeException ex, final WebRequest request){
     	logger.error("404 Status Code", ex);
-    	final GenericResponse bodyOfResponse = new GenericResponse(messages.getMessage("message.carNotFound", null, request.getLocale()), "ProposalNotFound");
+    	final GenericResponse bodyOfResponse = new GenericResponse(messages.getMessage("message.carNotFound", null, request.getLocale()), "CarNotFound");
+    	return handleExceptionInternal(ex, bodyOfResponse, new HttpHeaders(), HttpStatus.NOT_FOUND, request);
+    }
+    
+    @ExceptionHandler({ UserNotFoundException.class })
+    public ResponseEntity<Object> handleUserNotFound(final RuntimeException ex, final WebRequest request){
+    	logger.error("404 Status Code", ex);
+    	final GenericResponse bodyOfResponse = new GenericResponse(messages.getMessage("message.userNotFound", null, request.getLocale()), "UserNotFound");
     	return handleExceptionInternal(ex, bodyOfResponse, new HttpHeaders(), HttpStatus.NOT_FOUND, request);
     }
     
     @ExceptionHandler({ HaveProposalInTimeUseException.class })
     public ResponseEntity<Object> handleHaveProposalInTimeUse(final RuntimeException ex, final WebRequest request){
     	logger.error("405 Status Code", ex);
-    	final GenericResponse bodyOfResponse = new GenericResponse(messages.getMessage("message.haveProposalInTimeUse", null, request.getLocale()), "ProposalNotFound");
+    	final GenericResponse bodyOfResponse = new GenericResponse(messages.getMessage("message.haveProposalInTimeUse", null, request.getLocale()), "haveProposalInTimeUse");
     	return handleExceptionInternal(ex, bodyOfResponse, new HttpHeaders(), HttpStatus.METHOD_NOT_ALLOWED, request);
     }
     

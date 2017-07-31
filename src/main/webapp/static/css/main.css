@@ -384,10 +384,15 @@ a i{
 .error{
 	color:red;
 }
+.show-all-notify{
+    text-align:center;
+    border-top:1px solid #e3e3e3;
+    padding-top:3px;
+}
 
-
-
-
+.myClickableThingy {
+    cursor: pointer;
+}
 
 
 

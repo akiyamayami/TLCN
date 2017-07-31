@@ -12,6 +12,8 @@ import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -23,16 +25,21 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartException;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.tlcn.dto.ModelCalendar;
 import com.tlcn.dto.ModelCreateorChangeDriver;
+import com.tlcn.dto.ModelShowNotify;
 import com.tlcn.error.DriverNotFoundException;
 import com.tlcn.model.Car;
 import com.tlcn.model.Driver;
 import com.tlcn.model.SttDriver;
+import com.tlcn.model.User;
 import com.tlcn.service.CarService;
 import com.tlcn.service.DriverService;
 import com.tlcn.service.NotifyEventService;
 import com.tlcn.service.ProposalService;
+import com.tlcn.service.SttCarService;
 import com.tlcn.service.SttDriverService;
+import com.tlcn.service.UserService;
 import com.tlcn.validator.DriverValidator;
 import com.tlcn.validator.SttDriverValidator;
 
@@ -52,6 +59,12 @@ public class DriverController {
 	private NotifyEventService notifyEventService;
 	@Autowired
 	private SttDriverValidator sttDriverValidator; 
+	@Autowired 
+	private SttCarService sttCarService;
+	
+	@Autowired
+	private UserService userService;
+	
 	
 	public DriverController() {
 		super();
@@ -60,12 +73,14 @@ public class DriverController {
 	public String listDriver(Model model)throws Exception{
 		model.addAttribute("MODE", "MODE_FIND_DRIVER");
 		model.addAttribute("listdrivers", driverService.findAll());
+		showCalendarAndNotify(model,null,null);
 		return "driverManager";
 	}
 	//
 	@RequestMapping(value="/create-driver", method = RequestMethod.GET)
 	public String createDriver(Model model)throws Exception{
 		model.addAttribute("MODE", "MODE_CREATE_DRIVER");
+		showCalendarAndNotify(model,null,null);
 		showInfoDriver(model,new ModelCreateorChangeDriver(),"create-driver");
 		return "driverManager";
 	}
@@ -79,6 +94,7 @@ public class DriverController {
 			model.addAttribute("Driver", driver);
 			model.addAttribute("Car", new Car());
 			model.addAttribute("typeForm", "/create-driver");
+			showCalendarAndNotify(model,null,null);
 			List<Car> listCarFree = carService.getListCarFree();
 			System.out.println(listCarFree.size());
 			if(driver.getListcar() != null){
@@ -109,7 +125,6 @@ public class DriverController {
 	@RequestMapping(value="/change-driver/{email}/", method = RequestMethod.GET)
 	public String changeDriverForward(Model model,@PathVariable String email, HttpSession session)throws Exception{
 		session.setAttribute("emaildriver", email);
-		
 		return "redirect:/change-driver";
 	}
 	
@@ -119,6 +134,7 @@ public class DriverController {
 		model.addAttribute("MODE", "MODE_CHANGE_DRIVER");
 		String emaildriver = session.getAttribute("emaildriver").toString();
 		System.out.println(emaildriver);
+		showCalendarAndNotify(model,null,null);
 		Driver driver = driverService.findOne(emaildriver);
 		if(driver == null){
 			throw new DriverNotFoundException();
@@ -133,11 +149,28 @@ public class DriverController {
 			@Valid @ModelAttribute("Driver") ModelCreateorChangeDriver modelDriver, BindingResult result
 			, HttpServletRequest request) throws MultipartException, IOException, Exception{
 		driverValidator.validate(modelDriver, result);
-		if(result.hasErrors()){
+		List<Car> listcarofdriverchange = modelDriver.getListcar();
+		String emaildriver = session.getAttribute("emaildriver").toString();
+		Driver driver = driverService.findOne(emaildriver);
+		boolean isCarInTimeUse = false;
+		if(driver == null){
+			throw new DriverNotFoundException();
+		}
+		if(listcarofdriverchange != null)
+			isCarInTimeUse = (listcarofdriverchange.parallelStream()
+					.filter(c -> isCarInTimeUse(c))
+					.findFirst().isPresent());
+		if((driver.getSttdriver().getSttdriverID() == 1 && driver.getSttdriver().getSttdriverID() != modelDriver.getSttdriverID()
+				&& isCarInTimeUse)  
+				|| result.hasErrors()){
+			if(isCarInTimeUse){
+				model.addAttribute("message", "Have some car in time use cant change stt of driver");
+				modelDriver.setSttdriverID(driver.getSttdriver().getSttdriverID());
+			}
 			model.addAttribute("MODE", "MODE_CHANGE_DRIVER");
 			model.addAttribute("Driver", modelDriver);
 			model.addAttribute("Car", new Car());
-			model.addAttribute("typeForm", "/create-driver");
+			model.addAttribute("typeForm", "/change-driver");
 			model.addAttribute("listSttDriver", sttDriverService.findAll());
 			List<Car> listCarFree = carService.getListCarFree();
 			System.out.println(listCarFree.size());
@@ -149,12 +182,13 @@ public class DriverController {
 				}
 			}
 			model.addAttribute("ListCarFree", listCarFree);
+			showCalendarAndNotify(model,null,null);
 			return "driverManager";
 		}
-		String emaildriver = session.getAttribute("emaildriver").toString();
-		Driver driver = driverService.findOne(emaildriver);
+		
+		
 		MultipartFile file = modelDriver.getFile();
-		if(!file.isEmpty()){
+		if(file != null && file.getSize() > 0){
 			String location = request.getServletContext().getRealPath("static") + "/img/user/";
 			String name = file.getOriginalFilename();
 			String namefile = driver.getEmail() + name.substring(name.lastIndexOf("."),name.length());
@@ -163,33 +197,48 @@ public class DriverController {
 		driverService.convertAndChange(modelDriver, driver);
 		return "redirect:/list-driver";
 	}
+	
 	@RequestMapping(value="/remove-driver/{email}/", method = RequestMethod.GET)
-	public String removeDriver(Model model, HttpSession session, @PathVariable String email) throws Exception{
+	public String removeDriverRedirect(Model model, HttpSession session, @PathVariable String email){
+		session.setAttribute("emailDriver", email);
+		return "redirect:/remove-driver";
+	}
+	@RequestMapping(value="/remove-driver", method = RequestMethod.GET)
+	public String removeDriver(Model model, HttpSession session) throws Exception{
+		String email = (String) session.getAttribute("emailDriver");
 		Driver driver = driverService.findOne(email);
 		if(driver == null){
 			throw new DriverNotFoundException();
 		}
+		if(driver.getListcar() == null){
+			driverService.remove(driver);
+			return "redirect:/list-driver";
+		}
 		boolean isCarinTimeUse = driver.getListcar().parallelStream()
-						   .filter(c -> c.getListproposal().parallelStream()
-									.filter(p -> p.getStt().getSttproposalID() == 1 && proposalService.isInTimeUse(p))
-									.findFirst().isPresent())
+						   .filter(c -> isCarInTimeUse(c))
 						   .findFirst().isPresent();
 		ModelCreateorChangeDriver driverShow = driverService.converDriverToDisplay(driver);
 		showInfoDriver(model,driverShow,"change-dirver");
 		if(isCarinTimeUse){
-			model.addAttribute("message", "Tài xế đang thực hiện công việc không thể xóa");
+			model.addAttribute("messagesEro", "Tài xế đang thực hiện công việc không thể xóa");
+			model.addAttribute("MODE", "MODE_FIND_DRIVER");
+			model.addAttribute("listdrivers", driverService.findAll());
+			showCalendarAndNotify(model,null,null);
 			return "driverManager";
 		}
-		if(driver.getListcar().isEmpty()){
-			driverService.remove(driver);
-			return "driverManager";
-		}
+		
 		long timeNow = Calendar.getInstance().getTime().getTime();
-		driver.getListcar().forEach(c -> c.getListproposal().parallelStream()
-				.filter(p -> p.getType().getTypeID() != 3 && proposalService.getDate(p.getUsefromdate(),p.getUsefromtime()) > timeNow)
-				.forEach(p -> notifyEventService.addNotifyforUser(p,p.getUserregister().getUser(),"DriverQuitJob")));
+		List<Car> listCarOfDriver = driver.getListcar();
+		
+		listCarOfDriver.parallelStream().filter(c -> c.getListproposal() != null)
+				.forEach(c -> notifyEventService.SendNotifyChange(c, "DriverQuitJob", timeNow));
 		driver.setSttdriver(sttDriverService.findOne(3));
 		driverService.save(driver);
+		for(Car c : listCarOfDriver){
+			c.setDriver(null);
+			c.setSttcar(sttCarService.findOne(4));
+			carService.save(c);
+		}
 		return "redirect:/list-driver";
 	}
 	@RequestMapping(value="/add-new-stt-driver", method = RequestMethod.POST)
@@ -203,6 +252,39 @@ public class DriverController {
 		sttDriverService.save(stt);
 		String html = "<option value='"+ stt.getSttdriverID() + "'>"+ stt.getName() +"</option>";
 		return html;
+	}
+	public void showCalendarAndNotify(Model model, String month, String year){
+		List<ModelShowNotify> listNotify = notifyEventService.getListNotifyNewest(GetUser());
+		if(listNotify != null && listNotify.size() < 5)
+			model.addAttribute("listNotify",listNotify);
+		else
+			model.addAttribute("listNotify", notifyEventService.getListNotifyNewest(GetUser()).subList(0, 5));
+		model.addAttribute("calendar", createCalendar(month,year));
+	}
+	public String createCalendar(String month, String year){
+		System.out.println(month+"xx" + year);
+		Calendar now = Calendar.getInstance();
+		int y,m;
+		if(month == null || year == null)
+		{
+			m = now.get(Calendar.MONTH);
+			y = now.get(Calendar.YEAR);
+			now.set(y, m, 1);
+		}else{
+			now.clear();
+			y = Integer.parseInt(year);
+			m = Integer.parseInt(month);
+			now.set(y, m, 1);
+		}
+		String html = new ModelCalendar().createCalendar(y, m, now);
+		return html;
+	}
+	public UserDetails getUserLogin() {
+		return (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+	}
+	
+	public User GetUser(){
+		return userService.findOne(getUserLogin().getUsername());
 	}
 	public void showInfoDriver(Model model, ModelCreateorChangeDriver driver, String type){
 		List<Car> listCarFree = carService.getListCarFree();
@@ -225,5 +307,12 @@ public class DriverController {
 			e.getMessage();
 			return false;
 		}
+	}
+	public boolean isCarInTimeUse(Car c){
+		if(c.getListproposal() != null)
+			return c.getListproposal().parallelStream()
+			.filter(p -> p.getStt().getSttproposalID() == 1 && proposalService.isInTimeUse(p))
+			.findFirst().isPresent();
+		return false;
 	}
 }

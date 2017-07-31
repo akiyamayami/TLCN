@@ -78,12 +78,14 @@ public class ProposalService {
 		Date datecreate = filter.getDatecreate();
 		int typeNumber = Integer.parseInt(filter.getType());
 		TypeProposal type = null;
-		if(typeNumber != 0)
+		if(typeNumber != 0){
 			type = typeProposalService.findOne(typeNumber);
+		}
 		SttProposal stt = sttProposalService.findOne(filter.getStt());
-		if(user != null){
+		System.out.println("test " + datecreate == null && stt == null && type == null);
+		if(user == null){
 			if(datecreate == null && stt == null && type == null)
-				return findProposalofuser(user);
+				return findAll();
 			if(datecreate != null && stt != null && type != null)
 				return proposalRepository.LPF_all(datecreate, type, stt);
 			if(datecreate != null && stt == null && type != null)
@@ -101,7 +103,7 @@ public class ProposalService {
 		}
 		else{
 			if(datecreate == null && stt == null && type == null)
-				return findAll();
+				return findProposalofuser(user);
 			if(datecreate != null && stt != null && type != null)
 				return proposalRepository.LPF_all_of_user(datecreate, type, stt, user);
 			if(datecreate != null && stt == null && type != null)
@@ -175,7 +177,11 @@ public class ProposalService {
 	
 	public boolean isInTimeUse(Proposal proposal){
 		Calendar now = Calendar.getInstance();
-		if(proposal.getUsetodate().getTime() >= now.getTime().getTime() && proposal.getUsefromdate().getTime() <= now.getTime().getTime() && proposal.getStt().getSttproposalID() == 1)
+		long timeStart = getDate(proposal.getUsefromdate(),proposal.getUsefromtime());
+		long today = now.getTime().getTime();
+		long timeEnd = getDate(proposal.getUsetodate(),proposal.getUsetotime());
+		if( proposal.getStt().getSttproposalID() == 1 && proposal.getType().getTypeID() != 3
+				&& today > timeStart)
 			return true;
 		return false;
 	}

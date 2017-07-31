@@ -53,17 +53,29 @@
 		<div id="main-region">
 			<div class="row">
 				<div class="col-sm-9">
+					<c:if test="${not empty messagesSuc}">
+						<h1 id="error" class="alert alert-danger">
+							${messagesSuc}
+						</h1>
+					</c:if>
+					<c:if test="${not empty messagesEro}">
+						<h1 id="error" class="alert alert-success">
+							${messagesEro}
+						</h1>
+					</c:if>
 					<div class="main-content">
 						<c:choose>
 							<c:when test='${MODE == "MODE_FIND_DRIVER"}'>
 								<div class="title-content">
 									<div class="row">
 										Quản lý tài xế
-										<div class="col-sm-1" style="float: right; margin-top: 3px;">
+										<sec:authorize access="hasAuthority('ADD_DRIVER')">
+											<div class="col-sm-1" style="float: right; margin-top: 3px;">
 											<a href="/create-driver" data-toggle="tooltip"
 												data-placement="top" title="Thêm tài xế mới"><i
 												class="fa fa-plus fa-lg" aria-hidden="true"></i></a>
-										</div>
+											</div>
+										</sec:authorize>
 									</div>
 								</div>
 								<table cellpadding="0" cellspacing="0"
@@ -74,7 +86,12 @@
 											<th>Tên</th>
 											<th>Email</th>
 											<th>Tình trạng</th>
+											<sec:authorize access="hasAuthority('CHANGE_DRIVER')">
 											<th style="width: 6%;">Xem</th>
+											</sec:authorize>
+											<sec:authorize access="hasAuthority('REMOVE_DRIVER')">
+												<th style="width: 6%;">Xóa</th>
+											</sec:authorize>
 										</tr>
 									</thead>
 									<tbody>
@@ -84,9 +101,20 @@
 												<td><c:out value="${driver.name}" /></td>
 												<td><c:out value="${driver.email}" /></td>
 												<td><c:out value="${driver.sttdriver.name}" /></td>
-												<td ><a href="/change-driver/${driver.email}/"> <i
-														class="fa fa-pencil-square-o fa-lg" aria-hidden="true"></i>
-												</a></td>
+												<sec:authorize access="hasAuthority('CHANGE_DRIVER')">
+													<td ><a href="/change-driver/${driver.email}/"> <i
+															class="fa fa-pencil-square-o fa-lg" aria-hidden="true"></i>
+													</a></td>
+												</sec:authorize>
+												<sec:authorize access="hasAuthority('REMOVE_DRIVER')">
+													<c:if test="${driver.sttdriver.sttdriverID != 3 }">
+														<td ><a href="/remove-driver/${driver.email}/"> <i
+															class="fa fa-trash fa-lg" aria-hidden="true"></i>
+														</a></td>
+													</c:if>
+													
+												</sec:authorize>
+												
 											</tr>
 										</c:forEach>
 									</tbody>
@@ -242,14 +270,14 @@
 															<td><form:input
 																	path="listcar[${status.index}].seats" type="text" readonly="true" style="border:none;"
 																	size="1"/> Chỗ</td>
-															<td><a href="#" class="remove-car"> <i
+															<td><a class="remove-car myClickableThingy"> <i
 																	class="fa fa-trash fa-lg" aria-hidden="true"></i>
 															</a></td>
 														</tr>
 													</c:forEach>
 												</tbody>
 											</table>
-											<a href="#" data-toggle="modal" data-target="#myModal">
+											<a class="myClickableThingy" data-toggle="modal" data-target="#myModal">
 												Thêm xe 
 											</a>
 											<div class="has-error">
@@ -270,7 +298,7 @@
 													<span class="fileinput-new">Select image</span>
 													<span class="fileinput-exists">Change</span>
 													<form:input type="file" path="file"/></span> 
-													<a href="#" class="btn btn-default fileinput-exists"
+													<a class="btn btn-default fileinput-exists myClickableThingy"
 														data-dismiss="fileinput">Remove</a>
 												</div>
 											</div>
@@ -283,15 +311,18 @@
 									<div class="form-group">
 										<c:if test="${MODE == 'MODE_CHANGE_DRIVER'}">
 											<div class="col-sm-offset-5 col-sm-5">
+												
 												<button type="submit" class="btn btn-default">Chỉnh sửa</button>
-												<a href="/remove-driver/<c:out value='${Driver.email}'/>/" class="btn btn-default">Xóa</a>
-												<a href="/" class="btn btn-default">Trở về</a>
+												<sec:authorize access="hasAuthority('REMOVE_DRIVER')">
+													<a href="/remove-driver/<c:out value='${Driver.email}'/>/" class="btn btn-default">Xóa</a>
+												</sec:authorize>
+												<a href="/list-driver" class="btn btn-default">Trở về</a>
 											</div>
 										</c:if>
 										<c:if test="${MODE == 'MODE_CREATE_DRIVER'}">
 											<div class="col-sm-offset-5 col-sm-3">
 												<button type="submit" class="btn btn-default">Thêm</button>
-												<a href="/" class="btn btn-default">Trở về</a>
+												<a href="/list-driver" class="btn btn-default">Trở về</a>
 											</div>
 										</c:if>
 									</div>
@@ -309,7 +340,9 @@
 													<ul class="nav nav-tabs nav-justified">
 														<li class="active"><a href="#available"
 															data-toggle="tab">Có sẵn</a></li>
-														<li><a href="#new" data-toggle="tab">Mới</a></li>
+														<sec:authorize access="hasAuthority('ADD_CAR')">
+															<li><a href="#new" data-toggle="tab">Mới</a></li>
+														</sec:authorize>
 													</ul>
 												</div>
 												<div class="tab-content">
@@ -332,7 +365,7 @@
 																		<td><c:out value="${carfree.licenseplate}" /></td>
 																		<td><c:out value="${carfree.type}" /></td>
 																		<td><c:out value="${carfree.seats}" /> Chỗ</td>
-																		<td><a href="#" class="choose-car"> <i
+																		<td><a class="choose-car myClickableThingy"> <i
 																				class="fa fa-square-o fa-lg" aria-hidden="true"></i>
 																		</a></td>
 																	</tr>
@@ -344,6 +377,7 @@
 																class="btn btn-default">Thêm</button>
 														</div>
 													</div>
+													<sec:authorize access="hasAuthority('ADD_CAR')">
 													<div class="tab-pane fade" id="new">
 														<form:form action="/create-car" id="form-create-car"
 															method="POST" modelAttribute="Car">
@@ -367,6 +401,7 @@
 															</div>
 														</form:form>
 													</div>
+													</sec:authorize>
 												</div>
 											</div>
 										</div>
@@ -411,6 +446,9 @@
 								</div>
 							</c:forEach>
 						</div>
+						<a href="/show-all-notify">
+							<div class="show-all-notify">Xem tất cả</div>
+						</a>
 					</div>
 				</div>
 			</div>

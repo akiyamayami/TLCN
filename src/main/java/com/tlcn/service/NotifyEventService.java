@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import com.tlcn.dao.NotifyEventRepository;
 import com.tlcn.dto.ModelShowNotify;
+import com.tlcn.model.Car;
 import com.tlcn.model.NotifyEvent;
 import com.tlcn.model.Proposal;
 import com.tlcn.model.User;
@@ -18,6 +19,8 @@ import com.tlcn.model.User;
 public class NotifyEventService {
 	@Autowired
 	private NotifyEventRepository notifyEventRepository;
+	@Autowired
+	private ProposalService proposalService;
 	
 	public NotifyEventService() {
 		super();
@@ -27,9 +30,7 @@ public class NotifyEventService {
 		List<ModelShowNotify> listnotify = new ArrayList<>();
 		List<NotifyEvent> x  =  notifyEventRepository.getListNotifyNewest(user);
 		for(NotifyEvent notify : x){
-			Proposal proposal = notify.getNotifyOfProposal();
 			listnotify.add(new ModelShowNotify(notify.getNotifyOfProposal().getProposalID(),notify.getMessage(), getTime(notify.getDateUpEvent())));
-			System.out.println(proposal.getUserregister().getUser().getName());
 		}
 		return listnotify;
 	}
@@ -66,7 +67,23 @@ public class NotifyEventService {
 						+ "<p class='time-ago'><i class='fa fa-bell' aria-hidden='true'></i>";
 				return message;
 			case "DriverBack":
-				message += "<div>Xe bạn chọn cho đề nghị <strong>"+notify.getNotifyOfProposal().getName() + "</strong> đã có tài xế mới.</div>"
+				message += "<div>Xe bạn chọn cho đề nghị <strong>"+notify.getNotifyOfProposal().getName() + "</strong> đã có tài xế.</div>"
+						+ "<p class='time-ago'><i class='fa fa-bell' aria-hidden='true'></i>";
+				return message;
+			case "RemoveCar":
+				message += "<div>Xe bạn chọn cho đề nghị <strong>"+notify.getNotifyOfProposal().getName() + "</strong> đã bị xóa. Vui lòng chọn xe khác!</div>"
+						+ "<p class='time-ago'><i class='fa fa-bell' aria-hidden='true'></i>";
+				return message;
+			case "BackToWork":
+				message += "<div>Xe bạn chọn cho đề nghị <strong>"+notify.getNotifyOfProposal().getName() + "</strong> đã được sử dụng lại.</div>"
+						+ "<p class='time-ago'><i class='fa fa-bell' aria-hidden='true'></i>";
+				return message;
+			case "DriverSick":
+				message += "<div>Tài xế của xe bạn chọn cho đề nghị <strong>"+notify.getNotifyOfProposal().getName() + "</strong> đã nghỉ phép. Vui lòng chọn xe khác!</div>"
+						+ "<p class='time-ago'><i class='fa fa-bell' aria-hidden='true'></i>";
+				return message;
+			case "RepairDone":
+				message += "<div>Xe bạn chọn cho đề nghị <strong>"+notify.getNotifyOfProposal().getName() + "</strong> đã sữa chữa xong.</div>"
 						+ "<p class='time-ago'><i class='fa fa-bell' aria-hidden='true'></i>";
 				return message;
 			default:
@@ -98,7 +115,11 @@ public class NotifyEventService {
 				return message;
 		}
 	}
-	
+	public void SendNotifyChange(Car car,String type, long timeNow){
+		car.getListproposal().parallelStream()
+		.filter(p -> p.getType().getTypeID() != 3 && proposalService.getDate(p.getUsefromdate(),p.getUsefromtime()) > timeNow)
+		.forEach(p -> addNotifyforUser(p,p.getUserregister().getUser(),type));
+	}
 	public String getIconOfType(String type){
 		switch(type){
 			case "Tạo":

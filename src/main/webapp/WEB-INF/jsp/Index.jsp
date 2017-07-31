@@ -98,17 +98,19 @@
 										</div>
 										<div style="float: right;">
 											<button type="submit" class="btn btn-default set-height-25">Lọc</button>
-											<a href="#" id="cancel-filter"> <i
+											<a id="cancel-filter" class="myClickableThingy"> <i
 												class="fa fa-times fa-lg" aria-hidden="true"></i>
 											</a>
 										</div>
 									</form:form>
 								</div>
 								<table cellpadding="0" cellspacing="0"
-									class="table table-striped table-content">
+									class="table table-striped table-content"
+									style="border-bottom: 1px solid #e3e3e3; margin-bottom: 0px;">
 									<thead>
 										<tr>
-											<th style="width: 20%;">Tên</th>
+											<th style="width: 5%;">STT</th>
+											<th style="width: 16%;">Tên</th>
 											<th style="width: 20%;">Thời gian sử dụng</th>
 											<th style="width: 10%;">Ngày tạo</th>
 											<th style="width: 10%;">Loại</th>
@@ -121,18 +123,18 @@
 											<c:if test="${MODE == 'MODE_FIND_PROPOSAL'}">
 												<th style="width: 5%;" class="last-item-table">Xem</th>
 											</c:if>
-
 										</tr>
 									</thead>
 									<tbody>
-										<c:forEach items="${listProposal}" var="list">
+										<c:forEach items="${listProposal}" var="list" varStatus="stt">
 											<tr>
+												<td>${stt.index + 1 }</td>
 												<td><c:out value="${list.name}" /></td>
 												<td><c:out value="${list.usefromdate}" /> đến <c:out value="${list.usetodate}" /></td>
 												<td><c:out value="${list.userregister.dateregister}" /></td>
 												<td><c:out value="${list.type.name}" /></td>
 												<td><c:out value="${list.stt.name}"/> </td>
-												<td class="last-item-table"><a href="#"
+												<td class="last-item-table"><a class="myClickableThingy"
 													data-toggle="tooltip" data-placement="right"
 													data-html="true" title='<c:out value="${list.detail}"/>'>
 														<i class="fa fa-info-circle fa-lg" aria-hidden="true"></i>
@@ -144,10 +146,13 @@
 															<i class="fa fa-pencil-square-o fa-lg" aria-hidden="true"></i>
 														</a>
 													</td>
-													<td class="last-item-table"><a
-														href="/cancel-proposal-${list.proposalID}"> <i
-															class="fa fa-trash-o fa-lg" aria-hidden="true"></i>
-													</a></td>
+													<td class="last-item-table">
+														<c:if test="${list.type.typeID != 3 || list.expired != true}">
+															<a href="/cancel-proposal-${list.proposalID}"> 
+																<i class="fa fa-trash-o fa-lg" aria-hidden="true"></i>
+															</a>
+														</c:if>
+													</td>
 												</c:if>
 												<c:if test="${MODE == 'MODE_FIND_PROPOSAL'}">
 													<th style="width: 5%;" class="last-item-table">
@@ -162,6 +167,31 @@
 										</c:forEach>
 									</tbody>
 								</table>
+								<div class="row">
+									<div class="col-sm-12">
+										<nav class="pull-right">
+										<ul class="pagination justify-content-end">
+											<c:choose>
+												<c:when test="${pagination.current != 1}">
+													<li class="page-item"><a class="page-link"
+													href="?page=${pagination.pre}" tabindex="-1">Previous</a></li>
+												</c:when>
+												<c:otherwise>
+													<li class="page-item disabled"><a class="page-link"
+													href="#" tabindex="-1">Previous</a></li>
+												</c:otherwise>
+											</c:choose>
+											
+											<li class="page-item"><a class="page-link" href="#">1</a></li>
+											<li class="page-item"><a class="page-link" href="#">2</a></li>
+											<li class="page-item"><a class="page-link" href="#">3</a></li>
+											<li class="page-item"><a class="page-link" href="#">Next</a>
+											</li>
+										</ul>
+										</nav>
+									</div>
+
+								</div>
 							</c:when>
 							<c:when test='${MODE == "MODE_CREATE_PROPOSAL" || MODE == "MODE_CHANGE_PROPOSAL"}'>
 								<c:if test='${MODE == "MODE_CREATE_PROPOSAL"}'>
@@ -173,10 +203,10 @@
 								<form:form method="post" modelAttribute="Proposal"
 									action="${typeForm}" class="form-horizontal"
 									enctype="multipart/form-data">
-									<c:if test="${not empty message2}">
+									<c:if test="${not empty message}">
 										<div class="form-group">
 											<div style="color: red; font-size: 15px; text-align: center;">
-												<c:out value="${message2}" />
+												<c:out value="${message}" />
 											</div>
 										</div>
 									</c:if>
@@ -260,16 +290,16 @@
 													</form:option>
 												</c:forEach>
 											</form:select>
-											<i class="fa fa-info-circle fa-lg icon-show-deital"
+											<i class="fa fa-info-circle fa-lg icon-show-detail myClickableThingy"
 												aria-hidden="true"></i>
 											<div class="has-error">
 												<form:errors class="control-label" path="carID" />
 											</div>
 										</div>
 										<div class="col-sm-offset-3 col-sm-7">
-											<div class="detail-car">
+											<div >
 												<c:forEach items="${carsAvailble}" var="listcar">
-													<div class="row"
+													<div class="col-sm-12 detail-car"
 														id='detail-car-<c:out value="${listcar.carID}"/>'>
 														<div class="col-sm-2">
 															<img
@@ -468,13 +498,13 @@
 													</option>
 												</c:forEach>
 											</form:select>
-											<i class="fa fa-info-circle fa-lg icon-show-deital"
+											<i class="fa fa-info-circle fa-lg icon-show-deital myClickableThingy"
 												aria-hidden="true"></i>
 										</div>
 										<div class="col-sm-offset-3 col-sm-7">
-											<div class="detail-car">
+											<div >
 												<c:forEach items="${carsAvailble}" var="listcar">
-													<div class="row"
+													<div class="col-sm-12 detail-car"
 														id='detail-car-<c:out value="${listcar.carID}"/>'>
 														<div class="col-sm-2">
 															<img
@@ -605,13 +635,6 @@
 											</div>
 										</div>
 									</c:if>
-									<c:if test="${not empty message2}">
-										<div class="form-group">
-											<div style="color: red; font-size: 15px; text-align: center;">
-												<c:out value="${message2}" />
-											</div>
-										</div>
-									</c:if>
 									<div class="form-group">
 										<label class="control-label col-sm-3">Tên</label>
 										<div class="col-sm-7">
@@ -664,13 +687,13 @@
 													</option>
 												</c:forEach>
 											</form:select>
-											<i class="fa fa-info-circle fa-lg icon-show-deital"
+											<i class="fa fa-info-circle fa-lg icon-show-deital myClickableThingy"
 												aria-hidden="true"></i>
 										</div>
 										<div class="col-sm-offset-3 col-sm-7">
-											<div class="detail-car">
+											<div>
 												<c:forEach items="${carsAvailble}" var="listcar">
-													<div class="row"
+													<div class="col-sm-12 detail-car"
 														id='detail-car-<c:out value="${listcar.carID}"/>'>
 														<div class="col-sm-2">
 															<img
@@ -820,6 +843,9 @@
 								</div>
 							</c:forEach>
 						</div>
+						<a href="/show-all-notify">
+							<div class="show-all-notify">Xem tất cả</div>
+						</a>
 					</div>
 				</div>
 			</div>
