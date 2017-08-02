@@ -7,6 +7,7 @@ import org.springframework.context.MessageSource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.ui.Model;
 import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -16,6 +17,7 @@ import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.multipart.MultipartException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+import com.tlcn.dto.ModelException;
 import com.tlcn.util.GenericResponse;
 
 @ControllerAdvice
@@ -45,65 +47,95 @@ public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionH
     }
     
     @ExceptionHandler({ InvalidOldPasswordException.class })
-    public ResponseEntity<Object> handleInvalidOldPassword(final RuntimeException ex, final WebRequest request) {
+    public String handleInvalidOldPassword(final RuntimeException ex, Model model, final WebRequest request) {
         logger.error("400 Status Code", ex);
-        final GenericResponse bodyOfResponse = new GenericResponse(messages.getMessage("message.invalidOldPassword", null, request.getLocale()), "InvalidOldPassword");
-        return handleExceptionInternal(ex, bodyOfResponse, new HttpHeaders(), HttpStatus.BAD_REQUEST, request);
+    	model.addAttribute("x", new ModelException("InvalidOldPassword", 
+    			messages.getMessage("message.invalidOldPassword", null, request.getLocale()), 
+    			HttpStatus.BAD_REQUEST.value(),HttpStatus.BAD_REQUEST.getReasonPhrase()));
+    	return "messageException";
     }
     
     @ExceptionHandler({NotOwnerOfProposalException.class})
-    public ResponseEntity<Object> handleNotOwnerOfThisProposal(final RuntimeException ex, final WebRequest request){
+    public String handleNotOwnerOfThisProposal(final RuntimeException ex, Model model, final WebRequest request){
     	logger.error("403 Status Code", ex);
-    	final GenericResponse bodyOfResponse = new GenericResponse(messages.getMessage("message.notOwnerOfThisProposal", null, request.getLocale()), "NotOwnerOfThisProposal");
-    	return handleExceptionInternal(ex, bodyOfResponse, new HttpHeaders(), HttpStatus.FORBIDDEN, request);
+    	model.addAttribute("x", new ModelException("NotOwnerOfThisProposal", 
+    			messages.getMessage("message.notOwnerOfThisProposal", null, request.getLocale()), 
+    			HttpStatus.FORBIDDEN.value(),HttpStatus.FORBIDDEN.getReasonPhrase()));
+    	return "messageException";
     }
     
     @ExceptionHandler({ ProposalNotFoundException.class })
-    public ResponseEntity<Object> handleProposalNotFound(final RuntimeException ex, final WebRequest request){
+    public String handleProposalNotFound( RuntimeException ex, Model model, WebRequest request){
     	logger.error("404 Status Code", ex);
+    	model.addAttribute("x", new ModelException("ProposalNotFound", 
+    			messages.getMessage("message.proposalNotFound", null, request.getLocale()), 
+    			HttpStatus.NOT_FOUND.value(),HttpStatus.NOT_FOUND.getReasonPhrase()));
+    	return "messageException";
+    	/*logger.error("404 Status Code", ex);
     	final GenericResponse bodyOfResponse = new GenericResponse(messages.getMessage("message.proposalNotFound", null, request.getLocale()), "ProposalNotFound");
-    	return handleExceptionInternal(ex, bodyOfResponse, new HttpHeaders(), HttpStatus.NOT_FOUND, request);
+    	return handleExceptionInternal(ex, bodyOfResponse, new HttpHeaders(), HttpStatus.NOT_FOUND, request);*/
     }
     
     @ExceptionHandler({ DriverNotFoundException.class })
-    public ResponseEntity<Object> handleDriverNotFound(final RuntimeException ex, final WebRequest request){
+    public String handleDriverNotFound(final RuntimeException ex, Model model, final WebRequest request){
     	logger.error("404 Status Code", ex);
-    	final GenericResponse bodyOfResponse = new GenericResponse(messages.getMessage("message.driverNotFound", null, request.getLocale()), "DriverNotFound");
-    	return handleExceptionInternal(ex, bodyOfResponse, new HttpHeaders(), HttpStatus.NOT_FOUND, request);
+    	model.addAttribute("x", new ModelException("DriverNotFound", 
+    			messages.getMessage("message.driverNotFound", null, request.getLocale()), 
+    			HttpStatus.NOT_FOUND.value(),HttpStatus.NOT_FOUND.getReasonPhrase()));
+    	return "messageException";
     }
     
     @ExceptionHandler({ CarNotFoundException.class })
-    public ResponseEntity<Object> handleCarNotFound(final RuntimeException ex, final WebRequest request){
+    public String handleCarNotFound(final RuntimeException ex, Model model, final WebRequest request){
     	logger.error("404 Status Code", ex);
-    	final GenericResponse bodyOfResponse = new GenericResponse(messages.getMessage("message.carNotFound", null, request.getLocale()), "CarNotFound");
-    	return handleExceptionInternal(ex, bodyOfResponse, new HttpHeaders(), HttpStatus.NOT_FOUND, request);
+    	model.addAttribute("x", new ModelException("CarNotFound", 
+    			messages.getMessage("message.carNotFound", null, request.getLocale()), 
+    			HttpStatus.NOT_FOUND.value(),HttpStatus.NOT_FOUND.getReasonPhrase()));
+    	return "messageException";
     }
     
     @ExceptionHandler({ UserNotFoundException.class })
-    public ResponseEntity<Object> handleUserNotFound(final RuntimeException ex, final WebRequest request){
+    public String handleUserNotFound(final RuntimeException ex, Model model, final WebRequest request){
     	logger.error("404 Status Code", ex);
-    	final GenericResponse bodyOfResponse = new GenericResponse(messages.getMessage("message.userNotFound", null, request.getLocale()), "UserNotFound");
-    	return handleExceptionInternal(ex, bodyOfResponse, new HttpHeaders(), HttpStatus.NOT_FOUND, request);
+    	model.addAttribute("x", new ModelException("UserNotFound", 
+    			messages.getMessage("message.userNotFound", null, request.getLocale()), 
+    			HttpStatus.NOT_FOUND.value(),HttpStatus.NOT_FOUND.getReasonPhrase()));
+    	return "messageException";
+    }
+    
+    @ExceptionHandler({ ProposalHasBeenRemoveException.class })
+    public String handleProposalHasBeenRemove(final RuntimeException ex, Model model, final WebRequest request){
+    	logger.error("404 Status Code", ex);
+    	model.addAttribute("x", new ModelException("ProposalHasBeenRemove", 
+    			messages.getMessage("message.proposalHasBeenRemove", null, request.getLocale()), 
+    			HttpStatus.NOT_FOUND.value(),HttpStatus.NOT_FOUND.getReasonPhrase()));
+    	return "messageException";
     }
     
     @ExceptionHandler({ HaveProposalInTimeUseException.class })
-    public ResponseEntity<Object> handleHaveProposalInTimeUse(final RuntimeException ex, final WebRequest request){
+    public String handleHaveProposalInTimeUse(final RuntimeException ex, Model model, final WebRequest request){
     	logger.error("405 Status Code", ex);
-    	final GenericResponse bodyOfResponse = new GenericResponse(messages.getMessage("message.haveProposalInTimeUse", null, request.getLocale()), "haveProposalInTimeUse");
-    	return handleExceptionInternal(ex, bodyOfResponse, new HttpHeaders(), HttpStatus.METHOD_NOT_ALLOWED, request);
+    	model.addAttribute("x", new ModelException("HaveProposalInTimeUse", 
+    			messages.getMessage("message.haveProposalInTimeUse", null, request.getLocale()), 
+    			HttpStatus.METHOD_NOT_ALLOWED.value(),HttpStatus.METHOD_NOT_ALLOWED.getReasonPhrase()));
+    	return "messageException";
     }
     
     @ExceptionHandler({IOException.class, MultipartException.class})
-    public ResponseEntity<Object> handleErrorProcessingFile(final RuntimeException ex, final WebRequest request){
+    public String handleErrorProcessingFile(final RuntimeException ex, Model model, final WebRequest request){
     	logger.error("500 Status Code", ex);
-        final GenericResponse bodyOfResponse = new GenericResponse(messages.getMessage("message.ErrorProcessingFile", null, request.getLocale()), "ErrorProcessingFile");
-        return new ResponseEntity<Object>(bodyOfResponse, new HttpHeaders(), HttpStatus.INTERNAL_SERVER_ERROR);
+    	model.addAttribute("x", new ModelException("ErrorProcessingFile", 
+    			messages.getMessage("message.ErrorProcessingFile", null, request.getLocale()), 
+    			HttpStatus.INTERNAL_SERVER_ERROR.value(),HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase()));
+    	return "messageException";
     }
     
     @ExceptionHandler({ Exception.class })
-    public ResponseEntity<Object> handleInternal(final RuntimeException ex, final WebRequest request) {
+    public String handleInternal(final RuntimeException ex, Model model, final WebRequest request) {
         logger.error("500 Status Code", ex);
-        final GenericResponse bodyOfResponse = new GenericResponse(messages.getMessage("message.error", null, request.getLocale()), "InternalError");
-        return new ResponseEntity<Object>(bodyOfResponse, new HttpHeaders(), HttpStatus.INTERNAL_SERVER_ERROR);
+    	model.addAttribute("x", new ModelException("InternalError", 
+    			messages.getMessage("message.error", null, request.getLocale()), 
+    			HttpStatus.INTERNAL_SERVER_ERROR.value(),HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase()));
+    	return "messageException";
     }
 }

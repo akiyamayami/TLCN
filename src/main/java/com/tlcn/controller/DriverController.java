@@ -210,7 +210,7 @@ public class DriverController {
 		if(driver == null){
 			throw new DriverNotFoundException();
 		}
-		if(driver.getListcar() == null){
+		if(driver.getListcar() == null || driver.getListcar().size() == 0){
 			driverService.remove(driver);
 			return "redirect:/list-driver";
 		}

@@ -21,7 +21,8 @@ public class NotifyEventService {
 	private NotifyEventRepository notifyEventRepository;
 	@Autowired
 	private ProposalService proposalService;
-	
+	@Autowired
+	private UserService userService;
 	public NotifyEventService() {
 		super();
 	}
@@ -30,15 +31,52 @@ public class NotifyEventService {
 		List<ModelShowNotify> listnotify = new ArrayList<>();
 		List<NotifyEvent> x  =  notifyEventRepository.getListNotifyNewest(user);
 		for(NotifyEvent notify : x){
-			listnotify.add(new ModelShowNotify(notify.getNotifyOfProposal().getProposalID(),notify.getMessage(), getTime(notify.getDateUpEvent())));
+			if(notify.getNotifyOfProposal() != null)
+				listnotify.add(new ModelShowNotify(notify.getNotifyOfProposal().getProposalID(),notify.getMessage(), getTime(notify.getDateUpEvent())));
+			else
+				listnotify.add(new ModelShowNotify(-1,notify.getMessage(), getTime(notify.getDateUpEvent())));
 		}
 		return listnotify;
+	}
+	
+	public String getMoreNotify(int currentIndex, User user){
+		List<ModelShowNotify> listNotify = getListNotifyNewest(user);
+		String html = "";
+		System.out.println(currentIndex + " = " + listNotify.size());
+		if(currentIndex == listNotify.size()){
+			return html;
+		}
+		if(currentIndex + 6 >= listNotify.size()){
+			listNotify = listNotify.subList(currentIndex, listNotify.size());
+		}else{
+			listNotify = listNotify.subList(currentIndex, currentIndex + 6);
+		}
+		if(userService.checkUserhasAuthority("CONFIRM_PROPOSAL")){
+			for(ModelShowNotify notify : listNotify){
+				html += "<tr><td><div class='item-notify2'><a href='confirm-proposal-" + notify.getProposalID() + "'>"
+						+ notify.getMessage() + notify.getTime() + "</p></a></div></tr></td>";
+			}
+		}
+		else{
+			for(ModelShowNotify notify : listNotify){
+				html += "<tr><td><div class='item-notify2'><a href='change-proposal-" + notify.getProposalID() + "'>"
+						+ notify.getMessage() + notify.getTime() + "</p></a></div></tr></td>";
+			}
+		}
+		return html;
 	}
 	public void addNotifyforUser(Proposal proposal, User user, String type){
 		NotifyEvent notify = new NotifyEvent(Calendar.getInstance(),proposal, user);
 		notify.setMessage(generateMessageNotify(notify, true, type));
+		if(type.equals("CancelProposalExpired"))
+			notify.setNotifyOfProposal(null);
 		save(notify);
 	}
+	public void addNotifyToBGMAndPTBVT(Proposal proposal){
+		userService.getListBGMAndPTBVT().parallelStream()
+					.forEach(u -> addNotifyforUser(proposal,u,""));
+	}
+	
 	public String generateMessageNotify(NotifyEvent notify, boolean isUser,String type){
 		boolean isProposalConfirm = (notify.getNotifyOfProposal().getStt().getSttproposalID() == 1);
 		boolean typeProposalisCancel = (notify.getNotifyOfProposal().getType().getTypeID() == 3);

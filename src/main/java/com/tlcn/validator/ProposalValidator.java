@@ -49,11 +49,15 @@ public class ProposalValidator implements Validator{
 				errors.rejectValue("usefromdate", "WrongDate.Proposal.usedate");
 		}
 		Car car = carService.findOne(x.getCarID());
+		boolean isCarNotUsedYet = carService.findListCarAvailableInTime(startDate, endDate).parallelStream()
+				.filter(c -> c.getCarID() == car.getCarID()).findFirst().isPresent();
 		if(proposal != null){
-			boolean isCarNotUsedYet = carService.findListCarAvailableInTime(startDate, endDate).parallelStream()
-					.filter(c -> c.equals(car))
-					.findFirst().isPresent();
-			if(!isCarNotUsedYet && proposal.getCar().getCarID() != car.getCarID()){
+			if (!isCarNotUsedYet && proposal.getCar().getCarID() != car.getCarID()) {
+				errors.rejectValue("carID", "CarAlreadyUsed.Proposal.carID");
+			}
+		}
+		else{
+			if (!isCarNotUsedYet) {
 				errors.rejectValue("carID", "CarAlreadyUsed.Proposal.carID");
 			}
 		}

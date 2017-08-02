@@ -18,9 +18,10 @@ public class MyLogoutSuccessHandler implements LogoutSuccessHandler{
     public void onLogoutSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
         final HttpSession session = request.getSession();
         if (session != null) {
-            session.removeAttribute("user");
+            session.invalidate();
         }
         SecurityContextHolder.getContext().setAuthentication(null);
+        response.sendRedirect("/login?logSucc=true");
     }
 
 }

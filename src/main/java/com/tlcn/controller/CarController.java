@@ -177,7 +177,8 @@ public class CarController {
 			throw new CarNotFoundException();
 		}
 		long timeNow = Calendar.getInstance().getTime().getTime();
-		if(car.getListproposal() == null){
+		System.out.println(car.getListproposal().size());
+		if(car.getListproposal() == null || car.getListproposal().size() == 0){
 			carService.remove(car);
 		}else {
 			boolean isCarinTimeUse = car.getListproposal().parallelStream()
@@ -185,6 +186,7 @@ public class CarController {
 					.findFirst().isPresent();
 			if(!isCarinTimeUse){
 				car.setSttcar(sttCarService.findOne(3));
+				car.setDriver(null);
 				notifyEventService.SendNotifyChange(car,"RemoveCar",timeNow);
 				carService.save(car);
 			}else{

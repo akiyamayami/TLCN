@@ -5,7 +5,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
@@ -15,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -77,7 +77,9 @@ public class UserService implements UserDetailsService{
 		}
 		return false;
 	}
-	
+	public List<User> getListBGMAndPTBVT(){
+		return userRespository.getListBGMAndPTBVT();
+	}
 	public ModelUser converToShow(User user){
 		return new ModelUser(user.getEmail(), user.getName(), user.getPhone(), user.getBirthday(), user.getRoleUser().getRoleID());
 	}
@@ -158,5 +160,19 @@ public class UserService implements UserDetailsService{
 			e.getMessage();
 			return false;
 		}
+	}
+	
+	public UserDetails getUserLogin() {
+		return (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+	}
+	
+	public User GetUser(){
+		return userRespository.findOne(getUserLogin().getUsername());
+	}
+	
+	// check user has Authority
+	public boolean checkUserhasAuthority(String Authority) {
+		System.out.println(getUserLogin().getUsername());
+		return getUserLogin().getAuthorities().contains(new SimpleGrantedAuthority(Authority));
 	}
 }

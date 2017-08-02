@@ -5,6 +5,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -67,10 +68,10 @@ public class Proposal {
 	
 	private boolean expired = false;
 	
-	@OneToMany(mappedBy = "notifyOfProposal")
+	@OneToMany(mappedBy = "notifyOfProposal", cascade = CascadeType.REMOVE, orphanRemoval = true)
 	private List<NotifyEvent> listnotifyofproposal;
 	
-	@ManyToOne()
+	@ManyToOne
 	@JoinTable
 	(
 			name = "registercar",
@@ -79,10 +80,10 @@ public class Proposal {
 	)
 	private Car car;
 	
-	@OneToOne(mappedBy = "proposal", orphanRemoval=true)
+	@OneToOne(mappedBy = "proposal", cascade = CascadeType.REMOVE, orphanRemoval = true)
 	private RegisterProposal userregister;
 
-	@OneToOne(mappedBy = "proposalapproved", orphanRemoval=true)
+	@OneToOne(mappedBy = "proposalapproved", cascade = CascadeType.REMOVE, orphanRemoval = true)
 	private ConfirmProposal infoconfirm;
 	
 	

@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -16,13 +17,19 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.tlcn.dto.ModelFilterProposal;
 import com.tlcn.dto.ModelFormProposal;
+import com.tlcn.dto.ModelShowNotify;
 import com.tlcn.model.Proposal;
 import com.tlcn.report.ProposalReport;
+import com.tlcn.service.NotifyEventService;
+import com.tlcn.service.NotifyService;
 import com.tlcn.service.ProposalService;
 import com.tlcn.service.UserService;
 
@@ -35,22 +42,33 @@ public class MainController {
 	private UserService userService;
 	@Autowired
 	private ProposalService proposalService;
+	@Autowired
+	private NotifyEventService notifyEventService;
 	
 	
 	public MainController() {
 		super();
 	}
 	
-	
-	
+	@RequestMapping(value="/show-all-notify", method = RequestMethod.GET)
+	public String showAllNotify(Model model){
+		model.addAttribute("MODE", "MODE_SHOW_ALL_NOTIFY");
+		List<ModelShowNotify> listNotify = notifyEventService.getListNotifyNewest(userService.GetUser());
+		if(listNotify.size() < 15)
+			model.addAttribute("listNotify", listNotify);
+		else
+			model.addAttribute("listNotify", listNotify.subList(0, 15));
+		return "Index";
+	}
+	@RequestMapping(value="/show-all-notify", method = RequestMethod.POST)
+	@ResponseBody
+	public String getMoreNotify(Model model,@RequestParam("numberNotify") int numberNotify){
+		return notifyEventService.getMoreNotify(numberNotify, userService.GetUser());
+	}
 	
 	// page Login
 	@RequestMapping(value="/login", method = RequestMethod.GET)
 	public String Login(Principal user) throws JRException{
-		/*ProposalReport x = new ProposalReport();
-		List<ModelFormProposal> proposals = new ArrayList<>();
-		proposals.add(proposalService.genarateFormProposal(null));
-		x.generatePdfReport(proposals);*/
 		return "Login";
 	}
 	

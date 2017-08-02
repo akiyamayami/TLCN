@@ -63,21 +63,33 @@ public class CarService {
 	public List<Car> getListCarAvailable(){
 		return carRepository.getListCarAvaliable();
 	}
-	public List<Car> findListCarAvailableInTime(long TimeFrom, long timeTo){
-		List<Proposal> listProposal =  proposalService.findAll();
+	public List<Car> findListCarAvailableInTime(long timeFrom, long timeTo){
+		List<Car> listCarAvailable = carRepository.getListCarAvaliable();
 		System.out.println("start find car availble in time");
-		
-		Set<Car> x = new HashSet<>(listProposal.parallelStream()
-				.filter(p -> p.getStt().getSttproposalID() == 1 && p.getType().getTypeID() != 3 && !isBetween(TimeFrom,timeTo,getDate(p.getUsefromdate(), p.getUsefromtime()),getDate(p.getUsetodate(), p.getUsetotime())))
-				.map(Proposal::getCar)
+		Set<Car> y = new HashSet<>(listCarAvailable.parallelStream()
+				.filter(c -> c.getListproposal() == null || (c.getListproposal() != null
+					&& !c.getListproposal().parallelStream()
+						.filter(p -> p.getStt().getSttproposalID() == 1
+							&& p.getType().getTypeID() != 3
+							&& (isBetween(timeFrom,timeTo,getDate(p.getUsefromdate(), p.getUsefromtime()),getDate(p.getUsetodate(), p.getUsetotime()))
+							|| isBetween(getDate(p.getUsefromdate(), p.getUsefromtime()),getDate(p.getUsetodate(), p.getUsetotime()),timeFrom,timeTo)))
+						.findFirst().isPresent()))
 				.collect(Collectors.toList()));
-		List<Car> cars = new ArrayList<>(x);
-		for(Car c : findAll()){
-			if(c.getListproposal() ==  null || !c.getListproposal().parallelStream().filter(p -> p.getType().getTypeID() != 3 && p.getStt().getSttproposalID() == 1).findFirst().isPresent()){
-				cars.add(c);
-			}
+		System.out.println("list car avalible in time");
+		for(Car c : y ){
+			System.out.println(c.getCarID());
 		}
-
+				
+				
+		/*	
+		Set<Car> x = new HashSet<>(listProposal.parallelStream()
+				.filter(p -> p.getStt().getSttproposalID() == 1 
+					&& p.getType().getTypeID() != 3 
+					&& !isBetween(TimeFrom,timeTo,getDate(p.getUsefromdate(), p.getUsefromtime()),getDate(p.getUsetodate(), p.getUsetotime()))
+					&& p.getCar().getSttcar().getSttcarID() == 1)
+				.map(Proposal::getCar)
+				.collect(Collectors.toList()));*/
+		List<Car> cars = new ArrayList<>(y);
 		return cars;
  	}
 	
@@ -94,16 +106,30 @@ public class CarService {
 	public void remove(Car car){
 		carRepository.delete(car);
 	}
-	public List<ModelCarReady> getListCarReady(){
-		 List<Proposal> listProposal = proposalService.getListProposalReady();
-		 if(listProposal.isEmpty())
-			 return null;
-		 List<ModelCarReady> listCarReady = new ArrayList<>();
-		 for(Proposal p : listProposal){
-			 System.out.println(p.getCar().getLicenseplate());
-			 listCarReady.add(new ModelCarReady(p.getCar().getLicenseplate(),p.getName(),p.getUsefromdate(),p.getUsetodate()));
-		 }
-		 return listCarReady;
+
+	public List<ModelCarReady> getListCarReady() {
+		long timeNow = Calendar.getInstance().getTime().getTime();
+		List<ModelCarReady> listcarready = new ArrayList<>();
+		List<Car> listcaravailable = carRepository.getListCarAvaliable();
+		listcaravailable.parallelStream()
+				.filter(c -> c.getListproposal() != null && c.getListproposal().parallelStream()
+						.filter(p -> p.getStt().getSttproposalID() == 1 && p.getType().getTypeID() != 3
+								&& (getDate(p.getUsefromdate(), p.getUsefromtime()) > timeNow 
+										|| proposalService.isInTimeUse(p)))
+						.findFirst().isPresent())
+				.forEach(c -> listcarready.add(new ModelCarReady(c.getLicenseplate(),
+						c.getListproposal().parallelStream()
+								.filter(p -> p.getStt().getSttproposalID() == 1 && getDate(p.getUsefromdate(), p.getUsefromtime()) >= timeNow || proposalService.isInTimeUse(p))
+								.collect(Collectors.toList()))));
+		/*
+		 * List<Proposal> listProposal = proposalService.getListProposalReady();
+		 * if (listProposal.isEmpty()) return null; List<ModelCarReady>
+		 * listCarReady = new ArrayList<>(); for (Proposal p : listProposal) {
+		 * System.out.println(p.getCar().getLicenseplate());
+		 * listCarReady.add(new ModelCarReady(p.getCar().getLicenseplate(), p));
+		 * }
+		 */
+		return listcarready;
 	}
 	public void converAndSave(ModelCreateorChangeCar car){
 		Car x = new Car(car.getLicenseplate(),car.getType(),car.getSeats(),
@@ -212,11 +238,14 @@ public class CarService {
 	}
 	public List<ModelCarRegistered> getListCarRegistered(){
 		long timeNow = Calendar.getInstance().getTime().getTime();
-		List<Car> allCar = findAll();
+		List<Car> allCar = carRepository.getListCarAvaliable();
 		List<ModelCarRegistered> listcarRegister = new ArrayList<>();
 		allCar.parallelStream()
-			  .filter(c -> c.getListproposal().parallelStream()
-												.filter(p -> p.getStt().getSttproposalID() == 0 && getDate(p.getUsefromdate(),p.getUsefromtime()) > timeNow)
+			  .filter(c -> c.getListproposal() != null
+			  				&& c.getListproposal().parallelStream()
+												.filter(p -> p.getStt().getSttproposalID() == 0 
+													&& p.getType().getTypeID() != 3
+													&& getDate(p.getUsefromdate(),p.getUsefromtime()) > timeNow)
 												.findFirst().isPresent())
 			  .forEach(c -> listcarRegister.add(new ModelCarRegistered(c.getLicenseplate(), c.getListproposal()
 					  .parallelStream().filter(p -> getDate(p.getUsefromdate(), p.getUsefromtime()) >= timeNow)

@@ -35,8 +35,8 @@ public class ProposalScheduler {
 			proposal.setStt(sttProposalService.findOne(1));
 			proposal.setType(typeProposalService.findOne(3));
 			proposal.setExpired(true);
-			proposalService.save(proposal);
 			notifyEventService.addNotifyforUser(proposal, proposal.getUserregister().getUser(), "CancelProposalExpired");
+			proposalService.remove(proposal);
 		}
 	}
 }

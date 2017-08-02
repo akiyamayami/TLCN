@@ -32,7 +32,7 @@ public class Car {
 			@JoinColumn(name = "email") })
 	private Driver driver;
 
-	@OneToMany(fetch = FetchType.EAGER, mappedBy = "car", cascade = CascadeType.ALL)
+	@OneToMany(fetch = FetchType.EAGER, mappedBy = "car")
 	private List<Proposal> listproposal;
 
 	public Car() {
