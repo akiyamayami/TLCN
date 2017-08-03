@@ -10,14 +10,13 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>Home</title>
-<link href="static/css/bootstrap.min.css" rel="stylesheet" />
+<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" />
 <link href="static/css/main.css" rel="stylesheet" />
-<link href="static/css/font-awesome.min.css" rel="stylesheet" />
+<link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" />
 <link href="static/css/bootstrap-timepicker.min.css" rel="stylesheet" />
 <link href="static/css/bootstrap-datepicker3.min.css" rel="stylesheet" />
 
-<script type="text/javascript" src="static/js/jquery.min.js"></script>
-
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 </head>
 <body>
 	<t:header>
@@ -849,7 +848,7 @@
 	
 	<script type="text/javascript" src="static/js/bootstrap-datepicker.min.js"></script>
 	<script type="text/javascript" src="static/js/bootstrap-timepicker.min.js"></script>
-	<script type="text/javascript" src="static/js/bootstrap.min.js"></script>
+	
 	
 	<script type="text/javascript" src="static/js/jquery.validate.min.js"></script>
 	<script type="text/javascript" src="static/js/validate.js"></script>
