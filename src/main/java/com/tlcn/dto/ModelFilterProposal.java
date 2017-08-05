@@ -12,8 +12,8 @@ public class ModelFilterProposal {
 	@DateTimeFormat(pattern = "dd-MM-yyyy")
 	private Date datecreate;
 	private String type;
-	private int stt;
-	public ModelFilterProposal(Date datecreate, String type, int stt) {
+	private String stt;
+	public ModelFilterProposal(Date datecreate, String type, String stt) {
 		super();
 		this.datecreate = datecreate;
 		this.type = type;
@@ -34,10 +34,10 @@ public class ModelFilterProposal {
 	public void setType(String type) {
 		this.type = type;
 	}
-	public int getStt() {
+	public String getStt() {
 		return stt;
 	}
-	public void setStt(int stt) {
+	public void setStt(String stt) {
 		this.stt = stt;
 	}
 	

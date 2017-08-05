@@ -47,6 +47,9 @@ public class ProposalValidator implements Validator{
 			boolean endDateBiggerThanStartDate = (endDate > startDate ) ? true :false;
 			if(!startDateBiggerThanToday || !endDateBiggerThanStartDate)
 				errors.rejectValue("usefromdate", "WrongDate.Proposal.usedate");
+			if(x.getPickuptime() != null)
+				if(x.getPickuptime().getTime() > x.getUsefromtime().getTime())
+					errors.rejectValue("pickuptime", "greaterThanTimeUse.Proposal.pickuptime");
 		}
 		Car car = carService.findOne(x.getCarID());
 		boolean isCarNotUsedYet = carService.findListCarAvailableInTime(startDate, endDate).parallelStream()
@@ -86,6 +89,7 @@ public class ProposalValidator implements Validator{
 		ValidationUtils.rejectIfEmptyOrWhitespace(errors, "usetodate", "NotEmpty.Proposal.usefromdate");
 		ValidationUtils.rejectIfEmptyOrWhitespace(errors, "destination", "NotEmpty.Proposal.destination");
 		ValidationUtils.rejectIfEmptyOrWhitespace(errors, "pickuplocation", "NotEmpty.Proposal.pickuplocation");
+		ValidationUtils.rejectIfEmptyOrWhitespace(errors, "pickuptime", "NotEmpty.Proposal.pickuptime");
 	}
 
 }

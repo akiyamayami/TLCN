@@ -15,18 +15,24 @@ import com.tlcn.model.User;
 
 public class SendEmail implements Runnable{
 	private List<User> listuser;
+	private String message;
+	private String header;
 	
 	public SendEmail() {
 		super();
 	}
-	public SendEmail(List<User> listuser) {
+	
+	public SendEmail(List<User> listuser, String message, String header) {
 		super();
 		this.listuser = listuser;
+		this.message = message;
+		this.header = header;
 	}
+
 	@Override
 	public void run() {
 		for(User user : listuser) {
-			sendmail(user.getEmail(),"Co 1 su kien xay ra","Proposal Created");
+			sendmail(user.getEmail(),message,header);
 		}
 	}
 	public void sendmail(String To,String Text, String Header)

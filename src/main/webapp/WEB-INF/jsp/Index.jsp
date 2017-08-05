@@ -13,10 +13,11 @@
 <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" />
 <link href="static/css/main.css" rel="stylesheet" />
 <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" />
-<link href="static/css/bootstrap-timepicker.min.css" rel="stylesheet" />
-<link href="static/css/bootstrap-datepicker3.min.css" rel="stylesheet" />
+<link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-timepicker/0.5.2/css/bootstrap-timepicker.min.css" rel="stylesheet" />
+<link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.7.1/css/bootstrap-datepicker3.min.css" rel="stylesheet" />
 
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script type="text/javascript" src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 </head>
 <body>
 	<t:header>
@@ -134,10 +135,8 @@
 														<a href="/confirm-proposal-${list.proposalID}">
 															<i class="fa fa-pencil" aria-hidden="true"></i>
 														</a>
-														
 													</th>
 												</c:if>
-
 											</tr>
 										</c:forEach>
 									</tbody>
@@ -145,24 +144,59 @@
 								<div class="row">
 									<div class="col-sm-12">
 										<nav class="pull-right">
-										<ul class="pagination justify-content-end">
-											<c:choose>
-												<c:when test="${pagination.current != 1}">
-													<li class="page-item"><a class="page-link"
-													href="?page=${pagination.pre}" tabindex="-1">Previous</a></li>
-												</c:when>
-												<c:otherwise>
-													<li class="page-item disabled"><a class="page-link"
-													href="#" tabindex="-1">Previous</a></li>
-												</c:otherwise>
-											</c:choose>
-											
-											<li class="page-item"><a class="page-link" href="#">1</a></li>
-											<li class="page-item"><a class="page-link" href="#">2</a></li>
-											<li class="page-item"><a class="page-link" href="#">3</a></li>
-											<li class="page-item"><a class="page-link" href="#">Next</a>
-											</li>
-										</ul>
+											<ul class="pagination justify-content-end">
+												<c:choose>
+													<c:when test="${pageNumber != 1}">
+														<li class="page-item"><a class="page-link"
+														href="?page=${pageNumber - 1}" tabindex="-1">Previous</a></li>
+													</c:when>
+													<c:otherwise>
+														<li class="page-item disabled"><a class="page-link"
+														href="#" tabindex="-1">Previous</a></li>
+													</c:otherwise>
+												</c:choose>
+												<c:choose>
+													<c:when test="${pageNumber == 1}">
+														<c:forEach var="i" begin="${pageNumber}" 
+															end="${(numberOfPages < 3)? numberOfPages : 3 }" >
+															<c:choose>
+																<c:when test="${i == pageNumber}">
+																	<li class="page-item active"><a class="page-link myClickableThingy">${i}</a></li>
+																</c:when>
+																<c:otherwise>
+																	<li class="page-item"><a class="page-link" href="?page=${i}">${i}</a></li>
+																</c:otherwise>
+															</c:choose>
+														</c:forEach>
+													</c:when>
+													<c:when test="${pageNumber ==  numberOfPages}">
+														<c:forEach var="i" begin="${(numberOfPages < 3)? 1 : numberOfPages - 3}" 
+															end="${pageNumber}" >
+															<c:choose>
+																<c:when test="${i == pageNumber}">
+																	<li class="page-item active"><a class="page-link myClickableThingy">${i}</a></li>
+																</c:when>
+																<c:otherwise>
+																	<li class="page-item"><a class="page-link" href="?page=${i}">${i}</a></li>
+																</c:otherwise>
+															</c:choose>
+														</c:forEach>
+													</c:when>
+													<c:otherwise>
+														<li class="page-item"><a class="page-link" href="?page=${pageNumber - 1 }">${pageNumber - 1 }</a></li>
+														<li class="page-item active"><a class="page-link myClickableThingy">${pageNumber}</a></li>
+														<li class="page-item"><a class="page-link" href="?page=${pageNumber + 1 }">${pageNumber + 1 }</a></li>
+													</c:otherwise>
+												</c:choose>
+												<c:choose>
+													<c:when test="${pageNumber ==  numberOfPages || numberOfPages == 1}">
+														<li class="page-item disabled"><a class="page-link" href="#">Next</a></li>
+													</c:when>
+													<c:otherwise>
+														<li class="page-item"><a class="page-link" href="?page=${pageNumber + 1 }">Next</a></li>
+													</c:otherwise>
+												</c:choose>
+											</ul>
 										</nav>
 									</div>
 
@@ -846,11 +880,11 @@
 	</div>
 	<t:footer></t:footer>
 	
-	<script type="text/javascript" src="static/js/bootstrap-datepicker.min.js"></script>
-	<script type="text/javascript" src="static/js/bootstrap-timepicker.min.js"></script>
+	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.7.1/js/bootstrap-datepicker.min.js"></script>
+	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-timepicker/0.5.2/js/bootstrap-timepicker.min.js"></script>
 	
 	
-	<script type="text/javascript" src="static/js/jquery.validate.min.js"></script>
+	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.17.0/jquery.validate.min.js"></script>
 	<script type="text/javascript" src="static/js/validate.js"></script>
 	<script type="text/javascript" src="static/js/main.js"></script>
 </body>

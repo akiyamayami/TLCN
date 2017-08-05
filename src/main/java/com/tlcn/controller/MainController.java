@@ -1,39 +1,27 @@
 package com.tlcn.controller;
 
 
+import java.io.IOException;
 import java.security.Principal;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
+
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
-import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.tlcn.dto.ModelFilterProposal;
-import com.tlcn.dto.ModelFormProposal;
 import com.tlcn.dto.ModelShowNotify;
-import com.tlcn.model.Proposal;
-import com.tlcn.report.ProposalReport;
 import com.tlcn.service.NotifyEventService;
-import com.tlcn.service.NotifyService;
 import com.tlcn.service.ProposalService;
 import com.tlcn.service.UserService;
 
 import net.sf.jasperreports.engine.JRException;
+
 
 @Controller
 @Component
@@ -49,7 +37,6 @@ public class MainController {
 	public MainController() {
 		super();
 	}
-	
 	@RequestMapping(value="/show-all-notify", method = RequestMethod.GET)
 	public String showAllNotify(Model model){
 		model.addAttribute("MODE", "MODE_SHOW_ALL_NOTIFY");
@@ -68,7 +55,7 @@ public class MainController {
 	
 	// page Login
 	@RequestMapping(value="/login", method = RequestMethod.GET)
-	public String Login(Principal user) throws JRException{
+	public String Login(Principal user){
 		return "Login";
 	}
 	

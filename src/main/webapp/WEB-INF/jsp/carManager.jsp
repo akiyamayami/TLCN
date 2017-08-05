@@ -10,11 +10,12 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>Car Manager</title>
-<link href="static/css/bootstrap.min.css" rel="stylesheet" />
+<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet"/>
 <link href="static/css/main.css" rel="stylesheet" />
-<link href="static/css/font-awesome.min.css" rel="stylesheet" />
+<link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" />
 
-
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script type="text/javascript" src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 </head>
 <body>
 <t:header>
@@ -430,13 +431,14 @@
 	</div>
 	</div>
 	<t:footer></t:footer>
-	<script type="text/javascript" src="static/js/jquery.min.js"></script>
-	<script type="text/javascript" src="static/js/bootstrap-datepicker.min.js"></script>
-	<script type="text/javascript" src="static/js/bootstrap-timepicker.min.js"></script>
+	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.7.1/js/bootstrap-datepicker.min.js"></script>
+	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-timepicker/0.5.2/js/bootstrap-timepicker.min.js"></script>
+	
+	
+	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.17.0/jquery.validate.min.js"></script>
+	
 	<script type="text/javascript" src="static/js/main.js"></script>
 	<script type="text/javascript" src="static/js/caranddriver.js"></script>
 	<script type="text/javascript" src="static/js/validate.js"></script>
-	<script type="text/javascript" src="static/js/jquery.validate.min.js"></script>
-	<script type="text/javascript" src="static/js/bootstrap.min.js"></script>
 </body>
 </html>

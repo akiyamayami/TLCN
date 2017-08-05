@@ -1,5 +1,8 @@
 package com.tlcn.validator;
 
+import java.util.Calendar;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 import org.springframework.validation.ValidationUtils;
@@ -8,10 +11,13 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.tlcn.dto.ModelCreateorChangeDriver;
 import com.tlcn.model.Driver;
+import com.tlcn.service.UserService;
 
 @Component
 public class DriverValidator implements Validator{
 
+	@Autowired
+	private UserService userService;
 	@Override
 	public boolean supports(Class<?> clazz) {
 		// TODO Auto-generated method stub
@@ -29,6 +35,14 @@ public class DriverValidator implements Validator{
 		ValidationUtils.rejectIfEmptyOrWhitespace(errors, "experience", "NotEmpty.Driver.experience");
 		ValidationUtils.rejectIfEmptyOrWhitespace(errors, "license", "NotEmpty.Driver.license");
 		ValidationUtils.rejectIfEmptyOrWhitespace(errors, "address", "NotEmpty.Driver.address");
+		if(driver.getBirthday() != null){
+			if(Calendar.getInstance().getTime().getTime() < driver.getBirthday().getTime())
+				ValidationUtils.rejectIfEmptyOrWhitespace(errors, "birthday", "greaterThanToDay.Driver.birthday");
+		}
+		boolean userExist = userService.findAll().parallelStream().filter(u -> u.getEmail().equals(driver.getEmail())).findFirst().isPresent();
+		if(userExist){
+			errors.rejectValue("email", "EmailExist.User.email");
+		}
 		MultipartFile file = driver.getFile();
 		if(file != null)
 		{

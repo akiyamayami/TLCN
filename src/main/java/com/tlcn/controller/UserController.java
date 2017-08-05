@@ -38,12 +38,14 @@ import com.tlcn.error.InvalidOldPasswordException;
 import com.tlcn.error.UserNotFoundException;
 import com.tlcn.model.Role;
 import com.tlcn.model.User;
+import com.tlcn.runnable.SendEmail;
 import com.tlcn.service.NotifyEventService;
 import com.tlcn.service.NotifyService;
 import com.tlcn.service.RoleService;
 import com.tlcn.service.UserSecurityService;
 import com.tlcn.service.UserService;
 import com.tlcn.util.GenericResponse;
+import com.tlcn.validator.EditProfileValidator;
 import com.tlcn.validator.ModelPasswordValidator;
 import com.tlcn.validator.ModelUserValidator;
 
@@ -56,8 +58,6 @@ public class UserController {
 	@Autowired
 	private MessageSource messages;
 	 
-	@Autowired
-    private JavaMailSender mailSender;
 	
 	@Autowired
     private UserSecurityService userSecurityService;
@@ -65,8 +65,6 @@ public class UserController {
 	@Autowired
 	private NotifyEventService notifyEventService;
 	
-	@Autowired
-    private Environment env;
 	
 	@Autowired
 	private RoleService roleService;
@@ -80,6 +78,8 @@ public class UserController {
 	@Autowired
 	private NotifyService notifyService;
 	
+	@Autowired 
+	private EditProfileValidator editProfileValidator;
 	public UserController() {
 		super();
 	}
@@ -109,7 +109,8 @@ public class UserController {
 	@RequestMapping(value="/edit-profile", method = RequestMethod.POST)
 	public String EditProfilePOST(Model model,@Valid @ModelAttribute("User") ModelUser modelUser,
 			BindingResult result, HttpServletRequest request) {
-		modelUserValidator.validate(modelUser, result);
+		System.out.println("email user validate is" + modelUser.getEmail());
+		editProfileValidator.validate(modelUser, result);
 		User user = userService.findOne(getUser().getEmail());
 		if(result.hasErrors()){
 			model.addAttribute("MODE", "MODE_EDIT_PROFILE");
@@ -262,9 +263,13 @@ public class UserController {
 		}
 		String token = UUID.randomUUID().toString();
 		userService.createPasswordResetTokenForUser(user, token);
-		SimpleMailMessage message = notifyService.constructResetTokenEmail(request, 
+		String message = notifyService.genarateMessageResetTokenEmail(request, 
 		request.getLocale(), token, user);
-		notifyService.SendMail(message);
+		List<User> listuser = new ArrayList<>();
+		listuser.add(user);
+		Thread nThread = new Thread(new SendEmail(listuser,message,"Reset Password"));
+		nThread.start();
+//		notifyService.SendMailSTMP(listuser, message, "Reser Password");
 		/*mailSender.send(constructResetTokenEmail(getAppUrl(request), 
 		request.getLocale(), token, user));*/
 		model.addAttribute("messages", messages.getMessage("message.resetPasswordEmail", null, Locale.ENGLISH));

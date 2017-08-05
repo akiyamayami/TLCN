@@ -99,7 +99,7 @@ public class DriverController {
 			System.out.println(listCarFree.size());
 			if(driver.getListcar() != null){
 				for(Car c : driver.getListcar()){
-					if(listCarFree.parallelStream().filter(cf -> cf.equals(c)).findFirst().isPresent()){
+					if(c.getCarID() != 0  && listCarFree.parallelStream().filter(cf -> cf.equals(c)).findFirst().isPresent()){
 						listCarFree.remove(c);
 					}
 				}

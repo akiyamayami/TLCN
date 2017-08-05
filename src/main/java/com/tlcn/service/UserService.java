@@ -29,6 +29,7 @@ import com.tlcn.model.PasswordResetToken;
 import com.tlcn.model.Right;
 import com.tlcn.model.Role;
 import com.tlcn.model.User;
+import com.tlcn.runnable.SendEmail;
 
 @Service
 public class UserService implements UserDetailsService{
@@ -67,6 +68,7 @@ public class UserService implements UserDetailsService{
         return getGrantedAuthorities(getPrivileges(roles));
     }
 	public void remove(User user){
+		passwordResetTokenRespository.deleteAllTokenOfUser(user);
 		userRespository.delete(user);
 	}
 	public boolean checkPasswodAndUpdate(User user, String newpassword){
@@ -86,8 +88,12 @@ public class UserService implements UserDetailsService{
 	
 	public void convertAndSave(ModelUser model, HttpServletRequest request){
 		User user = new User(model.getEmail(), passworndEcoder.encode("S1mple@password"), model.getName(), model.getPhone(), model.getBirthday(), roleService.findOne(model.getRoleID()));
-		SimpleMailMessage message = notifyService.constructNewpassword(request, request.getLocale(), user, "S1mple@password");
-		notifyService.SendMail(message);
+		String message = notifyService.genaratepassword(request, request.getLocale(), "S1mple@password", user);
+		List<User> listuser = new ArrayList<>();
+		listuser.add(user);
+		Thread nThread = new Thread(new SendEmail(listuser,message,"New Password"));
+		nThread.start();
+//		notifyService.SendMailSTMP(listuser,message,"New Password");
 		userRespository.save(user);
 	}
 	private final List<String> getPrivileges(final Collection<Role> roles) {

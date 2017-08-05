@@ -218,13 +218,21 @@ public class ProposalService {
 	}
 	
 	private List<Proposal> getListFilter(ModelFilterProposal filter, User user){
+		System.out.println("stt" + filter.getStt() + ", " + filter.getType() + "," + filter.getDatecreate()  );
 		Date datecreate = filter.getDatecreate();
-		int typeNumber = Integer.parseInt(filter.getType());
+		int typeNumber = 0;
+		int sttID = -1;
+		if(filter.getStt() != null){
+			sttID = Integer.parseInt(filter.getStt());
+		}
+		if(filter.getType() != null && filter.getType() != "")
+			typeNumber = Integer.parseInt(filter.getType());
 		TypeProposal type = null;
 		if(typeNumber != 0){
 			type = typeProposalService.findOne(typeNumber);
 		}
-		SttProposal stt = sttProposalService.findOne(filter.getStt());
+		SttProposal stt = sttProposalService.findOne(sttID);
+		System.out.println("stt = "+ stt);
 		System.out.println("test " + datecreate == null && stt == null && type == null);
 		if(user == null){
 			if(datecreate == null && stt == null && type == null)
@@ -246,7 +254,10 @@ public class ProposalService {
 		}
 		else{
 			if(datecreate == null && stt == null && type == null)
+			{
+				System.out.println("find list proposal of user");
 				return findProposalofuser(user);
+			}
 			if(datecreate != null && stt != null && type != null)
 				return proposalRepository.LPF_all_of_user(datecreate, type, stt, user);
 			if(datecreate != null && stt == null && type != null)
@@ -353,9 +364,12 @@ public class ProposalService {
 	public boolean isProposalExpired(Proposal proposal){
 		Calendar now = Calendar.getInstance();
 		System.out.println(proposal.getUsetodate() +  "+ now = " + now.getTime());
+		
 		long timeFrom = getDate(proposal.getUsefromdate(),proposal.getUsefromtime());
 		long timeTo = getDate(proposal.getUsetodate(),proposal.getUsetotime());
 		long timeNow = now.getTime().getTime();
+		System.out.println(timeTo < timeNow);
+		System.out.println(timeFrom < timeNow);
 		if(proposal.getStt().getSttproposalID() == 1){
 			if(timeTo < timeNow)
 				return true;

@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import com.tlcn.dao.PasswordResetTokenRespository;
 import com.tlcn.model.NotifyEvent;
 import com.tlcn.model.Proposal;
 import com.tlcn.service.NotifyEventService;
@@ -23,7 +24,8 @@ public class ProposalScheduler {
 	private SttProposalService sttProposalService;
 	@Autowired
 	private TypeProposalService typeProposalService;
-	
+	@Autowired
+	private PasswordResetTokenRespository passwordResetTokenRespository;
 	//Check proposal expired and not confirm everyday in 00:00:00 and cancel it and notify to user
 	//format cron = (second, minute, hour, day of month, month, day(s) of week)
 	@Scheduled(cron = "0 0 0 * * *", zone="Asia/Saigon")
@@ -38,5 +40,6 @@ public class ProposalScheduler {
 			notifyEventService.addNotifyforUser(proposal, proposal.getUserregister().getUser(), "CancelProposalExpired");
 			proposalService.remove(proposal);
 		}
+		passwordResetTokenRespository.deleteAllExpiredSince(Calendar.getInstance().getTime());
 	}
 }

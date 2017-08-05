@@ -108,18 +108,20 @@ public class CarService {
 	}
 
 	public List<ModelCarReady> getListCarReady() {
+		
 		long timeNow = Calendar.getInstance().getTime().getTime();
 		List<ModelCarReady> listcarready = new ArrayList<>();
-		List<Car> listcaravailable = carRepository.getListCarAvaliable();
+		List<Car> listcaravailable = findAll();
 		listcaravailable.parallelStream()
 				.filter(c -> c.getListproposal() != null && c.getListproposal().parallelStream()
 						.filter(p -> p.getStt().getSttproposalID() == 1 && p.getType().getTypeID() != 3
-								&& (getDate(p.getUsefromdate(), p.getUsefromtime()) > timeNow 
+								&& (getDate(p.getUsefromdate(), p.getUsefromtime()) >= timeNow 
 										|| proposalService.isInTimeUse(p)))
 						.findFirst().isPresent())
 				.forEach(c -> listcarready.add(new ModelCarReady(c.getLicenseplate(),
 						c.getListproposal().parallelStream()
-								.filter(p -> p.getStt().getSttproposalID() == 1 && getDate(p.getUsefromdate(), p.getUsefromtime()) >= timeNow || proposalService.isInTimeUse(p))
+								.filter(p -> p.getStt().getSttproposalID() == 1 && p.getType().getTypeID() != 3 
+								&& (getDate(p.getUsefromdate(), p.getUsefromtime()) >= timeNow || proposalService.isInTimeUse(p)))
 								.collect(Collectors.toList()))));
 		/*
 		 * List<Proposal> listProposal = proposalService.getListProposalReady();
@@ -254,7 +256,14 @@ public class CarService {
 	}
 
 	public List<Car> getListCarNotRegistered(){
-		return carRepository.getListCarNotRegistered();
+		long timeNow = Calendar.getInstance().getTime().getTime();
+		List<Car> listCarNotRegistered = findAll();
+		listCarNotRegistered = listCarNotRegistered.parallelStream().filter(c -> c.getListproposal() == null 
+				|| !c.getListproposal().parallelStream().filter(p -> p.getType().getTypeID() != 3 
+					&& (getDate(p.getUsefromdate(), p.getUsefromtime()) >= timeNow 
+							|| proposalService.isInTimeUse(p))).findFirst().isPresent())
+				.collect(Collectors.toList());
+		return listCarNotRegistered;
 	}
 	
 	public Long getDate(Date date, Date time){

@@ -13,6 +13,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 
+import org.apache.commons.lang.math.NumberUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -28,6 +29,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartException;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.mysql.fabric.xmlrpc.base.Struct;
 import com.tlcn.dto.ModelCalendar;
 import com.tlcn.dto.ModelCreateorChangeProposal;
 import com.tlcn.dto.ModelFilterProposal;
@@ -77,44 +79,115 @@ public class ProposalController {
 	@Autowired
 	private ProposalValidator proposaValidator;
 	
-	
 	public ProposalController() {
 		super();
 	}
-	public void showListProposal(Model model,String month,String year){
+	public List<Proposal> getListProposalOfPage(int pageNumber, List<Proposal> listProposal, int numberOfPages){
+		System.out.println("3");
+		List<Proposal> list = listProposal;
+		if(pageNumber == 1)
+		{
+			System.out.println("4");
+			if(list.size() < 15){
+				list = list.subList(0, list.size());
+				System.out.println("5");
+			}
+			else
+			{
+				list = list.subList(0, 15);
+				System.out.println("6");
+			}
+		}
+		else{
+			if(pageNumber > numberOfPages + 1){
+				System.out.println("7");
+				return null;
+			}
+			if(pageNumber * 15 > list.size()){
+				list = list.subList((pageNumber - 1) * 15 , list.size());
+				System.out.println("8");
+			}
+			else{
+				list = list.subList(pageNumber * 15 , (pageNumber + 1) * 15);
+				System.out.println("9");
+			}
+		}
+		
+		return list;
+	}
+	public void showListProposal(Model model,String month,String year, String pageNumber,ModelFilterProposal filterproposal){
+		List<Proposal> listProposal = null;
+		List<Proposal> listShow = null;
+		int pageNum = 1;
+		if(pageNumber != null || pageNumber != ""){
+			if(NumberUtils.isNumber(pageNumber))
+				pageNum = Integer.parseInt(pageNumber);
+		}
+		System.out.println("get number page");
+		System.out.println(pageNum);
+		int numberOfPages = 0;
 		if (userService.checkUserhasAuthority("CHANGE_PROPOSAL")) {
 			// access to mode find-my-proposal for normal user
 			model.addAttribute("MODE", "MODE_FIND_MY_PROPOSAL");
-			model.addAttribute("listProposal",
-			proposalService.findProposalofuser(userService.GetUser()));
+			listProposal = proposalService.listProposalFind(filterproposal, userService.GetUser());
+			numberOfPages = listProposal.size() / 15 ;
+			if(listProposal.size() % 15 != 0)
+				numberOfPages++;
+			listShow = getListProposalOfPage(pageNum, listProposal, numberOfPages);
+			if(listShow == null)
+			{
+				if(listProposal.size() < 15)
+					listProposal = listProposal.subList(0, listProposal.size());
+				else
+					listProposal = listProposal.subList(0, 15);
+			}
+			else{
+				listProposal = listShow;
+				model.addAttribute("pageNumber", pageNum);
+			}
+			model.addAttribute("listProposal",listProposal);
+			model.addAttribute("numberOfPages", numberOfPages);
 		} else {
+			System.out.println("1");
 			// mode find-all-proposal for P.TBVT and BGM
 			model.addAttribute("MODE", "MODE_FIND_PROPOSAL");
-			model.addAttribute("listProposal", proposalService.findAll());
+			listProposal = proposalService.listProposalFind(filterproposal,null);
+			numberOfPages = listProposal.size() / 15 ;
+			if(listProposal.size() % 15 != 0)
+				numberOfPages++;
+			listShow = getListProposalOfPage(pageNum, listProposal, numberOfPages);
+			System.out.println("2");
+			if(listShow == null)
+			{
+				System.out.println("10");
+				if(listProposal.size() < 15)
+					listProposal = listProposal.subList(0, listProposal.size());
+				else
+					listProposal = listProposal.subList(0, 15);
+			}
+			else{
+				System.out.println("11");
+				listProposal = listShow;
+				model.addAttribute("pageNumber", pageNum);
+			}
+			model.addAttribute("listProposal",listProposal);
+			model.addAttribute("numberOfPages", numberOfPages);
 		}
 		showCalendarAndNotify(model,month,year);
-		model.addAttribute("filter-model", new ModelFilterProposal(null,"0",-1));
+		model.addAttribute("filter-model", new ModelFilterProposal());
 	}
 	// page find-proposal
 	@RequestMapping(value = "/", method = RequestMethod.GET)
-	public String findpropsal(Model model, @RequestParam(value = "m", required=false) String month, @RequestParam(value = "y", required=false) String year) {
-		showListProposal(model,month,year);
+	public String findpropsal(Model model,@RequestParam(value = "page" , required=false) String pageNumber,
+			@ModelAttribute("filter-model") ModelFilterProposal filterproposal) {
+		System.out.println(pageNumber);
+		showListProposal(model,null,null,pageNumber,filterproposal);
 		return "Index";
 	}
 
 	@RequestMapping(value = "/", method = RequestMethod.POST)
 	public String filterproposal(Model model, @ModelAttribute("filter-model") ModelFilterProposal filterproposal) {
-		if (userService.checkUserhasAuthority("CHANGE_PROPOSAL")) {
-			// access to mode find-my-proposal for normal user
-			model.addAttribute("MODE", "MODE_FIND_MY_PROPOSAL");
-			model.addAttribute("listProposal",
-					proposalService.listProposalFind(filterproposal, userService.GetUser()));
-		} else {
-			// mode find-all-proposal for P.TBVT and BGM
-			System.out.println("BGM or PVT");
-			model.addAttribute("MODE", "MODE_FIND_PROPOSAL");
-			model.addAttribute("listProposal", proposalService.listProposalFind(filterproposal,null));
-		}
+		showListProposal(model,null,null,null,filterproposal);
 		showCalendarAndNotify(model,null,null);
 		System.out.println("date = " + filterproposal.getDatecreate() + "type = " + filterproposal.getType() + "stt = " + filterproposal.getStt());
 		model.addAttribute("filter-model", filterproposal);
@@ -297,10 +370,6 @@ public class ProposalController {
 		model.addAttribute("calendar", calendarService.createCalendar(month,year));
 	}
 	
-	public void sendNotify(List<User> listuser){
-		Thread nThread = new Thread(new SendEmail(listuser));
-		nThread.start();
-	}
 	
 	public void showCarWhenChangeProposal(ModelCreateorChangeProposal modelShow, Model model, Proposal proposal){
 		System.out.println("Show car");
