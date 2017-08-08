@@ -24,6 +24,7 @@ public interface PasswordResetTokenRespository extends CrudRepository<PasswordRe
     @Query("delete from passwordresettoken t where t.expiryDate <= ?1")
     void deleteAllExpiredSince(Date now);
     
+    @Modifying
     @Query("delete from passwordresettoken t where t.user = ?1")
     public void deleteAllTokenOfUser(User user);
 }
