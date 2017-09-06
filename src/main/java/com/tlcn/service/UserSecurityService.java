@@ -17,15 +17,12 @@ import com.tlcn.model.PasswordResetToken;
 import com.tlcn.model.User;
 
 @Service
-@Transactional
 public class UserSecurityService {
 	@Autowired
     private PasswordResetTokenRespository passwordResetTokenRespository;
 
     public String validatePasswordResetToken(String email, String token) {
         PasswordResetToken passToken = passwordResetTokenRespository.findByToken(token);
-        System.out.println(passToken.getToken() + " email là : " + passToken.getUser().getEmail());
-        System.out.println("validate");
         if ((passToken == null) || (!passToken.getUser().getEmail().equals(email))) {
         	 System.out.println("invalidToken");
             return "invalidToken";
@@ -40,7 +37,8 @@ public class UserSecurityService {
         }
         System.out.println("Give autho");
         User user = passToken.getUser();
-        Authentication auth = new UsernamePasswordAuthenticationToken(user, null, Arrays.asList(new SimpleGrantedAuthority("CHANGE_PASSWORD")));
+        Authentication auth = new UsernamePasswordAuthenticationToken(user, 
+        		null, Arrays.asList(new SimpleGrantedAuthority("CHANGE_PASSWORD")));
         SecurityContextHolder.getContext()
             .setAuthentication(auth);
         return null;

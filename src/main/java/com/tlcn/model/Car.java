@@ -28,8 +28,12 @@ public class Car {
 	private SttCar sttcar;
 
 	@ManyToOne(fetch = FetchType.EAGER)
-	@JoinTable(name = "driver_car", joinColumns = { @JoinColumn(name = "carID", unique = true) }, inverseJoinColumns = {
-			@JoinColumn(name = "email") })
+	@JoinTable
+	(
+			name = "driver_car", 
+			joinColumns = { @JoinColumn(name = "carID", unique = true) }, 
+			inverseJoinColumns = {@JoinColumn(name = "email") }
+	)
 	private Driver driver;
 
 	@OneToMany(fetch = FetchType.EAGER, mappedBy = "car")

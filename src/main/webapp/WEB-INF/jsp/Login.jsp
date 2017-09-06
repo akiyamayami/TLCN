@@ -92,7 +92,7 @@ function validate() {
             	Click <a href="/">here</a> to back Home.
             </sec:authorize>
         </div>
-        <a href="/foget-password">Foget password</a>
+        <a href="/foget-password">Forget password</a>
     </div>
 </div>
 <t:footer></t:footer>

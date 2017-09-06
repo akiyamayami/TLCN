@@ -263,9 +263,6 @@ public class UserController {
 		listuser.add(user);
 		Thread nThread = new Thread(new SendEmail(listuser,message,"Reset Password"));
 		nThread.start();
-//		notifyService.SendMailSTMP(listuser, message, "Reser Password");
-		/*mailSender.send(constructResetTokenEmail(getAppUrl(request), 
-		request.getLocale(), token, user));*/
 		model.addAttribute("messages", messages.getMessage("message.resetPasswordEmail", null, Locale.ENGLISH));
 		return "Login";
 	}
@@ -279,10 +276,10 @@ public class UserController {
 		String result = userSecurityService.validatePasswordResetToken(email, token);
 		System.out.println(result);
 		if (result != null) {
-            model.addAttribute("message", messages.getMessage("auth.message." + result, null, Locale.ENGLISH));
+            model.addAttribute("message", 
+            		messages.getMessage("auth.message." + result, null, Locale.ENGLISH));
             return "redirect:/login";
         }
-		
 		return "redirect:/update-password";
 	}
 	
@@ -294,7 +291,8 @@ public class UserController {
 	}
 	
 	@RequestMapping(value = "/update-password", method = RequestMethod.POST)
-    public String updatePasswordPOST(Model model,@Valid @ModelAttribute("ModelPassword") ModelPassword password,
+    public String updatePasswordPOST(Model model,
+    		@Valid @ModelAttribute("ModelPassword") ModelPassword password,
     		BindingResult result){
 		modelPasswordValidator.validate(password, result);
 		if(result.hasErrors()){
@@ -302,8 +300,15 @@ public class UserController {
 			model.addAttribute("ModelPassword", password);
 			return "resetPassword";
 		}
-		
-		userService.checkPasswodAndUpdate((User)  SecurityContextHolder.getContext().getAuthentication().getPrincipal(), password.getPassword());
+		if(!userService.checkPasswodAndUpdate((User)  
+				SecurityContextHolder.getContext().getAuthentication()
+				.getPrincipal(), password.getPassword()))
+		{
+			// show erros old and new passoword equal
+			model.addAttribute("MODE", "CHANGE_PASSWORD");
+			model.addAttribute("ModelPassword", password);
+			return "resetPassword";
+		}
 		// remove permission change password of user
 		SecurityContextHolder.getContext().setAuthentication(null);
 		model.addAttribute("messages", "Update password success");
