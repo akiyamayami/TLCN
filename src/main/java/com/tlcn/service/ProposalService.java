@@ -125,7 +125,7 @@ public class ProposalService {
 			if(isConfirmProposal(proposal)){
 				// notify old proposal have been canceled to user,P.TBVT, driver
 				// and set new proposal to not confirm
-				proposal.setStt(sttProposalService.findOne(0));// set not comfirm
+				//proposal.setStt(sttProposalService.findOne(0));// set not comfirm
 				confirmProposalService.delete(proposal.getInfoconfirm().getConfrimproposalID());
 				notifyEventService.addNotifyToBGMAndPTBVT(proposal);
 				// set notify
